@@ -8,20 +8,22 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        grey1: '#E6E6E6',
-        grey2: '#B3B3B3',
-        grey3: '#808080',
-        grey4: '#4D4D4D',
-        primary: '#00D282',
-        'primary-light': '#5FF19C',
-        'primary-hover': '#CAFCD6',
-        secondary: '#5199FF',
-        'secondary-light': '#96C9FF',
-        black: '#222222',
-        white: '#F7F8F9',
-        bgColor: '#F7F8F9',
-        success: '#FDF37B',
-        negative: '#FF7F6E',
+        bgColor: '#FAF7F5', //화이트 톤
+        btnBlack: '#4A4950', //검은색 버튼
+        btnGrey: '#807E89', //회색 버튼
+        btnMint: '#A3DCCD', //민트색 버튼
+        brown1: '#F4EEEA',
+        brown2: '#EBDED3',
+        brown3: '#E7D4C6',
+        brown4: '#D2C5BE',
+        brown5: '#C6B3AA',
+        brown6: '#B79F93',
+        lightgrey: '#D6D3CD',
+        grey: '#626069',
+        black: '#4A4950',
+
+        primary: '#E7D4D6', //브라운
+        secondary: '#A3DCCD', //민트
       },
       fontFamily: {
         sans: ['Pretendard', 'sans-serif'],
