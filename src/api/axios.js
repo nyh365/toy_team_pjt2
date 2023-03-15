@@ -2,6 +2,7 @@
    defaultApi.get(API, body);
 */
 import axios from 'axios';
+import { getCookie } from 'utils/Cookie';
 import requests from './config';
 
 const BASE_URL = requests.base_url;
@@ -49,17 +50,26 @@ authApi.interceptors.response.use(
     } = error; //비구조화 할당
 
     if (status == 401) {
-      const accessToken = localStorage.getItem('accessToken');
+      // const accessToken = localStorage.getItem('accessToken');
       //accessToken 재발급 요청
-      //Api 주소를 받아오기
-      return refreshTokenApi.get('').then((response) => {
-        const { data } = response;
-        localStorage.setItem('accessToken', data);
-        config.headers.Authorization = accessToken;
+      const userId = localStorage.getItem('userId');
+      const refreshToken = getCookie('refreshToken');
 
-        //새로 받은 토큰으로 로그인 재요청
-        return authApi(config);
-      });
+      //Api 주소를 받아오기
+      return refreshTokenApi
+        .post('/api/auth/reissue', {
+          userId: userId,
+          refreshToken: refreshToken,
+        })
+        .then((response) => {
+          const { data } = response;
+          console.log(data);
+          localStorage.setItem('accessToken', data);
+          config.headers.Authorization = data;
+
+          //새로 받은 토큰으로 로그인 재요청
+          return authApi(config);
+        });
     }
   },
 );

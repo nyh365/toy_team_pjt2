@@ -3,15 +3,15 @@
 
 const requests = {
   //기본 URL 주소
-  base_url: '',
+  base_url: 'http://localhost:3000',
 
   //카카오 소셜로그인 URL(최신화 필요)
   KAKAO_LOGIN:
-    'https://i8a804.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=https://i8a804.p.ssafy.io/room',
+    'http://localhost:8308/api/oauth2/authorize/kakao?redirect_uri=http://localhost:3000/main',
 
   //구글 소셜로그인 URL(최신화 필요)
   GOOGLE_LOGIN:
-    'https://i8a804.p.ssafy.io/api/oauth2/authorize/google?redirect_uri=https://i8a804.p.ssafy.io/room',
+    'http://localhost:8308/api/oauth2/authorize/google?redirect_uri=http://localhost:3000/main',
 
   //회원정보 수정(닉네임 변경)
   PATCH_USER_NICKNAME(userId, code) {
