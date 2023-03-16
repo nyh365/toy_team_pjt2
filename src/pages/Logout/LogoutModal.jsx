@@ -19,7 +19,9 @@ function LogoutModal({ onClose }) {
   const navigate = useNavigate();
 
   const logout = () => {
-    authApi(requests.GET_LOGOUT()).then((response) => {
+    const userId = localStorage.getItem('userId');
+
+    authApi(requests.GET_LOGOUT(userId)).then((response) => {
       // console.log(response);
       if (response.status === 200) {
         localStorage.clear();
