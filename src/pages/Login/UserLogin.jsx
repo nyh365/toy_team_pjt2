@@ -36,14 +36,14 @@ function UserLogin() {
   };
 
   return (
-    <section>
+    <div className="leaves">
       <Leaves />
       <Wrapper>
         <img className="logo" src={logoImage} alt="" />
         <img className="kakao" src={kakaoBtn} onClick={kakaoLogin} alt="" />
         <img className="google" src={googleBtn} onClick={googleLogin} alt="" />
       </Wrapper>
-    </section>
+    </div>
   );
 }
 

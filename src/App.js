@@ -11,6 +11,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import tw, { styled, css } from 'twin.macro';
 import Leaves from './components/common/Leaves';
 import UserLogin from 'pages/Login/UserLogin';
+import Notice from 'pages/Notice/Notice';
 const queryClient = new QueryClient();
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Routes>
             <Route path="/home" element={<Home />} />
             <Route path="/login" element={<UserLogin />} />
+            <Route path="/notice" element={<Notice />} />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>

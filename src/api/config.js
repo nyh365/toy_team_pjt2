@@ -189,8 +189,8 @@ const requests = {
   },
 
   //공지사항 목록 조회
-  GET_NOTICE() {
-    return `/api/notice`;
+  GET_NOTICE(pageNum, pageLimit) {
+    return `/api/notice?page=${pageNum}&limit=${pageLimit}`;
   },
 
   //공지사항 상세 조회
