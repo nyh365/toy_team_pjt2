@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        bgColor: '#FAF7F5', //화이트 톤
+        whiteText: '#FAF7F5', //화이트 톤
         btnBlack: '#4A4950', //검은색 버튼
         btnGrey: '#807E89', //회색 버튼
         btnMint: '#A3DCCD', //민트색 버튼
