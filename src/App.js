@@ -8,8 +8,6 @@ import Home from './pages/Home/Home';
 import { CookiesProvider } from 'react-cookie';
 // react-query
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import tw, { styled, css } from 'twin.macro';
-import Leaves from './components/common/Leaves';
 import UserLogin from 'pages/Login/UserLogin';
 import Notice from 'pages/Notice/Notice';
 const queryClient = new QueryClient();
