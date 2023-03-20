@@ -1,8 +1,14 @@
 import React from 'react';
-import BookItem from 'components/common/BookItem';
+import ChallengeTimer from 'components/common/ChallengeTimer';
+import BookShelf from 'components/common/BookShelf';
 
 function Test() {
-  return <BookItem />;
+  return (
+    <div>
+      {/* <ChallengeTimer /> */}
+      <BookShelf />
+    </div>
+  );
 }
 
 export default Test;
