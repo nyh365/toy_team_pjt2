@@ -7,7 +7,7 @@ import tw, { styled, css } from 'twin.macro';
 
 import BookInfo from './BookInfo';
 
-const BookItemWrapper = styled.div`
+const BookListItemWrapper = styled.div`
   ${tw`px-2`}
 `;
 
@@ -25,7 +25,7 @@ const BookInfoWrapper = styled.div`
 `;
 
 //props로 가져와야하는 정보 : 책 아이디(경로지정용), 책 이미지, 책 정보들(책 제목, 작가명, 댓글 수, 좋아요 수), 책 링크
-function BookItem({
+function BookListItem({
   width,
   height,
   bookId,
@@ -49,7 +49,7 @@ function BookItem({
   };
 
   return (
-    <BookItemWrapper>
+    <BookListItemWrapper>
       <BookImage
         onMouseOver={() => handleHover(true)}
         onMouseOut={() => handleHover(false)}
@@ -60,19 +60,17 @@ function BookItem({
         {/* <img src={bookImg} alt="book" /> */}
       </BookImage>
       <BookInfoWrapper>
-        {isHover ? (
-          <BookInfo
-            title={bookTitle}
-            artist={artistNickname}
-            likes={numOfLike}
-            comments={numOfComment}
-            width={width}
-            height={height}
-          />
-        ) : null}
+        <BookInfo
+          title={bookTitle}
+          artist={artistNickname}
+          likes={numOfLike}
+          comments={numOfComment}
+          width={width}
+          height={height}
+        />
       </BookInfoWrapper>
-    </BookItemWrapper>
+    </BookListItemWrapper>
   );
 }
 
-export default BookItem;
+export default BookListItem;
