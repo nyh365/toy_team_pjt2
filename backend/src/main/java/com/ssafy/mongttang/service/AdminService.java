@@ -4,7 +4,7 @@ import com.ssafy.mongttang.dto.ReqChallengeCreateFormDto;
 import com.ssafy.mongttang.dto.ResponseChallengeInfoDto;
 import com.ssafy.mongttang.dto.ResponseChallengeUpdateDto;
 import com.ssafy.mongttang.entity.Challenge;
-import com.ssafy.mongttang.repository.AdminRepository;
+import com.ssafy.mongttang.repository.ChallengRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AdminService {
-    private final AdminRepository adminRepository;
+    private final ChallengRepository adminRepository;
 
     @Transactional
     public ResponseChallengeInfoDto addNewChallenge(ReqChallengeCreateFormDto reqChallengeCreateFormDto) {

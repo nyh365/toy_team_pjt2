@@ -28,7 +28,8 @@ public class ProfileController{
 
     @ApiOperation(value = "작가 팔로우", notes = "작가를 팔로우 한다.", response = Map.class)
     @PostMapping("/follow/{userId}")
-    public ResponseEntity<Map<String,Object>> followArtist(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId, @ApiParam(value = "작가 아이디", required = true, example = "0") @RequestParam int artistId){
+    public ResponseEntity<Map<String,Object>> followArtist(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId,
+                                                           @ApiParam(value = "작가 아이디", required = true, example = "0") @RequestParam int artistId){
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = null;
 
@@ -49,7 +50,8 @@ public class ProfileController{
 
     @ApiOperation(value = "작가 팔로우 취소", notes = "작가를 팔로우를 취소 한다.", response = Map.class)
     @DeleteMapping("/follow/{userId}")
-    public ResponseEntity<Map<String,Object>> followCancleArtist(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId, @ApiParam(value = "작가 아이디", required = true, example = "0") @RequestParam int artistId){
+    public ResponseEntity<Map<String,Object>> followCancleArtist(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId,
+                                                                 @ApiParam(value = "작가 아이디", required = true, example = "0") @RequestParam int artistId){
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = null;
 
@@ -110,7 +112,8 @@ public class ProfileController{
 
     @ApiOperation(value = "관심 목록 추가", notes = "관심있는 동화를 내 관심목록에 추가한다.", response = Map.class)
     @PostMapping("/interest/{userId}")
-    public ResponseEntity<Map<String,Object>> createInterest(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId, @ApiParam(value = "동화 아이디", required = true, example = "0") @RequestParam int bookId){
+    public ResponseEntity<Map<String,Object>> createInterest(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId,
+                                                             @ApiParam(value = "동화 아이디", required = true, example = "0") @RequestParam int bookId){
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = null;
 
@@ -131,7 +134,8 @@ public class ProfileController{
 
     @ApiOperation(value = "관심 목록 삭제", notes = "관심있는 동화를 내 관심목록에 추가한다.", response = Map.class)
     @DeleteMapping("/interest/{userId}")
-    public ResponseEntity<Map<String,Object>> cancleInterest(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId, @ApiParam(value = "동화 아이디", required = true, example = "0") @RequestParam int bookId){
+    public ResponseEntity<Map<String,Object>> cancleInterest(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId,
+                                                             @ApiParam(value = "동화 아이디", required = true, example = "0") @RequestParam int bookId){
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = null;
 

@@ -7,7 +7,7 @@ import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.awt.print.Book;
+
 
 @Getter
 @Entity
@@ -23,27 +23,19 @@ public class InterestBook {
     private int interestbookId;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "interestbook_user_id")
     private User interestbookUserId;
 
     @NotNull
-    private int interestbookBookId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "interestbook_book_id")
+    private Book interestbookBookId;
 
-    //    @NotNull
-//    @ManyToOne
-//    @JoinColumn(name = "interestbook_user_id")
-//    private Book interestbook_book_id;
-
-    public InterestBook(User user, int bookId) {
+    public InterestBook(User user, Book book) {
         this.interestbookUserId = user;
-        this.interestbookBookId = bookId;
+        this.interestbookBookId = book;
     }
-
-//    public InterestBook(User user, book book) {
-//        this.interestbook_user_id = user;
-//        this.interestbook_book_id = book;
-//    }
 
 
 }

@@ -2,17 +2,17 @@ package com.ssafy.mongttang.service;
 
 import com.ssafy.mongttang.dto.ResponseFollowerDto;
 import com.ssafy.mongttang.dto.ResponseFollowingDto;
-import com.ssafy.mongttang.dto.UserInterface;
+import com.ssafy.mongttang.entity.Book;
 import com.ssafy.mongttang.entity.Follow;
 import com.ssafy.mongttang.entity.InterestBook;
 import com.ssafy.mongttang.entity.User;
+import com.ssafy.mongttang.repository.BookRepository;
 import com.ssafy.mongttang.repository.FollowRepository;
 import com.ssafy.mongttang.repository.InterestBookRepository;
 import com.ssafy.mongttang.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Book;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +24,7 @@ public class ProfileService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
     private final InterestBookRepository interestBookRepository;
+    private final BookRepository bookRepository;
 
     public Follow followArtist(int userId, int artistId) {
         User user = userRepository.findByUserId(userId);
@@ -85,16 +86,13 @@ public class ProfileService {
     public InterestBook createInterest(int userId, int bookId) {
         User user = userRepository.findByUserId(userId);
         //동화 있는지 확인
-//        Book book = booReapository.findByBookId(bookId);
+        Book book = bookRepository.findByBookId(bookId);
 
-//        if(user == null || book == null) return null;
-        if(user == null) return null;
+        if(user == null || book == null) return null;
         else{
-            InterestBook interestBook = interestBookRepository.findByInterestbookUserIdAndInterestbookBookId(user,bookId);
-//            InterestBook interestBook = interestBookRepository.findByUserIdAndBookId(user,book);
+            InterestBook interestBook = interestBookRepository.findByInterestbookUserIdAndInterestbookBookId(user,book);
             if(interestBook == null){
-                return interestBookRepository.save(new InterestBook(user, bookId));
-//                return interestBookRepository.save(new InterestBook(user, book));
+                return interestBookRepository.save(new InterestBook(user, book));
             }
             return null;
         }
@@ -103,13 +101,11 @@ public class ProfileService {
     public int cancleInterest(int userId, int bookId) {
         User user = userRepository.findByUserId(userId);
         //동화 있는지 확인
-//        Book book = bookReapository.findByBookId(bookId);
+        Book book = bookRepository.findByBookId(bookId);
 
-//        if(user == null || book == null) return 0;
-        if(user == null) return 0;
+        if(user == null || book == null) return 0;
         else{
-            InterestBook interestBook = interestBookRepository.findByInterestbookUserIdAndInterestbookBookId(user, bookId);
-//            InterestBook interestBook = interestBookRepository.findByUserIdAndBookId(user, book);
+            InterestBook interestBook = interestBookRepository.findByInterestbookUserIdAndInterestbookBookId(user, book);
             if(interestBook == null) return 0;
             else{
                 interestBookRepository.delete(interestBook);

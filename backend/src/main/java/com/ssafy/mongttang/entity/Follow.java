@@ -25,7 +25,7 @@ public class Follow {
     private int followId;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "follow_from")
     private User followFrom;            //팔로우 하는 사람
 
