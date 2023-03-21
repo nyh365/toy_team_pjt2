@@ -46,7 +46,6 @@ public class User extends BaseEntity {
     private String userInfo;
 
     @Column
-    @ColumnDefault("defaultImg")
     private String userProfileImg;
 
     @Builder
