@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.data.annotation.CreatedDate;
 
@@ -45,6 +46,7 @@ public class User extends BaseEntity {
     private String userInfo;
 
     @Column
+    @ColumnDefault("defaultImg")
     private String userProfileImg;
 
     @Builder
@@ -60,5 +62,15 @@ public class User extends BaseEntity {
 
     public void changeNickname(String nickname) {
         this.userNickname = nickname;
+    }
+
+    public void changeProfileImg(String userProfileImg) {
+        this.userProfileImg = userProfileImg;
+    }
+
+    public void deleteUser() {
+        changeNickname("(알 수 없음)");
+        this.userProfileImg = "defaultImg";
+        this.userProviderId = "del";
     }
 }

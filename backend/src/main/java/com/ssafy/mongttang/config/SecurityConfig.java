@@ -1,5 +1,12 @@
 package com.ssafy.mongttang.config;
 
+import com.ssafy.mongttang.handler.oauth2.OAuth2AuthenticationFailureHandler;
+import com.ssafy.mongttang.handler.oauth2.OAuth2AuthenticationSuccessHandler;
+import com.ssafy.mongttang.repository.HttpCookieOAuth2AuthorizationRequestRepository;
+import com.ssafy.mongttang.security.JwtExceptionFilter;
+import com.ssafy.mongttang.security.TokenAuthenticationFilter;
+import com.ssafy.mongttang.service.CustomOAuth2UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,8 +20,17 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+    private final JwtExceptionFilter jwtExceptionFilter;
+    @Bean
+    public TokenAuthenticationFilter tokenAuthenticationFilter() {
+        return new TokenAuthenticationFilter();
+    }
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
@@ -25,16 +41,41 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         SessionCreationPolicy.STATELESS
                 )
                 .and()
-                .cors().configurationSource(corsConfigurationSource());
-    }
+                .cors().configurationSource(corsConfigurationSource())
 
+                .and()
+                .authorizeRequests()
+
+                .antMatchers("/api/test/test2").hasRole("ARTIST")
+                .and()
+                .oauth2Login()
+                .authorizationEndpoint()
+                .baseUri("/api/oauth2/authorize")
+                .authorizationRequestRepository(cookieAuthorizationRequestRepository())
+                .and()
+                .redirectionEndpoint()
+                .baseUri("/api/oauth2/callback/*")
+                .and()
+                .userInfoEndpoint()
+                .userService(customOAuth2UserService)
+                .and()
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+                .failureHandler(oAuth2AuthenticationFailureHandler);
+
+        httpSecurity.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterBefore(jwtExceptionFilter, TokenAuthenticationFilter.class);
+    }
+    @Bean
+    public HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository() {
+        return new HttpCookieOAuth2AuthorizationRequestRepository();
+    }
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedOrigin("https://j8a308.p.ssafy.io:3000");
-        configuration.addAllowedOrigin("https://j8a3084.p.ssafy.io");
+        configuration.addAllowedOrigin("https://j8a308.p.ssafy.io");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         configuration.setAllowCredentials(true);
