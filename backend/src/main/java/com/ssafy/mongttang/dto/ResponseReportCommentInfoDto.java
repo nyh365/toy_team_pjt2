@@ -15,6 +15,8 @@ public class ResponseReportCommentInfoDto {
     private String reportContent;
     private String reporterNickname;
 
+    private String commentStatus;
+
     public ResponseReportCommentInfoDto(CommentReport commentReport, User user) {
         this.commentId = commentReport.getCommentreportCommentId().getCommentId();
         this.commentContent = commentReport.getCommentreportCommentId().getCommentContent();
@@ -22,5 +24,6 @@ public class ResponseReportCommentInfoDto {
         this.reportCategory = commentReport.getCommentreportCategory();
         this.reportContent = commentReport.getCommentreportContent();
         this.reporterNickname = user.getUserNickname();
+        this.commentStatus = String.valueOf(commentReport.getCommentreportCommentId().getCommentStatus());
     }
 }
