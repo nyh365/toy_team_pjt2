@@ -39,7 +39,6 @@ function ChallengeInfo({ challenge }) {
 
   //챌린지 번호
   const id = challenge.challengeId;
-
   return (
     <Challenge>
       <TextContainer>

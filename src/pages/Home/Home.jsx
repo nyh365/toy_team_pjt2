@@ -28,18 +28,19 @@ function Home() {
           <img src={thisChallenge} alt="" />
         </CTWrapper>
         <ChallengeTimer endDate={challenges.endDate} />
-        <BookShelf
-          books={books}
-          width="w-40"
-          height="h-48"
-          challenge={challenges.challenges[0]}
-        />
-        <BookShelf
-          books={books}
-          width="w-40"
-          height="h-48"
-          challenge={challenges.challenges[1]}
-        />
+
+        {challenges.challenges.map((challenge, index) => {
+          return (
+            <div key={index}>
+              <BookShelf
+                books={books}
+                width="w-40"
+                height="h-48"
+                challenge={challenge}
+              />
+            </div>
+          );
+        })}
       </BodyContainer>
     </div>
   );

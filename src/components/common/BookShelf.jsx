@@ -16,7 +16,7 @@ const ChallengeContainer = styled.div`
 `;
 
 const BookContainer = styled.div`
-  ${tw`flex items-center absolute bottom-20`}
+  ${tw`flex items-center absolute bottom-16`}
 `;
 
 const ShelfWrapper = styled.div`
