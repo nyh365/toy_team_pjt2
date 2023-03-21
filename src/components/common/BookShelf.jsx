@@ -7,30 +7,31 @@ import ChallengeInfo from './ChallengeInfo';
 
 import shelf from '../../assets/images/Shelf.svg';
 
+const ShelfSize = {
+  'b-12': 'flex items-center absolute bottom-12', //p-48기준(선반이 2/3가량만 차게 할 경우)
+  'b-16': 'flex items-center absolute bottom-16', //p-0기준(선반이 화면에 꽉 차게 할 경우)
+};
+
 const ShelfContainer = styled.div`
-  ${tw`relative mt-[12%]`}
+  ${tw`relative mt-[16%]`}
 `;
 
 const ChallengeContainer = styled.div`
   ${tw`flex flex-wrap justify-around`}
 `;
 
-const BookContainer = styled.div`
-  ${tw`flex items-center absolute bottom-16`}
-`;
-
 const ShelfWrapper = styled.div`
   ${tw``}
 `;
 
-function BookShelf({ books, width, height, challenge }) {
+function BookShelf({ books, width, height, challenge, size }) {
   return (
     <ShelfContainer>
       <ChallengeContainer>
-        <BookContainer>
-          <ChallengeInfo challenge={challenge} />
+        <div className={`${ShelfSize[size]}`}>
+          {challenge ? <ChallengeInfo challenge={challenge} /> : null}
           <BookList books={books} width={width} height={height} />
-        </BookContainer>
+        </div>
         <ShelfWrapper>
           <img src={shelf} alt="shelf" />
         </ShelfWrapper>

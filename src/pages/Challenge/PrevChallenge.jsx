@@ -7,7 +7,7 @@ import prevChallenge from '../../assets/images/prevChallenge.png';
 import { books, prevChallenges } from 'api/data';
 
 const BodyContainer = styled.div`
-  ${tw`flex flex-col justify-center pt-[5%]`}
+  ${tw`flex flex-col justify-center pt-[5%] p-48`}
 `;
 
 const CTWrapper = styled.div`
@@ -30,6 +30,7 @@ function PrevChallenge() {
                 width="w-40"
                 height="h-48"
                 challenge={ch}
+                size="b-12"
               />
             </div>
           );

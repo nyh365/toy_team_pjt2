@@ -17,7 +17,11 @@ const CTWrapper = styled.div`
 `;
 
 const BodyContainer = styled.div`
-  ${tw`flex flex-col justify-center pt-[5%]`}
+  ${tw`flex flex-col justify-center pt-[5%] p-48`}
+`;
+
+const ChallengeContainer = styled.div`
+  ${tw`pt-[10%]`}
 `;
 
 function Home() {
@@ -28,19 +32,21 @@ function Home() {
           <img src={thisChallenge} alt="" />
         </CTWrapper>
         <ChallengeTimer endDate={challenges.endDate} />
-
-        {challenges.challenges.map((challenge, index) => {
-          return (
-            <div key={index}>
-              <BookShelf
-                books={books}
-                width="w-40"
-                height="h-48"
-                challenge={challenge}
-              />
-            </div>
-          );
-        })}
+        <ChallengeContainer>
+          {challenges.challenges.map((challenge, index) => {
+            return (
+              <div key={index}>
+                <BookShelf
+                  books={books}
+                  width="w-40"
+                  height="h-48"
+                  challenge={challenge}
+                  size="b-12"
+                />
+              </div>
+            );
+          })}
+        </ChallengeContainer>
       </BodyContainer>
     </div>
   );
