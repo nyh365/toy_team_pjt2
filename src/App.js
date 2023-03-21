@@ -7,6 +7,8 @@ import NavBar from 'components/common/NavBar';
 import Home from './pages/Home/Home';
 import MyProfile from 'pages/MyProfile/MyProfile';
 import MyProfileEdit from 'pages/MyProfile/MyProfileEdit';
+import NicknameEdit from 'pages/MyProfile/NicknameEdit';
+import IntroductionEdit from 'pages/MyProfile/IntroductionEdit';
 // react-cookie
 import { CookiesProvider } from 'react-cookie';
 // react-query
@@ -28,6 +30,11 @@ function App() {
             <Route path="/notice" element={<Notice />} />
             <Route path="/myprofile" element={<MyProfile />} />
             <Route path="/myprofile/edit" element={<MyProfileEdit />} />
+            <Route path="/myprofile/edit/nickname" element={<NicknameEdit />} />
+            <Route
+              path="/myprofile/edit/introduction"
+              element={<IntroductionEdit />}
+            />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>

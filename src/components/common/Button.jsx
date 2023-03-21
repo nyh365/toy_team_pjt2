@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import tw, { styled } from 'twin.macro';
 
 const ButtonContainer = styled.div`
-  ${tw`w-fit h-[24px] p-1 py-[12px] text-sub-bold text-black rounded-full flex justify-center items-center shadow`}
+  ${tw`w-fit h-[24px] p-1 py-[12px] text-sub-bold text-black rounded-full flex justify-center items-center shadow cursor-pointer`}
   ${(props) =>
     props.buttonType === 'mint'
       ? tw`bg-btnMint text-black`

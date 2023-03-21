@@ -18,7 +18,7 @@ const IconWrapper = styled.div`
   ${tw`flex items-center h-[80px] px-4 space-x-2`}
 `;
 const Tab = styled.span`
-  ${tw`text-h3 px-2 hover:text-secondary hover:underline hover:underline-offset-4`}
+  ${tw`text-h3 px-2 hover:text-secondary hover:underline hover:underline-offset-4 cursor-pointer`}
 `;
 function NavBar() {
   const [currentUrl, setCurrentUrl] = useState('');
@@ -26,7 +26,6 @@ function NavBar() {
 
   useEffect(() => {
     setCurrentUrl(location);
-    console.log(currentUrl);
   }, [location]);
   if (location.startsWith('/login')) {
     return null;

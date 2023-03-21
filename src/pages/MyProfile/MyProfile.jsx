@@ -78,6 +78,7 @@ function MyProfile() {
       numOfComment: 14,
     },
   ];
+  //프로필 조회 api사용
   return (
     <div>
       <ProfileContainer>
