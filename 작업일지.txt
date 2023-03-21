@@ -1,0 +1,217 @@
+# 23/03/08
+
+- git setting
+	- 각자 작업물을 올리는 branch는 study_개인 식별자로 결정
+	- main에 관련된 권한 설정
+	- branch naming 변경
+		- git branch는 /를 파일 경로로 인식하여 문제가 생긴다.
+		- 이름을 살짝 변경하여 문제를 우회하기로 결정
+			- 브랜치 처음 생성땐 풀네임, 하위 브랜치는 축약어를 사용한다
+				-  ex) backend => be/develop => be/dev/feature => ...
+
+- nft Sub PJT
+	- 과제 1 : ERC721 구현
+		- openzeppelin의 코드를 직접 쳐보며 문법 및 작동 방식을 익혔다.
+	- 과제 2: NFT Creator 구현
+		- 참고) https://www.youtube.com/watch?v=TYezN5r228U
+			- nft 생성 과정
+			1) 이미지를 ipfs에 올린다.
+			2) metadata JSON 파일을 ipfs에 올린다.
+			3) ERC721민터 코드를 블록체인에 올린다.
+			4) NFT를 민트한다
+			5) 지갑에서 확인한다.
+			
+			- erc721이란?
+				- nft의 표준, ERC20에 토큰 ID, metadata JSON 추가된 것
+				- 토큰 ID? NFT에 붙는 개별 식별 번호 => nft를 고유한 것으로 만든다.
+				- 메타데이터 json => nft에 넣을 정보를 담는 그릇
+
+			- ipfs란?
+				- 위변조 불가능한 저장소
+				- 블록체인을 활용한 p2p 분산형 웹 저장소이다.
+				- 블록체인 자체에 image와 metedata를 넣기엔 비싸기 때문에 ipfs를 사용한다.
+	- 과제 3: 테스트 코드 작성 중
+		- Mocha
+			- truffle은 내부적으로 테스트를 위하여 mocha 프레임워크를 사용한다.
+			- 컨트랙트를 배포한 후, truffle test ./test/<FILENAME>으로 테스트를 실행하면 test 폴더 하위의 js 파일들이 모두 실행된다.
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+# 23/03/09
+
+- nft Sub PJT
+	- 과제 2 수정
+		- Counters.Counter 사용
+			- OpenZeppelin이 제공하는 library.
+			- counter는 storage를 사용하여 thread-safe하게 동작한다. 
+	- 과제 3 test code 작성
+		- web3의 통신 방식
+			- 함수.call()로 함수를 호출할 경우 read only, 즉 local로 작동된다
+			- 함수를 호출할 때, transaction이 발생하는 함수라면, return값은 transaction hash가 된다. 값은 logs[0].args[2]에 들어있다.
+			- transaction이 발생하지 않는 함수라면, return 값은 주어진 대로 온다.
+			- uint 값의 경우 BN(big number)라는 객체의 형식으로 오는데, 숫자처럼 사용이 가능하다.
+	- 과제 4 배포
+		- truffle migrate나 truffle test를 사용하기 위해서는 ganache가 설치되어 있어야 한다.
+		- npm install -g ganache-cli로 설치 가능
+		- 터미널을 하나 더 실행시킨 뒤 ganache-cli로 실행시킨다.
+
+- infra 설계
+	- S3 저장 구조 토의
+		/users
+		  └  /[이용자id]
+			  └  /profile.jpg
+		/books
+		  └  /[챌린지id]
+			  └  /[동화id]
+				  └  /page0.jpg
+				  └  /page1.jpg
+				  └  ...
+
+--------------------------------------------------------------------------------------------
+
+# 23/03/10
+
+- nft 개발
+	- erc721기반 nft 생성 및 전송 테스팅 완료
+	- erc20 기반 토큰 생성 및 테스팅 완료
+	- 고민 사항
+		- 현재 openzeppelin 코드를 import해서 사용 중인데, 직접 개발을 할 것인가?
+		- 어떤 network를 사용할 것인가?
+			=> private network 이용하기로 결정
+
+- infra
+	- ec2인스턴스에 ipfs와 geth 도커 컨테이너 생성해야 한다. 
+		- 성능 제한을 얼마나 둘까?
+
+
+------------------------------------------------------------------------------------
+
+# 23/03/13
+
+- infra
+	- git 접근 권한 변경
+		- backend, frontend, blockchain과 그 하위의 dev 폴더들에 대하여 push 금지 설정
+		- gitIgnore 파일 브랜치에서 생성 후 dev폴더에 merge한 후, 향후 개발하는 브랜치는 dev브랜치에서 사용하도록 약속
+	
+	- ec2 설정
+		- jupyter notebook 설치
+			- 오류가 많이 났다.
+				- 문제 1 : 에러메세지 발생. 켜지기는 하지만 여러 문제가 발생. 이것이 근원적 문제였는지는 알 수 없음.
+					- 오류 : ERROR: nbconvert 7.2.9 has requirement jinja2>=3.0, but you'll have jinja2 2.10.1 which is incompatible.
+					- 해결 :  pip install --upgrade jinja2
+				- 문제 2 : /ImportError: cannot import name 'soft_unicode' from 'markupsafe' (/usr/local/lib/python3.8/dist-packages/markupsafe/__init__.py) 발생. 기존 해결책(2.0.1 설치) 적용 안됨.
+					- 원인 : markupsafe가 제대로 삭제되지 않는 현상으로 추정됨.
+		        			- 해결 : pip uninstall markupsafe로 전부 삭제 후 재설치
+				- 문제 3 : jupytor notebook이 지속적으로 127.0.0.1에서만 실행된다
+					- 원인 : config 파일을 제대로 인식하지 못하고 있음. 문제 1과 연관 가능성 높음
+					- 해결 : jupyter notebook --config=[config파일 경로]로 직접 세팅
+				- 문제 4 : 종료 후 재 실행시 문제 반복
+					- 원인 및 해결 : jupyter noteboot은 root유저를 위한 config 파일이 /root/.jupyter에 별도로 존재한다.
+						sudo명령어로 실행시킬 경우, 이 파일을 읽어오려 시도하기 때문에 세팅이 읽히지 않았던 것이다.
+
+		- nginx 설치 및 설정
+			- 기존에 blue-green 배포 전략이 실패한 이유는 차후 다시 실험하여 재현한 후 질문을 해보도록 하자.
+
+----------------------------------------------------------------------------------
+
+# 23/03/14
+
+- infra
+	- ec2 설정
+		- docker 설치
+		- jenkins(dockerize)
+		- maria db 설치
+			- 기존에는 유저 접속 ip를 %(어디든)으로 주었지만, 이번에는 보안을 위해 제한을 두자
+				- MariaDB 접속 후 : CREATE USER '유저이름'@'접속ip' IDENTIIFED BY '비밀번호';
+				- /etc/mysql/mariadb.conf.d/50-server.cnt에서 bind-address를 접속할 ip로 설정.
+				- 내부에서 접근하게 될 것 같으므로 ec2 로컬 ip를 사용하도록 설정.
+				- 개발 단계에서는 편의를 위해 ip를 열어두자. 잊지 말고 배포시에 변경할 것!
+			
+	- ci/cd 관련 파일들 재정리
+
+-------------------------------------------------------------------------------------
+
+# 23/03/15
+
+- block chain 재기획
+	- 프로세스
+		- 챌린지가 끝나면 각 동화에 nft가 발행된다.
+		- 지난 챌린지는 유료가 되며 이용자가 지불한 금액의 일부는 거래소의 지갑으로, 일부는 토큰에 저장이 된다.
+		- 지불 수단은 자체적으로 발행한 erc20 코인이다.
+		- erc20 코인은 ssf(싸피 코인)과 거래가 가능한 거래소 기능이 존재한다.
+		- nft의 주인은 지갑에서 출금하기 버튼으로 각 nft에 들어있는 거래소 코인을 자신의 지갑에 넣을 수 있다.
+		- 수수료의 지급 방식이 소유자 의존적이지 않기 때문에, 탈중앙화된 nft의 거래가 가능하다.
+	- 구현 페이지
+		- 지갑 페이지
+			- 현재 보유중 ssf 표시
+			- 현재 보유중 erc20 표시
+			- erc20 구매 페이지(미니 거래소)
+			- 현재 보유중인 nft 표시
+			- nft가 저장한 erc20양 표시
+			- nft의 erc 꺼내오는 버튼
+		- 미니 거래소
+			- 실시간으로 매물이 보이는 gui
+			- 매도 기능
+			- 매수 기능
+		- nft 경매소(추가 구현 사항)
+
+# 배운 점
+	프로젝트를 진행함에 있어서 반드시 여러 기술을 사용해보는 것만이 좋은 경험이 아니다.
+	실제 프로세스를 어떻게 구성하였으며 어떤 아이디어로 어떤 서비스를 구현하였는지가 더 중요하다.
+	실제 인터뷰에서도 힘들었던 경험 등에 기술적 구현이 힘들었던 부분보다는 운영적인 부분에서 어려웠던 점을 이야기 해보는 것도 색다를 수 있다.
+------------------------------------------------------------------------------------------------------	
+
+# 23/03/16
+
+- block chain 관련 명세서 추가
+- ipfs 이슈 발견 : local ipfs에서 add한 file을 public에서 access 불가한 문제
+	- peer가 없는 것 확인 : ssafy 방화벽의 문제 가능성
+		- ec2에서 작동 확인 => 설치는 완료했으나 webui 접속 불가. localhost에서도 같은 증상 있는데 원인이 불명임.
+
+-------------------------------------------------------------------------------------------------------------------
+
+# 23/03/17
+
+- 코인 거래관련 백엔드 구현 사항 및 db 토의
+	- 필수 db 구현 사항
+		- 유저 귀속 정보 : ssafy coin 보유량(int), mongttang coin 보유량(int), 보유 nftId(int 배열) =>관리의 편의성을 위하여 user table과 연관관계는 갖지 않기로
+		- 거래소 테이블 : 가격별 매도, 매수량 => 각 가격별로 별도의 테이블 생성하여 사람, 일자, 매도량/매수량 기록.
+	- 필수 api 구현 사항
+		- 개인 보유량/전체 거래량/개인 예약 거래 정보 보기
+		- 거래 요청시 그 이상/이하의 매수/매도 가격이 있다면 선입선출식으로 계산
+		- 입금, 출금시 정산하는 절차
+
+- ipfs setting
+	- 설치 : docker pull ipfs/kubo
+	- 파일 저장 위치 설정
+		- export ipfs_staging=</absolute/path/to/somewhere/> : 입력 데이터 저장하는 곳
+		- export ipfs_data=</absolute/path/to/somewhere_else/>	 : 출력 데이터 저장하는 곳
+	- 도커 실행
+		- docker run -d --name ipfs_host -v $ipfs_staging:/export -v $ipfs_data:/data/ipfs -p 4001:4001 -p 4001:4001/udp -p 127.0.0.1:8080:8080 -p 127.0.0.1:5001:5001 ipfs/kubo:latest
+		- 127.0.0.1(localhost)로 설정하여 외부 연결을 차단한다. 공식 권고 사항. 8080포트는 겹칠 일이 많으므로 잘 바꿔 쓰자.
+		- docker logs -f ipfs_host 로 정상적으로 실행되는지 확인
+	- ipfs 컨테이너에 명령하기
+		- docker exec ipfs_host ipfs swarm peers  피어에 연결한다.
+		- cp -r <something> $ipfs_staging   파일을 staging에 복사한다. -r옵션을 사용해야 폴더 내부의 폴더까지 복사한다.
+		docker exec ipfs_host ipfs add -r /export/<something> 파일을 ipfs에 넣는다.
+	- 공식 설명 : https://docs.ipfs.tech/install/run-ipfs-inside-docker/#set-up
+
+- ipfs 진행 상황
+	- upload(add) 되는 것 확인 완료.
+	- get 요청 저장 위치 확인 안됨(to do)
+	- webui로 접근해서 안뜬다는 이슈 전해받음.
+
+-------------------------------------------------------------------------------------------------------------------
+
+# 23/03/20
+
+- S3 업로더 구현
+	- infra
+		- S3 생성
+		- IAM 계정 생성(S3 권한 전권 허요)
+		- cloudfront 연동
+	- Backend
+		- S3Service 구현
+			- profile의 경우 같은 이름의 파일 삭제 후 업로드. 파일 삭제시 404 not found가 발생 가능하여 해당 함수에 에러처리 해 둠.
+			- book의 경우 반복문으로 작동이 필수적. 해당 파일이 없는 경우 사이즈가 리스트의 크기가 0이므로 반복문이 돌지 않아 별도로 에러 처리하지 않음.
+	- 파일 구조 노션의 convention에 정리.

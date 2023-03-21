@@ -1,0 +1,269 @@
+## smart contract 학습
+	
+- backend setting
+	- 도커로 pre-setting된 MySQL 컨테이너를 pull받아 실행한다.
+		- 윈도우 용 도커는 https://docs.docker.com/desktop/install/windows-install/에서 받은 후 docker -v 를 통해 설치 확인하자.
+		- wsl --update를 먼저 실행시켜 주어야 실행이 된다(시간이 걸리므로 기다리자)
+  - solidity 문법 학습1
+      - 특징
+          - 계약 지향 프로그래밍 언어. 스마트 컨트렉트를 작성할 때 사용된다.
+          - 정적 타입의 언어
+          - Ethereum Virtual Machine(EVM) 위에서 실행됨
+          - 문장의 끝을 ;로 표시한다.
+      - 생김새
+        - 첫 줄에는 license의 정보를 주석으로 입력해야 한다. // SPDX-License-Identifier: MIT
+        - 주석이 아닌 첫 문장은 컴파일러를 위해 pragma solidity ^버전명으로 솔리디티 언어 버전을 명시해야한다. 
+	    - 모든 코드는 컨트랙트 안에서 실행한다. (자바의 클래스와 유사한 개념이다)	
+	```
+    // SPDX-License-Identifier: MIT
+  
+    pragma solidity ^0.4.19;
+             
+    contract PizzaFactory {
+        uint32 a = 5;
+        uint b = a ** 7;
+
+        struct Pizza {
+            string menu;
+  	        uint price;
+        }
+          
+        Pizza[6] classics;
+        bool[] isAvailable;						
+    }
+    ```
+	  - 자료형
+      - uint : 부호없는 정수형. 기본 256비트로 uint32, uint64 등으로 더 작은 비트로 선언 가능하다.
+      - int : 정수형
+      - bool : 논리 자료형
+      - string : UTF-8 인코딩 문자열
+      - bytes : 바이트
+      - address : 이더리움 주소 값
+    - 연산 
+      - 사칙연산, 모듈러 연산(%), 지수연산(**) 지원
+    - 구조체 
+      - struct로 생성하여 컨트랙트 내부에 위치해야 한다.
+    - 배열
+      - 정적 배열 : 미리 크기를 지정
+      - 동적 배열 : 크기 변형 가능(주의 : 크기가 한 칸씩 늘어나므로 생성되지 않은 인덱스에 접근은 불가하다)
+      - new 키워드로 생성 시 길이 인자가 반드시 필요함 ex) new int[](3)
+
+- solidity 문법 학습 2
+	```
+	contract Pasta {
+		uint private ordered = 0;
+
+		function order() internal {
+			ordered++;
+		}
+	}
+
+	contract CreamPasta is Pasta {
+		uint private creamPastaOrdered = 0;
+
+		function orderCream(uint _money) public returns (string) {
+			require(_money >= 15000);
+			creamPastaOrdered++;			
+			order();
+			return "크림파스타 주문 완료";
+		}
+	}
+	```
+	- 접근 제어자
+		- private : 외부에서 호출 불가
+		- public : 기본 속성. 외부 호출 가능.
+		- internal : 외부 호출 불가하지만, 자식 컨트랙트는 호출 가능(자바의 protected와 유사)
+		- external : '외부에서만' 호출 가능
+	- 상속
+		- is를 통하여 상속을 선언		
+	- 함수
+		- function  키워드로 생성
+		- 반환 값이 있다면 return 키워드로 명시적으로 드러내야 한다.
+	- 함수 제어자
+		- view : 컨트랙트의 변수를 읽기만 한다. (상태 변경 x)
+		- pure : 컨트랙트의 변수를 사용하지 않는다.
+		- 접근제어자와 리턴 타입 사이에 선언한다. 
+	- require
+		- 조건이 참인 경우 함수를 실행, 거짓인 경우 에러를 발생시킨다.
+	- 한번에 여러 값을 반환하는 것도 가능하다.
+		- function multi() returns (int a; int b; intc;) ....   return(1,2,3);
+		- 특정한 숫자만 받고 싶을 때
+			```
+			int second;
+			( , second, ) = multi();
+
+- keccak256함수란?
+	- 솔리디티에 내장된 해시 함수로 SHA-3을 사용한다.
+	- keccak256("변환을 원하는 문자열"); 로 해시값을 얻을 수 있다.
+ 
+- 이벤트
+	- 프론트엔드에 데이터를 넘겨주기 위해 활용하는 기능
+	- 예시(솔리디티)
+		```	
+		event onNewTransaction(uint id, uint data);
+
+		function add(uint id, uint data) public returns (uint) {
+			emit onNewTransaction(id, data);
+			return data;
+		}
+		```
+	- 예시(프론트엔드)
+		```
+		Contract.onNewTransactioni((err,res) => {
+			console.log(res.id, res.data);
+		})
+		```
+	- 이벤트는 본문을 구현하지 않고, 이벤트를 전달하는 상황과 이벤트를 정의한다. 프론트엔드에서 이에 대한 콜백 코드를 작성한다.
+	
+- 매핑
+	- 키-값 구조로 데이터를 저장하는 타입
+	- 예시 : mapping(string => address) public idToAddress;
+	- 배열처럼 사용한다. idToAddress[dlshb] = msg.sender;
+
+- msg.sender
+	- 모든 함수에서 이용 가능한 전역 변수이다.
+	- 함수를 호출한 주소를 가리킨다. 
+
+- storage와 memory
+	- 변수를 저장하는 공간으로 storage는 블록체인 상 영구적으로 저장하며, memory는 외부 호출이 일어날 때 초기화되는 임시 저장 장소이다.
+	- 사용법
+		- Sandwich storage mySandwich = sandwiches[3];
+		- Sandwich memory mySandwich = sandwiches[3];
+- solidity 문법 학습 3
+	- 상속과 인터페이스
+		- is 키워드로 컨트랙트를 상속 받을 수 있으며 ,(쉼포)로 다중 상속도 가능하다
+		- super 키워드로 부모 호출이 가능하다.
+		- 부모의 constructor를 사용하기 위해선 함수 body 전에 부모의 constructor를 호출해야 한다.
+		```
+		contract Parent {
+		    uint public value;
+
+		    constructor(uint _value) {
+		        value = _value;
+		    }
+		}
+
+		contract Child is Parent {
+		    constructor(uint _value) Parent(_value * 2) {
+	        // Child constructor logic here
+		    }
+		}
+		```
+		- 인터페이스 특징
+			- 함수는 선언만 하며 기능을 정의하지 않는다.
+			- contract가 interface를 상속 가능하다.
+			- 함수는 모두 external 타입으로
+			- 생성자를 선언할 수 없다
+			- 상태 변수를 선언할 수 없다
+		- 인터페이스 사용
+			- interface 키워드로 사용
+			- 사용시 구현체의 address를 주입하여 사용한다.
+			- 사용 예시
+			```
+			// SPDX-License-Identifier: MIT
+			pragma solidity ^0.8.17;
+
+			contract Counter {
+			    uint public count;
+
+			    function increment() external {
+			        count += 1;
+			    }
+			}
+
+			interface ICounter {
+			    function count() external view returns (uint);
+
+			    function increment() external;
+			}
+
+			contract MyContract {
+			    function incrementCounter(address _
+			) external {
+			        ICounter(_counter).increment();
+			    }
+
+			    function getCount(address _counter) external view returns (uint) {
+			        return ICounter(_counter).count();
+			    }
+			}
+			```
+    - 컨트랙트의 소유권
+        - Ownable.sol 라이브러리를 사용하여 컨트랙트의 소유자만 접근이 가능하도록 설정할 수 있다.
+        - Ownable.sol 라이브러리 전문
+          ```
+          /**
+          * @title Ownable
+          * @dev The Ownable contract has an owner address, and provides basic authorization control
+          * functions, this simplifies the implementation of "user permissions".
+            */
+            contract Ownable {
+            address public owner;
+				
+          event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+				
+          /**
+          * @dev The Ownable constructor sets the original `owner` of the contract to the sender
+          * account.
+            */
+            function Ownable() public {
+            owner = msg.sender;
+            }
+				
+				
+          /**
+          * @dev Throws if called by any account other than the owner.
+            */
+            modifier onlyOwner() {
+            require(msg.sender == owner);
+            _;
+            }
+				
+				
+          /**
+          * @dev Allows the current owner to transfer control of the contract to a newOwner.
+          * @param newOwner The address to transfer ownership to.
+            */
+            function transferOwnership(address newOwner) public onlyOwner {
+            require(newOwner != address(0));
+            OwnershipTransferred(owner, newOwner);
+            owner = newOwner;
+            }
+				
+          }
+          ```
+      - Ownable 함수 : 생성자로 owner 변수를 호출자의 주소로 초기화한다.
+      - onlyOwner 함수 : 함수 제어자로 제어자가 적용된 함수 실행 전 제어자를 호출한다.
+      - 활용법
+        - 적용 코드
+        ```
+        pragma solidity "^0.4.19";
+        import "./ownable.sol"
+			
+        contract myContract is Ownable {
+          function sendEther(address _address, uint _amount) external onlyOwner{
+            send(_address, _amount);
+          }
+        }
+        ```           
+        - import "./ownable.sol" : 라이브러리를 import
+        - contract myContract is Ownable : Ownable을 상속
+        - function sendEther(address _address, uint _amount) external onlyOwner : onlyOwner 함수제어자를 선언
+    - 가스와 최적화
+      - 가스란?
+        - 이더리움 DApp이 사용하는 연료로, 트랜잭션을 수행할 때 마다 가스를 소모한다. 네트워크를 사용하는데 비용을 사용함으로써 방해를 막는다.
+        - 소모량은 함수의 복잡성에 따라 결정되며 (가스 가격) * (사용량)으로 계산된다.
+      - 최적화 방법
+        - 구조체 최적화
+          - 사용할 만큼의 작은 자료형을 구조체 내에 선언하여 자원을 절약한다. ex) uint는 기본 256바이트이지만 uint32로 32바이트로 사용이 가능하다.
+          - 일반적인 변수 사용은 영향을 미치지 않는다.
+        - storage 활용 최소화
+          - 함수 내부에서만 사용할 예정이라면, storage보다는 memory를 활용하자.
+        - external view(pure) 활용
+          - 외부에서 호출되는 view와 pure는 무료로 실행이 가능하다.
+
+- solidity 문법학습 4
+	- Counters.Counter
+		- 비순차적인 고유값을 관리하는 라이브러리로 id등을 사용해야할 때 유용하다.
+			- uint _id를 선언하고 id++을 이용할 경우, 동시에 여러 컨트렉트가 값을 증가시키려 할 때 문제가 발생할 수 있다.
+			- Counters라이브러리는 storage로 counter를 선언하여 thread-safe하게 동작함.
