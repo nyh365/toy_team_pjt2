@@ -4,7 +4,7 @@ import tw, { styled, css } from 'twin.macro';
 import challengeBg from '../../assets/images/challengeInfo.svg';
 
 const Challenge = styled.div`
-  ${tw`relative `}
+  ${tw`relative top-2`}
 `;
 
 const ImageWrapper = styled.div`
@@ -30,18 +30,15 @@ const LinkWrapper = styled.div`
 `;
 
 function ChallengeInfo({ challenge }) {
-  // const title = challenge.challengeTitle;
-  const title = '토끼와거북이';
+  const title = challenge.challengeTitle;
 
-  // const content = challenge.challengeSummary;
-  const content = `옛날 옛적에, 토끼와 거북이가 살고 있었다. 토끼는 매우 빨랐고, 거북이는 매우 느렸다. 어느날..ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ`;
+  const content = challenge.challengeSummary;
 
   //참가자수
-  // const participant = challenge.challengeParticipants;
+  const participant = challenge.challengeParticipants;
 
   //챌린지 번호
-  // const id = challenge.challengeId;
-  const id = 10;
+  const id = challenge.challengeId;
 
   return (
     <Challenge>

@@ -36,7 +36,7 @@ function BookInfo({ title, artist, likes, comments, width, height }) {
   return (
     <BookInfoWrapper className={`${width} ${height}`}>
       <Title>제목</Title>
-      <SubInfoContainer className={`${width}`}>
+      <SubInfoContainer className={`${width}-1`}>
         <Artist>
           <img src={ProfileIcon} width={16} height={16} alt="" />
           작가명
