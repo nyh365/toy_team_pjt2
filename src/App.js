@@ -6,6 +6,7 @@ import NavBar from 'components/common/NavBar';
 // component
 import Home from './pages/Home/Home';
 import MyProfile from 'pages/MyProfile/MyProfile';
+import MyProfileEdit from 'pages/MyProfile/MyProfileEdit';
 // react-cookie
 import { CookiesProvider } from 'react-cookie';
 // react-query
@@ -19,13 +20,14 @@ function App() {
     <CookiesProvider>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter className="App">
-          {/* <NavBar /> */}
+          <NavBar />
           <Routes>
             <Route path="/" element={<Test />} />
             <Route path="/home" element={<Home />} />
             <Route path="/login" element={<UserLogin />} />
             <Route path="/notice" element={<Notice />} />
             <Route path="/myprofile" element={<MyProfile />} />
+            <Route path="/myprofile/edit" element={<MyProfileEdit />} />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>

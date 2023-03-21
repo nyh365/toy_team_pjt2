@@ -3,7 +3,7 @@ import BookListItem from './BookListItem';
 import tw, { styled, css } from 'twin.macro';
 
 const BookListWrapper = styled.div`
-  ${tw`flex flex-wrap`}
+  ${tw`flex flex-wrap py-2`}
 `;
 
 function BookList({ width, height, books }) {

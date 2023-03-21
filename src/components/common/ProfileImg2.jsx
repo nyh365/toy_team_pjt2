@@ -4,7 +4,7 @@ import tw, { styled, css } from 'twin.macro';
 import UserIcon from 'assets/images/UserIcon.svg';
 
 const Avatar = styled.div`
-  ${tw`bg-primary border-b border-black rounded-full w-[167px] h-[167px] bg-cover bg-center mt-4 mr-2`}
+  ${tw`bg-primary border-b border-black rounded-full w-[167px] h-[167px] bg-cover bg-center mt-4`}
   ${(props) =>
     props.img
       ? css`
