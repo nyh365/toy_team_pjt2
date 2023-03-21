@@ -70,7 +70,6 @@ public class User extends BaseEntity {
 
     public void deleteUser() {
         changeNickname("(알 수 없음)");
-        this.userProfileImg = "defaultImg";
         this.userProviderId = "del";
     }
 }

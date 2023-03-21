@@ -78,9 +78,14 @@ public class UserController {
     @ApiOperation(value = "프로필 사진 수정", notes = "회원의 프로필 사진을 수정한다.", response = Map.class)
     @PatchMapping("/image/{userId}")
     public ResponseEntity<Map<String,Object>> profileImgModify(@ApiParam(value = "프로필 사진을 수정할 회원의 아이디", required = true, example = "1") @PathVariable int userId,
-                                                             @ApiParam(value = "변경할 프로필 사진", required = true) @RequestParam MultipartFile userImg){
+                                                             @ApiParam(value = "변경할 프로필 사진", required = true) @RequestParam MultipartFile userImg, Principal principal, HttpServletRequest request){
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = null;
+
+        if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
+            status = HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        }
 
         try {
             String profileImgURL = userService.profileImgModify(userId, userImg);
