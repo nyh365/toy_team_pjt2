@@ -23,7 +23,6 @@ const BodyContainer = styled.div`
 function Home() {
   return (
     <div>
-      <NavBar />
       <BodyContainer>
         <CTWrapper>
           <img src={thisChallenge} alt="" />
