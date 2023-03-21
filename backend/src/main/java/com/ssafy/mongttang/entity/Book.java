@@ -1,7 +1,7 @@
 package com.ssafy.mongttang.entity;
 
-import com.ssafy.mongttang.dto.ReqSaveBookDto;
-import com.ssafy.mongttang.dto.ReqTemporarySaveBookDto;
+import com.ssafy.mongttang.dto.ReqCreateBookDto;
+import com.ssafy.mongttang.dto.ReqUpdateBookDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,7 +45,7 @@ public class Book extends BaseEntity {
     private String bookStatus;
 
     @Builder
-    public Book(Challenge challenge, User user, ReqSaveBookDto dto){
+    public Book(Challenge challenge, User user, ReqCreateBookDto dto){
         this.bookChallengeId = challenge;
         this.bookUserId = user;
         this.bookTitle = dto.getBookTitle();
@@ -53,7 +53,7 @@ public class Book extends BaseEntity {
         this.bookContent = dto.getBookContent();
         this.bookStatus = dto.getIsComplete();
     }
-    public void changeContent(ReqTemporarySaveBookDto dto) {
+    public void changeContent(ReqUpdateBookDto dto) {
         this.bookTitle = dto.getBookTitle();
         this.bookSummary = dto.getBookSummary();
         this.bookContent = dto.getBookContent();

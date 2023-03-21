@@ -5,7 +5,7 @@ import lombok.Getter;
 import javax.validation.constraints.NotNull;
 
 @Getter
-public class ReqTemporarySaveBookDto {
+public class ReqUpdateBookDto {
     @NotNull
     private int challengeId;
     @NotNull

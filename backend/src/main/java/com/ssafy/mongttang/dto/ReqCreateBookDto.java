@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Getter
-public class ReqSaveBookDto {
+public class ReqCreateBookDto {
 
     @NotNull
     private int challengeId;

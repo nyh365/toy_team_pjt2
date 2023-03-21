@@ -1,8 +1,7 @@
 package com.ssafy.mongttang.service;
 
-import com.amazonaws.internal.ListWithAutoConstructFlag;
-import com.ssafy.mongttang.dto.ReqSaveBookDto;
-import com.ssafy.mongttang.dto.ReqTemporarySaveBookDto;
+import com.ssafy.mongttang.dto.ReqCreateBookDto;
+import com.ssafy.mongttang.dto.ReqUpdateBookDto;
 import com.ssafy.mongttang.entity.Book;
 import com.ssafy.mongttang.entity.Challenge;
 import com.ssafy.mongttang.entity.Illust;
@@ -13,7 +12,6 @@ import com.ssafy.mongttang.repository.IllustRepository;
 import com.ssafy.mongttang.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -28,12 +26,12 @@ public class BookService {
     private final IllustRepository illustRepository;
     private final S3Service s3Service;
 
-    public int createBook(int userId, ReqSaveBookDto reqSaveBookDto, ArrayList<MultipartFile> imgList) throws IOException {
+    public int createBook(int userId, ReqCreateBookDto reqCreateBookDto, ArrayList<MultipartFile> imgList) throws IOException {
         User user = userRepository.findByUserId(userId);
-        Challenge challenge = challengeRepository.findByChallengeId(reqSaveBookDto.getChallengeId());
+        Challenge challenge = challengeRepository.findByChallengeId(reqCreateBookDto.getChallengeId());
         if(user == null || challenge == null || !user.getUserRole().equals("ROLE_ARTIST")) return 0;
 
-        Book book = bookRepository.save(new Book(challenge,user,reqSaveBookDto));
+        Book book = bookRepository.save(new Book(challenge,user,reqCreateBookDto));
 
         if(book == null) return 0;
         else{
@@ -44,21 +42,21 @@ public class BookService {
             if(illustList.size() == imgList.size()) return book.getBookId();
             else{
                 bookRepository.delete(book);
-                s3Service.deleteFolder("books/" + reqSaveBookDto.getChallengeId() + "/" + book.getBookId());
+                s3Service.deleteFolder("books/" + reqCreateBookDto.getChallengeId() + "/" + book.getBookId());
 
                 return 0;
             }
         }
     }
 
-    public int updateBook(int userId, ReqTemporarySaveBookDto reqTemporarySaveBookDto, ArrayList<MultipartFile> imgList) throws IOException {
+    public int updateBook(int userId, ReqUpdateBookDto reqUpdateBookDto, ArrayList<MultipartFile> imgList) throws IOException {
         User user = userRepository.findByUserId(userId);
-        Challenge challenge = challengeRepository.findByChallengeId(reqTemporarySaveBookDto.getChallengeId());
-        Book book = bookRepository.findByBookId(reqTemporarySaveBookDto.getBookId());
+        Challenge challenge = challengeRepository.findByChallengeId(reqUpdateBookDto.getChallengeId());
+        Book book = bookRepository.findByBookId(reqUpdateBookDto.getBookId());
         if(user == null || challenge == null || book == null || book.getBookStatus().equals("complete")
             || user.getUserId() != book.getBookUserId().getUserId() || !user.getUserRole().equals("ROLE_ARTIST")) return 0;
 
-        book.changeContent(reqTemporarySaveBookDto);
+        book.changeContent(reqUpdateBookDto);
 
         bookRepository.save(book);
             ArrayList<String> imgPathList = s3Service.uploadBook(imgList, book.getBookChallengeId().getChallengeId(), book.getBookId());
@@ -68,7 +66,7 @@ public class BookService {
             if(illustList.size() == imgList.size()) return book.getBookId();
             else{
                 bookRepository.delete(book);
-                s3Service.deleteFolder("books/" + reqTemporarySaveBookDto.getChallengeId() + "/" + book.getBookId());
+                s3Service.deleteFolder("books/" + reqUpdateBookDto.getChallengeId() + "/" + book.getBookId());
 
                 return 0;
             }
@@ -108,19 +106,4 @@ public class BookService {
         }
         return illustList;
     }
-//
-//    public ArrayList<Illust> deletePhoto(Book book, ArrayList<MultipartFile> imgList, ArrayList<String> imgPathList){
-//        illustRepository.deleteByIllustBookId(book);
-//
-//        ArrayList<Illust> illustList = new ArrayList<>();
-//
-//        for (int i = 0; i < imgList.size(); i++) {
-//            String illustOriginalFilename = imgList.get(i).getOriginalFilename();
-//            String illustFilePath = imgPathList.get(i);
-//            illustList.add(illustRepository.save(new Illust(book, illustOriginalFilename, illustFilePath, i)));
-//        }
-//        return illustList;
-//    }
-
-
 }
