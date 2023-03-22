@@ -16,7 +16,9 @@ const Avatar = styled.div`
 function ProfileImg({ userImg }) {
   return (
     <div>
-      <Avatar img={userImg} />
+      <div>
+        {userImg ? <Avatar img={userImg} /> : <Avatar img={UserIcon} />}
+      </div>
     </div>
   );
 }
