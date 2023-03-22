@@ -7,6 +7,8 @@ export default {
     },
     actions: {
       // action functions
+      getAddress(){
+      }
     },
     getters: {
       // getter functions

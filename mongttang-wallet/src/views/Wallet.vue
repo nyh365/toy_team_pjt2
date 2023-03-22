@@ -1,18 +1,37 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  현재 주소 : {{ address }}
+  <TokenBalance></TokenBalance>
+  <NFTList></NFTList>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import TokenBalance from '@/components/wallet/TokenBalance.vue';
+import NFTList from '@/components/wallet/NFTList.vue';
+
+// import { API_BASE_URL } from '@/config';
 
 export default {
-  name: 'HomeView',
+  name: 'WalletView',
+  created() {
+    this.getAddress();
+  },
+  data() {
+    return {
+      address : 1324,
+    }
+  },
+  methods: {
+    getAddress() {
+      let id = `123`;
+      this.$store.dispatch("getAddress", id);    
+    //   axios.get(`${API_BASE_URL}/api/user`, {}).then(res => {
+    //     console.log(res.data);
+    //   })  
+    }
+  },
   components: {
-    HelloWorld
+    TokenBalance,
+    NFTList,
   }
 }
 </script>
