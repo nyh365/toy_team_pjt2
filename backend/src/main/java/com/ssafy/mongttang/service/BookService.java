@@ -29,7 +29,7 @@ public class BookService {
     public int createBook(int userId, ReqCreateBookDto reqCreateBookDto, ArrayList<MultipartFile> imgList) throws IOException {
         User user = userRepository.findByUserId(userId);
         Challenge challenge = challengeRepository.findByChallengeId(reqCreateBookDto.getChallengeId());
-        if(user == null || challenge == null || !user.getUserRole().equals("ROLE_ARTIST")) return 0;
+        if(user == null || challenge == null) return 0;
 
         Book book = bookRepository.save(new Book(challenge,user,reqCreateBookDto));
 
@@ -54,7 +54,7 @@ public class BookService {
         Challenge challenge = challengeRepository.findByChallengeId(reqUpdateBookDto.getChallengeId());
         Book book = bookRepository.findByBookId(reqUpdateBookDto.getBookId());
         if(user == null || challenge == null || book == null || book.getBookStatus().equals("complete")
-            || user.getUserId() != book.getBookUserId().getUserId() || !user.getUserRole().equals("ROLE_ARTIST")) return 0;
+            || user.getUserId() != book.getBookUserId().getUserId()) return 0;
 
         book.changeContent(reqUpdateBookDto);
 

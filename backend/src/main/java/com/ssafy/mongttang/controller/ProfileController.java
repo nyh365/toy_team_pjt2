@@ -28,19 +28,19 @@ public class ProfileController{
 
     private final ProfileService profileService;
 
-    @ApiOperation(value = "작가 팔로우", notes = "작가를 팔로우 한다.", response = Map.class)
-    @PostMapping("/follow/{userId}")
-    public ResponseEntity<Map<String,Object>> followArtist(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId,
-                                                           @ApiParam(value = "작가 아이디", required = true, example = "0") @RequestParam int artistId, Principal principal){
+    @ApiOperation(value = "팔로우", notes = "팔로우 한다.", response = Map.class)
+    @PostMapping("/follow/{followFromId}")
+    public ResponseEntity<Map<String,Object>> createFollow(@ApiParam(value = "팔로우 하는 사용자 아이디", required = true, example = "0") @PathVariable int followFromId,
+                                                           @ApiParam(value = "팔로우 당하는 사용자 아이디", required = true, example = "0") @RequestParam int followToId, Principal principal){
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = null;
 
-        if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
+        if(TokenUtils.compareUserIdAndToken(followFromId, principal,resultMap)) {
             status = HttpStatus.BAD_REQUEST;
             return new ResponseEntity<Map<String, Object>>(resultMap, status);
         }
 
-        Follow follow = profileService.followArtist(userId,artistId);
+        Follow follow = profileService.followArtist(followFromId,followToId);
 
         if(follow != null){
             resultMap.put(MESSAGE,SUCCESS);
@@ -55,19 +55,19 @@ public class ProfileController{
         return new ResponseEntity<Map<String, Object>>(resultMap, status);
     }
 
-    @ApiOperation(value = "작가 팔로우 취소", notes = "작가를 팔로우를 취소 한다.", response = Map.class)
-    @DeleteMapping("/follow/{userId}")
-    public ResponseEntity<Map<String,Object>> followCancleArtist(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId,
-                                                                 @ApiParam(value = "작가 아이디", required = true, example = "0") @RequestParam int artistId, Principal principal){
+    @ApiOperation(value = "팔로우 취소", notes = "팔로잉을 취소한다.", response = Map.class)
+    @DeleteMapping("/follow/{followFromId}")
+    public ResponseEntity<Map<String,Object>> cancleFollow(@ApiParam(value = "팔로우 하는 사용자 아이디", required = true, example = "0") @PathVariable int followFromId,
+                                                                 @ApiParam(value = "팔로우 당하는 사용자 아이디", required = true, example = "0") @RequestParam int followToId, Principal principal){
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = null;
 
-        if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
+        if(TokenUtils.compareUserIdAndToken(followFromId, principal,resultMap)) {
             status = HttpStatus.BAD_REQUEST;
             return new ResponseEntity<Map<String, Object>>(resultMap, status);
         }
 
-        int isDeleted= profileService.followCancleArtist(userId,artistId);
+        int isDeleted= profileService.followCancleArtist(followFromId,followToId);
 
         if(isDeleted > 0){
             resultMap.put(MESSAGE,SUCCESS);
@@ -84,14 +84,9 @@ public class ProfileController{
 
     @ApiOperation(value = "팔로잉 목록 조회", notes = "자신이 팔로우한 사용자의 목록을 조회한다.", response = Map.class)
     @GetMapping("/following/{userId}")
-    public ResponseEntity<Map<String,Object>> getFollowing(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId, Principal principal){
+    public ResponseEntity<Map<String,Object>> getFollowing(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId){
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = null;
-
-        if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
-            status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
-        }
 
         List<ResponseFollowingDto> followings = profileService.getFollowing(userId);
 
@@ -109,14 +104,9 @@ public class ProfileController{
 
     @ApiOperation(value = "팔로워 목록 조회", notes = "자신을 팔로우한 사용자의 목록을 조회한다.", response = Map.class)
     @GetMapping("/follower/{userId}")
-    public ResponseEntity<Map<String,Object>> getFollower(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId, Principal principal){
+    public ResponseEntity<Map<String,Object>> getFollower(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId){
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = null;
-
-        if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
-            status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
-        }
 
         List<ResponseFollowerDto> followers = profileService.getFollower(userId);
 

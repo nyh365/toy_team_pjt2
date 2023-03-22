@@ -34,8 +34,8 @@ public class Follow {
     @JoinColumn(name = "follow_to")
     private User followTo;           //팔로우 당한 사람
 
-    public Follow(User user, User artist) {
-        this.followFrom = user;
-        this.followTo = artist;
+    public Follow(User followFrom, User followTo) {
+        this.followFrom = followFrom;
+        this.followTo = followTo;
     }
 }
