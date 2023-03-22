@@ -32,4 +32,8 @@ public class Comment extends BaseEntity{
     @Column(columnDefinition = "boolean default true")
     private Boolean commentStatus;
 
+    public void changeStatus(){
+        this.commentStatus = false;
+    }
+
 }

@@ -59,4 +59,8 @@ public class Book extends BaseEntity {
         this.bookContent = dto.getBookContent();
         this.bookStatus = dto.getIsComplete();
     }
+
+    public void changeStatus(){
+        this.bookStatus = "delete";
+    }
 }
