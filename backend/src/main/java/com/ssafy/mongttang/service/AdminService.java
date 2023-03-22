@@ -1,6 +1,7 @@
 package com.ssafy.mongttang.service;
 
 import com.ssafy.mongttang.dto.ReqChallengeCreateFormDto;
+import com.ssafy.mongttang.dto.ResponseBookInfoDto;
 import com.ssafy.mongttang.dto.ResponseChallengeInfoDto;
 import com.ssafy.mongttang.dto.ResponseChallengeUpdateDto;
 import com.ssafy.mongttang.entity.Book;
@@ -10,11 +11,16 @@ import com.ssafy.mongttang.repository.BookRepository;
 import com.ssafy.mongttang.repository.ChallengRepository;
 import com.ssafy.mongttang.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,6 +29,8 @@ public class AdminService {
     private final ChallengRepository challengRepository;
     private final BookRepository bookRepository;
     private final CommentRepository commentRepository;
+
+    private final RedisTemplate redisTemplate;
 
     @Transactional
     public ResponseChallengeInfoDto addNewChallenge(ReqChallengeCreateFormDto reqChallengeCreateFormDto) {
@@ -61,5 +69,33 @@ public class AdminService {
         if(comment == null) return null;
         comment.changeStatus();
         return commentRepository.save(comment);
+    }
+
+    public int discountBook(int bookId, LocalDateTime endDate) {
+        Long curTime = Timestamp.valueOf(LocalDateTime.now()).getTime();
+        Long endTime = Timestamp.valueOf(endDate).getTime();
+        Book book = bookRepository.findByBookId(bookId);
+        if(book == null) return 0;
+        Long expiration = endTime - curTime;
+        redisTemplate.opsForValue()
+                .set("DC:" + bookId, String.valueOf(endTime), expiration, TimeUnit.MILLISECONDS);
+        return 1;
+    }
+
+    public List<ResponseBookInfoDto> getBooks() {
+        List<Book> bookList = bookRepository.findAllBooks();
+        List<ResponseBookInfoDto> resultBooks = new ArrayList<>();
+        for(Book book: bookList){
+            if(((String) redisTemplate.opsForValue().get("DC:" + book.getBookId())) != null) {
+                resultBooks.add(new ResponseBookInfoDto(book, "discount"));
+                continue;
+            }
+            if(((String) redisTemplate.opsForValue().get("FREE:" + book.getBookId())) != null){
+                resultBooks.add(new ResponseBookInfoDto(book, "free"));
+                continue;
+            }
+            resultBooks.add(new ResponseBookInfoDto(book, "pay"));
+        }
+        return resultBooks;
     }
 }
