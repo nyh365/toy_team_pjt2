@@ -1,16 +1,10 @@
 package com.ssafy.mongttang.service;
 
-import com.ssafy.mongttang.dto.ReqCreateBookDto;
-import com.ssafy.mongttang.dto.ReqUpdateBookDto;
-import com.ssafy.mongttang.entity.Book;
-import com.ssafy.mongttang.entity.Challenge;
-import com.ssafy.mongttang.entity.Illust;
-import com.ssafy.mongttang.entity.User;
-import com.ssafy.mongttang.repository.BookRepository;
-import com.ssafy.mongttang.repository.ChallengRepository;
-import com.ssafy.mongttang.repository.IllustRepository;
-import com.ssafy.mongttang.repository.UserRepository;
+import com.ssafy.mongttang.dto.*;
+import com.ssafy.mongttang.entity.*;
+import com.ssafy.mongttang.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +18,10 @@ public class BookService {
     private final ChallengRepository challengeRepository;
     private final BookRepository bookRepository;
     private final IllustRepository illustRepository;
+    private final BookLikeRepository bookLikeRepository;
+    private final CommentRepository commentRepository;
+    private final CommentLikeRepository commentLikeRepository;
+    private final CommentReportRepository commentReportRepository;
     private final S3Service s3Service;
 
     public int createBook(int userId, ReqCreateBookDto reqCreateBookDto, ArrayList<MultipartFile> imgList) throws IOException {
@@ -105,5 +103,138 @@ public class BookService {
             illustList.add(illustRepository.save(new Illust(book, illustOriginalFilename, illustFilePath, i)));
         }
         return illustList;
+    }
+
+    public BookLike createBookLike(int userId, int bookId) {
+        User user = userRepository.findByUserId(userId);
+        Book book = bookRepository.findByBookId(bookId);
+
+        if(user == null || book == null) return null;
+        else{
+            BookLike bookLike = bookLikeRepository.findByBooklikeBookIdAndBooklikeUserId(book,userId);
+            if(bookLike == null) {
+                return bookLikeRepository.save(new BookLike(book, userId,book.getBookChallengeId().getChallengeId()));
+            }
+            return bookLike;
+        }
+    }
+
+    public int cancleBookLike(int userId, int bookId) {
+        User user = userRepository.findByUserId(userId);
+        Book book = bookRepository.findByBookId(bookId);
+
+        if(user == null || book == null) return 0;
+        else{
+            BookLike bookLike = bookLikeRepository.findByBooklikeBookIdAndBooklikeUserId(book, userId);
+            if(bookLike == null) return 0;
+            else{
+                bookLikeRepository.delete(bookLike);
+                return 1;
+            }
+        }
+    }
+
+    public ArrayList<ResponseCommentDto> createComment(ReqCreateCommentDto reqCreateCommentDto) {
+        User user = userRepository.findByUserId(reqCreateCommentDto.getCommentUserId());
+        Book book = bookRepository.findByBookId(reqCreateCommentDto.getCommentBookId());
+        commentRepository.save(new Comment(book, user, reqCreateCommentDto.getCommentContent()));
+
+        ArrayList<Comment> commentList = commentRepository.findByCommentBookId(book);
+        ArrayList<ResponseCommentDto> comments = new ArrayList<>();
+
+        for(Comment comment : commentList){
+            int numOfLike = commentLikeRepository.countByCommentlikeCommentId(comment);
+            CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(comment,reqCreateCommentDto.getCommentUserId());
+            boolean isLiked = true;
+            if(commentLike == null) isLiked = false;
+
+            CommentReport commentReport = commentReportRepository.findCommentReportByCommentreportCommentId_CommentIdAndCommentreportReportUserId(comment.getCommentId(),reqCreateCommentDto.getCommentUserId());
+            boolean isReported = true;
+            if(commentReport == null) isReported = false;
+
+            comments.add(new ResponseCommentDto(comment,numOfLike,isLiked,isReported));
+        }
+
+        return comments;
+    }
+
+    public ArrayList<ResponseCommentDto> updateComment(ReqUpdateCommentDto reqUpdateCommentDto) {
+        User user = userRepository.findByUserId(reqUpdateCommentDto.getCommentUserId());
+        Book book = bookRepository.findByBookId(reqUpdateCommentDto.getCommentBookId());
+        Comment comment = commentRepository.findCommentByCommentId(reqUpdateCommentDto.getCommentId());
+
+        if(comment != null && comment.getCommentUserId() == user && comment.getCommentBookId() == book){
+            comment.changeContent(reqUpdateCommentDto.getCommentContent());
+            commentRepository.save(comment);
+
+            ArrayList<Comment> commentList = commentRepository.findByCommentBookId(book);
+            ArrayList<ResponseCommentDto> comments = new ArrayList<>();
+
+            for(Comment ment : commentList){
+                int numOfLike = commentLikeRepository.countByCommentlikeCommentId(ment);
+                CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(ment,reqUpdateCommentDto.getCommentUserId());
+                boolean isLiked = true;
+                if(commentLike == null) isLiked = false;
+
+                CommentReport commentReport = commentReportRepository.findCommentReportByCommentreportCommentId_CommentIdAndCommentreportReportUserId(ment.getCommentId(),reqUpdateCommentDto.getCommentUserId());
+                boolean isReported = true;
+                if(commentReport == null) isReported = false;
+
+                comments.add(new ResponseCommentDto(ment,numOfLike,isLiked,isReported));
+            }
+            return comments;
+        }
+        return null;
+    }
+
+    public ArrayList<ResponseCommentDto> deleteComment(int commentId, int commentUserId) {
+        User user = userRepository.findByUserId(commentUserId);
+        Comment comment = commentRepository.findCommentByCommentId(commentId);
+
+        if(comment != null && comment.getCommentUserId() == user){
+            commentRepository.delete(comment);
+
+            ArrayList<Comment> commentList = commentRepository.findByCommentBookId(comment.getCommentBookId());
+            ArrayList<ResponseCommentDto> comments = new ArrayList<>();
+
+            for(Comment ment : commentList){
+                int numOfLike = commentLikeRepository.countByCommentlikeCommentId(ment);
+                CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(ment,commentUserId);
+                boolean isLiked = true;
+                if(commentLike == null) isLiked = false;
+
+                CommentReport commentReport = commentReportRepository.findCommentReportByCommentreportCommentId_CommentIdAndCommentreportReportUserId(ment.getCommentId(),commentUserId);
+                boolean isReported = true;
+                if(commentReport == null) isReported = false;
+
+                comments.add(new ResponseCommentDto(ment,numOfLike,isLiked,isReported));
+            }
+            return comments;
+        }
+        return null;
+    }
+
+    public CommentLike createCommentLike(int userId, int commentId) {
+
+        User user = userRepository.findByUserId(userId);
+        Comment comment = commentRepository.findCommentByCommentId(commentId);
+
+        if(user == null || comment == null) return null;
+        else{
+            CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(comment,userId);
+            if(commentLike == null) {
+                return commentLikeRepository.save(new CommentLike(comment, userId));
+            }
+            return commentLike;
+        }
+    }
+
+    public int deleteCommentLike(int userId, int commentId) {
+        Comment comment = commentRepository.findCommentByCommentId(commentId);
+
+        CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(comment,userId);
+        if(commentLike == null)  return 0;
+        commentLikeRepository.delete(commentLike);
+        return 1;
     }
 }

@@ -25,7 +25,7 @@ public class Book extends BaseEntity {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "challenge_id")
+    @JoinColumn(name = "book_challenge_id")
     private Challenge bookChallengeId;
 
     @NotNull

@@ -26,7 +26,7 @@ public class ProfileService {
     private final InterestBookRepository interestBookRepository;
     private final BookRepository bookRepository;
 
-    public Follow followArtist(int followFromId, int followToId) {
+    public Follow createFollow(int followFromId, int followToId) {
         User followFrom = userRepository.findByUserId(followFromId);
         User followTo = userRepository.findByUserId(followToId);
         if(followFrom == null || followTo == null) return null;
@@ -39,7 +39,7 @@ public class ProfileService {
         }
     }
 
-    public int followCancleArtist(int followFromId, int followToId) {
+    public int cancleFollow(int followFromId, int followToId) {
         User followFrom = userRepository.findByUserId(followFromId);
         User followTo = userRepository.findByUserId(followToId);
         if(followFrom == null || followTo == null) return 0;

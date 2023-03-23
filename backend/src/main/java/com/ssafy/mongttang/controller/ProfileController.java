@@ -40,7 +40,7 @@ public class ProfileController{
             return new ResponseEntity<Map<String, Object>>(resultMap, status);
         }
 
-        Follow follow = profileService.followArtist(followFromId,followToId);
+        Follow follow = profileService.createFollow(followFromId,followToId);
 
         if(follow != null){
             resultMap.put(MESSAGE,SUCCESS);
@@ -67,7 +67,7 @@ public class ProfileController{
             return new ResponseEntity<Map<String, Object>>(resultMap, status);
         }
 
-        int isDeleted= profileService.followCancleArtist(followFromId,followToId);
+        int isDeleted= profileService.cancleFollow(followFromId,followToId);
 
         if(isDeleted > 0){
             resultMap.put(MESSAGE,SUCCESS);
