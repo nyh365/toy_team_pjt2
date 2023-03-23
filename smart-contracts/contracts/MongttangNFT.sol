@@ -40,6 +40,7 @@ contract MongttangNFT is ERC721, Ownable {
 
     function deposit(uint256 tokenId, uint256 amount) public {
         require(amount > 0, "MongttangNFT: amount must be greater than 0");
+        require(_exists(tokenId), "MongttangNFT: token doesn't exist");
         
         bool success = _token.transferFrom(_msgSender(), address(this), amount);
         require(success, "MyNFT: ERC20 transfer failed");
@@ -60,5 +61,22 @@ contract MongttangNFT is ERC721, Ownable {
 
     function nftBalances(uint256 tokenId) public view returns (uint256){        
         return _nftBalances[tokenId];
+    }
+
+    function getMyNfts() public view returns (uint[] memory) {
+        uint256 count = 0;
+        for(uint i = 1; i<=_tokenIds.current(); i++) {
+            if( ownerOf(i) == _msgSender()) {
+                count++;
+            }
+        }
+        uint[] memory nftIds = new uint[](count);
+        count = 0;
+        for(uint i = 1; i<=_tokenIds.current(); i++) {
+            if( ownerOf(i) == _msgSender()) {
+                nftIds[count++] = i;
+            }
+        }
+        return nftIds;
     }
 }

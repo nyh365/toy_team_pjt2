@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./token/ERC20/ERC20.sol";
-contract MongttangNFT is ERC20{
+contract Mongttang is ERC20{
     address private deployer;
 
     constructor(string memory name_, string memory symbol_, uint256 totalSupply_) ERC20(name_, symbol_){

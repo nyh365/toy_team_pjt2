@@ -1,0 +1,1866 @@
+{
+  "contractName": "ERC20VotesTimestampMock",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "InvalidShortString",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "str",
+          "type": "string"
+        }
+      ],
+      "name": "StringTooLong",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "delegator",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "fromDelegate",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "toDelegate",
+          "type": "address"
+        }
+      ],
+      "name": "DelegateChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "delegate",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "previousBalance",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newBalance",
+          "type": "uint256"
+        }
+      ],
+      "name": "DelegateVotesChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "EIP712DomainChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "DOMAIN_SEPARATOR",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        }
+      ],
+      "name": "allowance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint32",
+          "name": "pos",
+          "type": "uint32"
+        }
+      ],
+      "name": "checkpoints",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "fromBlock",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint224",
+              "name": "votes",
+              "type": "uint224"
+            }
+          ],
+          "internalType": "struct ERC20Votes.Checkpoint",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "subtractedValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "decreaseAllowance",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "delegatee",
+          "type": "address"
+        }
+      ],
+      "name": "delegate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "delegatee",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "nonce",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "expiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "v",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "r",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "s",
+          "type": "bytes32"
+        }
+      ],
+      "name": "delegateBySig",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "delegates",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "eip712Domain",
+      "outputs": [
+        {
+          "internalType": "bytes1",
+          "name": "fields",
+          "type": "bytes1"
+        },
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "version",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "chainId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "verifyingContract",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "salt",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "extensions",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "timepoint",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPastTotalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timepoint",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPastVotes",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "getVotes",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "addedValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "increaseAllowance",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "nonces",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "numCheckpoints",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "v",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "r",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "s",
+          "type": "bytes32"
+        }
+      ],
+      "name": "permit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "transfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "clock",
+      "outputs": [
+        {
+          "internalType": "uint48",
+          "name": "",
+          "type": "uint48"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "CLOCK_MODE",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.19+commit.7dd6d404\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"InvalidShortString\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"str\",\"type\":\"string\"}],\"name\":\"StringTooLong\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"delegator\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"fromDelegate\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"toDelegate\",\"type\":\"address\"}],\"name\":\"DelegateChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"delegate\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"previousBalance\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newBalance\",\"type\":\"uint256\"}],\"name\":\"DelegateVotesChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[],\"name\":\"EIP712DomainChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"CLOCK_MODE\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"DOMAIN_SEPARATOR\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint32\",\"name\":\"pos\",\"type\":\"uint32\"}],\"name\":\"checkpoints\",\"outputs\":[{\"components\":[{\"internalType\":\"uint32\",\"name\":\"fromBlock\",\"type\":\"uint32\"},{\"internalType\":\"uint224\",\"name\":\"votes\",\"type\":\"uint224\"}],\"internalType\":\"struct ERC20Votes.Checkpoint\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"clock\",\"outputs\":[{\"internalType\":\"uint48\",\"name\":\"\",\"type\":\"uint48\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"subtractedValue\",\"type\":\"uint256\"}],\"name\":\"decreaseAllowance\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegatee\",\"type\":\"address\"}],\"name\":\"delegate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"delegatee\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"nonce\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expiry\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"v\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"r\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"delegateBySig\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"delegates\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"eip712Domain\",\"outputs\":[{\"internalType\":\"bytes1\",\"name\":\"fields\",\"type\":\"bytes1\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"version\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"verifyingContract\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"salt\",\"type\":\"bytes32\"},{\"internalType\":\"uint256[]\",\"name\":\"extensions\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"timepoint\",\"type\":\"uint256\"}],\"name\":\"getPastTotalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"timepoint\",\"type\":\"uint256\"}],\"name\":\"getPastVotes\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"getVotes\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"addedValue\",\"type\":\"uint256\"}],\"name\":\"increaseAllowance\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"nonces\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"numCheckpoints\",\"outputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"v\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"r\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"permit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"events\":{\"Approval(address,address,uint256)\":{\"details\":\"Emitted when the allowance of a `spender` for an `owner` is set by a call to {approve}. `value` is the new allowance.\"},\"DelegateChanged(address,address,address)\":{\"details\":\"Emitted when an account changes their delegate.\"},\"DelegateVotesChanged(address,uint256,uint256)\":{\"details\":\"Emitted when a token transfer or delegate change results in changes to a delegate's number of votes.\"},\"EIP712DomainChanged()\":{\"details\":\"MAY be emitted to signal that the domain could have changed.\"},\"Transfer(address,address,uint256)\":{\"details\":\"Emitted when `value` tokens are moved from one account (`from`) to another (`to`). Note that `value` may be zero.\"}},\"kind\":\"dev\",\"methods\":{\"CLOCK_MODE()\":{\"details\":\"Description of the clock\"},\"DOMAIN_SEPARATOR()\":{\"details\":\"See {IERC20Permit-DOMAIN_SEPARATOR}.\"},\"allowance(address,address)\":{\"details\":\"See {IERC20-allowance}.\"},\"approve(address,uint256)\":{\"details\":\"See {IERC20-approve}. NOTE: If `amount` is the maximum `uint256`, the allowance is not updated on `transferFrom`. This is semantically equivalent to an infinite approval. Requirements: - `spender` cannot be the zero address.\"},\"balanceOf(address)\":{\"details\":\"See {IERC20-balanceOf}.\"},\"checkpoints(address,uint32)\":{\"details\":\"Get the `pos`-th checkpoint for `account`.\"},\"clock()\":{\"details\":\"Clock used for flagging checkpoints. Can be overridden to implement timestamp based checkpoints (and voting).\"},\"decimals()\":{\"details\":\"Returns the number of decimals used to get its user representation. For example, if `decimals` equals `2`, a balance of `505` tokens should be displayed to a user as `5.05` (`505 / 10 ** 2`). Tokens usually opt for a value of 18, imitating the relationship between Ether and Wei. This is the default value returned by this function, unless it's overridden. NOTE: This information is only used for _display_ purposes: it in no way affects any of the arithmetic of the contract, including {IERC20-balanceOf} and {IERC20-transfer}.\"},\"decreaseAllowance(address,uint256)\":{\"details\":\"Atomically decreases the allowance granted to `spender` by the caller. This is an alternative to {approve} that can be used as a mitigation for problems described in {IERC20-approve}. Emits an {Approval} event indicating the updated allowance. Requirements: - `spender` cannot be the zero address. - `spender` must have allowance for the caller of at least `subtractedValue`.\"},\"delegate(address)\":{\"details\":\"Delegate votes from the sender to `delegatee`.\"},\"delegateBySig(address,uint256,uint256,uint8,bytes32,bytes32)\":{\"details\":\"Delegates votes from signer to `delegatee`\"},\"delegates(address)\":{\"details\":\"Get the address `account` is currently delegating to.\"},\"eip712Domain()\":{\"details\":\"See {EIP-5267}.\"},\"getPastTotalSupply(uint256)\":{\"details\":\"Retrieve the `totalSupply` at the end of `timepoint`. Note, this value is the sum of all balances. It is NOT the sum of all the delegated votes! Requirements: - `timepoint` must be in the past\"},\"getPastVotes(address,uint256)\":{\"details\":\"Retrieve the number of votes for `account` at the end of `timepoint`. Requirements: - `timepoint` must be in the past\"},\"getVotes(address)\":{\"details\":\"Gets the current votes balance for `account`\"},\"increaseAllowance(address,uint256)\":{\"details\":\"Atomically increases the allowance granted to `spender` by the caller. This is an alternative to {approve} that can be used as a mitigation for problems described in {IERC20-approve}. Emits an {Approval} event indicating the updated allowance. Requirements: - `spender` cannot be the zero address.\"},\"name()\":{\"details\":\"Returns the name of the token.\"},\"nonces(address)\":{\"details\":\"See {IERC20Permit-nonces}.\"},\"numCheckpoints(address)\":{\"details\":\"Get number of checkpoints for `account`.\"},\"permit(address,address,uint256,uint256,uint8,bytes32,bytes32)\":{\"details\":\"See {IERC20Permit-permit}.\"},\"symbol()\":{\"details\":\"Returns the symbol of the token, usually a shorter version of the name.\"},\"totalSupply()\":{\"details\":\"See {IERC20-totalSupply}.\"},\"transfer(address,uint256)\":{\"details\":\"See {IERC20-transfer}. Requirements: - `to` cannot be the zero address. - the caller must have a balance of at least `amount`.\"},\"transferFrom(address,address,uint256)\":{\"details\":\"See {IERC20-transferFrom}. Emits an {Approval} event indicating the updated allowance. This is not required by the EIP. See the note at the beginning of {ERC20}. NOTE: Does not update the allowance if the current allowance is the maximum `uint256`. Requirements: - `from` and `to` cannot be the zero address. - `from` must have a balance of at least `amount`. - the caller must have allowance for ``from``'s tokens of at least `amount`.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/mocks/token/VotesTimestamp.sol\":\"ERC20VotesTimestampMock\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/governance/utils/IVotes.sol\":{\"keccak256\":\"0x5d1266f08ea33dfe539369242548ae1688ff46a750d9864562866552309de212\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d85817c0746c5e6262626e82072b96738b33f27e00b8c32b6c4c4da8fda3d02c\",\"dweb:/ipfs/QmfArMvCUJQG3tTauMHB4481WwRJScxVPKs6cH3gfNmm3G\"]},\"project:/contracts/governance/utils/Votes.sol\":{\"keccak256\":\"0xa5f8013bb1971775a33d0c975e1c49c9c57b063577ce633604ed03210f1127b2\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://449785c12a3f6e85396250cb42f83a407dade6a4eaf493723fd520edce013155\",\"dweb:/ipfs/QmVMmVtKpb2BhqA8MWyHbo9yaiMhU1YiR8Yasw2YvjXNsS\"]},\"project:/contracts/interfaces/IERC5267.sol\":{\"keccak256\":\"0xcdb57c76c32afc434d935ea6e897ad9b0ddb697bf2747e27daea65617cfda04f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://260b53aee558318a64d445978ae3193cb0ef78a05a01896c80322c81bee9c4a8\",\"dweb:/ipfs/QmTubTrirdEPBmeebeykjemr4KRBSJFTpxXUP7ViKMXr9B\"]},\"project:/contracts/interfaces/IERC5805.sol\":{\"keccak256\":\"0x5eb85214828a4c1f10319781e23588378c6561a60e0d68cacc9a0670a7a712d7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://74fa509eaf8ea54a074f5cdded3ec4e92e252943211107f71bab3ad3da54df2a\",\"dweb:/ipfs/QmXtdeRAZyRrq5xLJh4tLtmQox4yxeeq2QEv8ucveCu5Un\"]},\"project:/contracts/interfaces/IERC6372.sol\":{\"keccak256\":\"0x8637f99b3c8fa9c6a29742f6323d62ae3728922e66a032d06e9857bfb80f41b9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://8f7d69df67e81d1964a1af8b5f7fc217f78dbecbf61276411b47b5acc80cb425\",\"dweb:/ipfs/Qmb2Xhq9ZSN1aTf5WqYG7CJdcqujaFhuwM52M3uWC91cq2\"]},\"project:/contracts/mocks/token/VotesTimestamp.sol\":{\"keccak256\":\"0xac825291ac6e2268304e9ae746deeea05928c482b1cf876750c22e1ad599278c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f22d5261520b8dc7be17e55bce90a9b52112efdf62122c68314e8d7a46696730\",\"dweb:/ipfs/QmYt7tqoZvZFnTb9uww2MnSKn2WCL4jYB81fdZbkBtzNs6\"]},\"project:/contracts/token/ERC20/ERC20.sol\":{\"keccak256\":\"0x65c18f8f3f113a38ad81b70b927f72d0d4c5be7e204e715a82da7f3e04aa5bb4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://c1406a337a5c2a595ca1b777c8d3ee1acf74963f6d3bc391bee446ffafdc8b65\",\"dweb:/ipfs/QmSbC3AikgqLSj6XucgCu5D8G14CyhL9vnqCFdWkxjdY8J\"]},\"project:/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0x206e252911fb60d0d6a54fb657b64344c33fa237ddb8553aa668a24d1856a7c2\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4cb73e8c2fd4ab43f4ed672a19fd7629fc169034dc461524bebd67d9fe9bb000\",\"dweb:/ipfs/Qmd9wCoy5gDduquSq7po6uNFx9W28zS5drXXErDnN24aNZ\"]},\"project:/contracts/token/ERC20/extensions/ERC20Permit.sol\":{\"keccak256\":\"0xae87c6a3f9eb87042ea800b82cc63f65815ee9b86c14153ecc017310a24391cf\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://834bf87c31ee7415b1e8817be6deb9347f46ca08e01c1ba5fd350ff372742b79\",\"dweb:/ipfs/QmPn2sUuNNrxdm9oS86fRXohSQVimmQDBXEYob43TskY9A\"]},\"project:/contracts/token/ERC20/extensions/ERC20Votes.sol\":{\"keccak256\":\"0xaac66adaf5e0d60b2e3e9528fefc8231268ab3e0aa54fde0c5dbaf0dd333a3b4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://af067095b1df5bc6764faed412fa17055548aab8c8dfea3526142cbf7dcd0726\",\"dweb:/ipfs/QmdR8Tv4e3LZTLpT8ga7hs4mUrhUtLDADvGfcxXnL8Kcga\"]},\"project:/contracts/token/ERC20/extensions/ERC20VotesComp.sol\":{\"keccak256\":\"0xacc6dbd5c943219f4d386ad5d9d784e59e712248089519528de0e754dfa8bc02\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://05f1a2e669d94c9883c495a523da357537428627575cf4709070cc10d6d4af77\",\"dweb:/ipfs/Qmbm7gLkYTV2Le1ME6maZfqroKCmi8xkT74LYaLiigZrJX\"]},\"project:/contracts/token/ERC20/extensions/IERC20Metadata.sol\":{\"keccak256\":\"0x0270cb4e50d6bcdd780df229606076d39df796860d266b5426f374c36f34fe89\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://511db944b3f0a57b56fda90d1e466cca6a0dea2297d816251966c8f025313973\",\"dweb:/ipfs/QmRgu5uCaKkoRr3amWGfhy6bVwhpH5tr1vynaNQyEYiE4p\"]},\"project:/contracts/token/ERC20/extensions/IERC20Permit.sol\":{\"keccak256\":\"0x100cc46685222da00d8ffa6df60c4cb77e1b05c1625612c386e4eace7cacab67\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6c65de88cf076698fc8553d2085936f45e7c7a8a20a33c5fa865b54754c1645b\",\"dweb:/ipfs/QmaqNAvLLjD3G7HxtPwszfJQtBQzMgXth1JnwjonrmkJjS\"]},\"project:/contracts/token/ERC721/ERC721.sol\":{\"keccak256\":\"0x0577a45138c3101b30f8f64b4a58a866e5d9ffa052177aac39b676b988cee51f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f1a9e6d9370dbe5891c2ae8adb81f4fe23ebaa4cafe1a7dfc3abe26626fe91f0\",\"dweb:/ipfs/QmcuKYzUQAfvyGevYoGEpvyEW8pXHJRzHZ4DPcP2CzFoCF\"]},\"project:/contracts/token/ERC721/IERC721.sol\":{\"keccak256\":\"0x8995364cb19caee6b940b5cfbea73eb6045b1e2b88643544848d425d80a317ad\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://21e560f32fc29ce78275857b8e4357bd437df95894ee23408fc66807211e8259\",\"dweb:/ipfs/QmPx7JwaXrbeS2RYPcefWX2cHP6VqfJSFtGcc56aLvcwcL\"]},\"project:/contracts/token/ERC721/IERC721Receiver.sol\":{\"keccak256\":\"0xc97c28f24caed758d150587f1e57753705c2439f314ac47947739869c4413819\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b2319c1a8e34937da319c0a443a3fa9567994a9fc327be7186c7738573bcfa2f\",\"dweb:/ipfs/QmTSesyJCFLrjSJm5FoVLR1kXM26CnxVy1Ti9HHx31ZyJ2\"]},\"project:/contracts/token/ERC721/extensions/ERC721Votes.sol\":{\"keccak256\":\"0x4ad03cc5f0c3308ca4380cf09d04e0ac1d888546560e26b43d40ff7994930208\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7fdd15ecdbd252d13c51be86ef7032f5a1ba25fa81740b791c5fb0dc4e035097\",\"dweb:/ipfs/QmYRmmbpDJ1GZUMzity1PH2grsvHBPkGdCYpUhHrkvQ5gN\"]},\"project:/contracts/token/ERC721/extensions/IERC721Metadata.sol\":{\"keccak256\":\"0x23018238ee951d13a9d7f7d2cd641065752923c0aeede09a58a7f1fabf891d75\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://83a5286e82596aa938b6e38803360ca935b9727dc98f317b318a559ae9f438a5\",\"dweb:/ipfs/QmaBhNbpWZ6JPrfhuqX54DAtZj35yX278vArsNr5WtdXoZ\"]},\"project:/contracts/utils/Address.sol\":{\"keccak256\":\"0x9d0843efe7418f685e662378051ca0572b56e8ed4e87b97197fb535839d0e2f8\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://fd0692e4d4981ff36bf331a6dda3f60abe2debce9233df65e807639dc7cda713\",\"dweb:/ipfs/QmeKRcBH8LegzqrtdTtEhZLyYeb7PFkAtChNbLA3fTkbKW\"]},\"project:/contracts/utils/Checkpoints.sol\":{\"keccak256\":\"0xbbc50669d1cf49f0e93bd13da85b3d38e28fb91ef995beaf748e2e131b88e767\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9f4026c333458a6a7288fd11f754bb22ffd9faaf87e027f37055cbf261328fc9\",\"dweb:/ipfs/QmQX2xEhBEUjYgYr5FcM7LDUHGb7npoYFqMfjbP5GFPFXm\"]},\"project:/contracts/utils/Context.sol\":{\"keccak256\":\"0x81d5fc973a522c8909d60be6a201869d46aa47b030b8813f60616404628c2b94\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9755b505799e622d964a843a8ed1fd60fedffca230178e5cb95ae9280df4dcd2\",\"dweb:/ipfs/QmRkhUYUUgRZ2QYJjmtQct2ubyYwS3bdUMhbuFYM12VfYn\"]},\"project:/contracts/utils/Counters.sol\":{\"keccak256\":\"0x45f2d503ebecf25ea4b038d02a7ed96898bd197bec585d0ba3560bfb4b509a82\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://c87b73d7c9c7773c8d2b06e3f38d88a3980c04016bb44967ecacfa5ac45bc62b\",\"dweb:/ipfs/QmbQVT9fpAxMQ492735rZzUK2e73ayqdZz2fGPgey8jCVR\"]},\"project:/contracts/utils/ShortStrings.sol\":{\"keccak256\":\"0xb14ce92457f0a59f4cb152f117d20438eecfb595367f73f78b0f57dc579bd17f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d9e1804ab46bf92ee79c19ba2807e209c182d4272e59bd76077a686d504839b8\",\"dweb:/ipfs/QmSoP3EsV1DwokLto927evyRceXDY6MZiR9YVVACg7t2GJ\"]},\"project:/contracts/utils/StorageSlot.sol\":{\"keccak256\":\"0x9e72a3f862ef500b5c5a2a241075bd6c1070ed4de7a62c3deeafef8890480494\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://8c95ea4a4cd2c57b91fcb126cf6983a1c5b88371e4786083d3a9582e9055ca81\",\"dweb:/ipfs/QmWVkPSyZCiJ6vq4bWEMPE2Prx3oeBUy4BzGMgtA3SeVoP\"]},\"project:/contracts/utils/Strings.sol\":{\"keccak256\":\"0xb78b0cc4c1026e12f332826c899d4a2fe95efb409b4e5192d1c78dd86fcbf994\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://ca2e624dfd194788292303f0b741eda54ff242fe266add1ca1b8870769ea0691\",\"dweb:/ipfs/QmXU7XYSRJGkrjhvnKuTMpwA6VbqASbiDYkGgUhhHwdGp5\"]},\"project:/contracts/utils/cryptography/ECDSA.sol\":{\"keccak256\":\"0x0f16f5ebac27a3d30a830680121568e67322449842f1fc4029016407101b99b8\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://d5de772343c81cbed88a5f5c8dad450de83809592f217b759c343e09d57eeaff\",\"dweb:/ipfs/QmPUTNyPobWF5umfFYesvXCWPfHbPLxY6BDMdpQxnPM5Ax\"]},\"project:/contracts/utils/cryptography/EIP712.sol\":{\"keccak256\":\"0x368840f65c193b42cb4b16bce08ec563bd5993389b7579be0050487ad69359ec\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://b59dcb1b77cb026c2ef831ecc067c82b0746ec5f16f9c457754298e08ff0e6ff\",\"dweb:/ipfs/QmanRm2m1FmUnMakCjk1ttfqEjpR1HS3povo5zDtDQAAxT\"]},\"project:/contracts/utils/introspection/ERC165.sol\":{\"keccak256\":\"0x3d3fe7b1901114d50828f5c77ba7f09a2a6a65223620c837364d31b60e5982ac\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6751cee12592cb9c33be618057660d6c84cb0594bd0afa552009438e38d3dd02\",\"dweb:/ipfs/QmWq8SxNw4q6n1B8i9sFZVaodB6wrcyBPsKPWMsaUyCECH\"]},\"project:/contracts/utils/introspection/IERC165.sol\":{\"keccak256\":\"0x540685d7ece3faa56f38253270ff11b18e63949fb8659c408123b1874674492e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5474839e19e2571c52eae3aab1dc6e6edf2b20bbba9895f59db6594a2678a3d5\",\"dweb:/ipfs/QmVHocBeANMkq4TzVM7q9At5NSg1TEpT9D9vgJ5dGcvcPN\"]},\"project:/contracts/utils/math/Math.sol\":{\"keccak256\":\"0xc32ad0bcf24ae2b3fcf3d011f58541c7403a478598e2b6ba1e5a7d362a1aef23\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://1785f66e9850ec2d9a908075efeffaccc4747db702317ac4fb3918a140808838\",\"dweb:/ipfs/QmR8m2pbHatLxvaGpKU2AEym1q4VXqHbCmGdt6GSa9BFah\"]},\"project:/contracts/utils/math/SafeCast.sol\":{\"keccak256\":\"0x2c66e95ab107fd79a1c7f05348351ed954edf544854adf782c8b61bc67ecc074\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://8a069ca7a560c518d1338c48bf0618499ef601d34044c10f59a18b1e554cae37\",\"dweb:/ipfs/QmRXxKoq1Q47zpMcbCevkyUmV66zQcAcCrwhEQ2xtSvRQ1\"]},\"project:/contracts/utils/math/SignedMath.sol\":{\"keccak256\":\"0x7b249694790ca2ae6a813e28025e0ebb9bccb5940a6cba637911fd9c17012055\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2431f8875ede10b23dee66740a19fb1b2aa7cf57ea8430e7bce97be414c58748\",\"dweb:/ipfs/QmbCvNgrYi2kk7wBKJkwyRRrbwabhoxaNJjyK5frPkNvng\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "// SPDX-License-Identifier: MIT\r\n\r\npragma solidity ^0.8.0;\r\n\r\nimport \"../../token/ERC20/extensions/ERC20Votes.sol\";\r\nimport \"../../token/ERC20/extensions/ERC20VotesComp.sol\";\r\nimport \"../../token/ERC721/extensions/ERC721Votes.sol\";\r\n\r\nabstract contract ERC20VotesTimestampMock is ERC20Votes {\r\n    function clock() public view virtual override returns (uint48) {\r\n        return SafeCast.toUint48(block.timestamp);\r\n    }\r\n\r\n    // solhint-disable-next-line func-name-mixedcase\r\n    function CLOCK_MODE() public view virtual override returns (string memory) {\r\n        return \"mode=timestamp\";\r\n    }\r\n}\r\n\r\nabstract contract ERC20VotesCompTimestampMock is ERC20VotesComp {\r\n    function clock() public view virtual override returns (uint48) {\r\n        return SafeCast.toUint48(block.timestamp);\r\n    }\r\n\r\n    // solhint-disable-next-line func-name-mixedcase\r\n    function CLOCK_MODE() public view virtual override returns (string memory) {\r\n        return \"mode=timestamp\";\r\n    }\r\n}\r\n\r\nabstract contract ERC721VotesTimestampMock is ERC721Votes {\r\n    function clock() public view virtual override returns (uint48) {\r\n        return SafeCast.toUint48(block.timestamp);\r\n    }\r\n\r\n    // solhint-disable-next-line func-name-mixedcase\r\n    function CLOCK_MODE() public view virtual override returns (string memory) {\r\n        return \"mode=timestamp\";\r\n    }\r\n}\r\n",
+  "sourcePath": "C:\\Users\\akqjq\\Desktop\\S08P22A308\\smart-contracts\\contracts\\mocks\\token\\VotesTimestamp.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/mocks/token/VotesTimestamp.sol",
+    "exportedSymbols": {
+      "Address": [
+        29410
+      ],
+      "Checkpoints": [
+        31154
+      ],
+      "Context": [
+        31176
+      ],
+      "Counters": [
+        31250
+      ],
+      "ECDSA": [
+        32521
+      ],
+      "EIP712": [
+        32725
+      ],
+      "ERC165": [
+        33667
+      ],
+      "ERC20": [
+        21766
+      ],
+      "ERC20Permit": [
+        22379
+      ],
+      "ERC20Votes": [
+        23440
+      ],
+      "ERC20VotesComp": [
+        23496
+      ],
+      "ERC20VotesCompTimestampMock": [
+        16967
+      ],
+      "ERC20VotesTimestampMock": [
+        16942
+      ],
+      "ERC721": [
+        25944
+      ],
+      "ERC721Votes": [
+        27057
+      ],
+      "ERC721VotesTimestampMock": [
+        16992
+      ],
+      "IERC165": [
+        33983
+      ],
+      "IERC20": [
+        21844
+      ],
+      "IERC20Metadata": [
+        24318
+      ],
+      "IERC20Permit": [
+        24354
+      ],
+      "IERC5267": [
+        9520
+      ],
+      "IERC5805": [
+        9539
+      ],
+      "IERC6372": [
+        9554
+      ],
+      "IERC721": [
+        26060
+      ],
+      "IERC721Metadata": [
+        27332
+      ],
+      "IERC721Receiver": [
+        26078
+      ],
+      "IVotes": [
+        8501
+      ],
+      "Math": [
+        34953
+      ],
+      "SafeCast": [
+        36494
+      ],
+      "ShortString": [
+        31391
+      ],
+      "ShortStrings": [
+        31602
+      ],
+      "SignedMath": [
+        36911
+      ],
+      "StorageSlot": [
+        31712
+      ],
+      "Strings": [
+        31941
+      ],
+      "Votes": [
+        9051
+      ]
+    },
+    "id": 16993,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 16914,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "35:23:140"
+      },
+      {
+        "absolutePath": "project:/contracts/token/ERC20/extensions/ERC20Votes.sol",
+        "file": "../../token/ERC20/extensions/ERC20Votes.sol",
+        "id": 16915,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 16993,
+        "sourceUnit": 23441,
+        "src": "62:53:140",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "project:/contracts/token/ERC20/extensions/ERC20VotesComp.sol",
+        "file": "../../token/ERC20/extensions/ERC20VotesComp.sol",
+        "id": 16916,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 16993,
+        "sourceUnit": 23497,
+        "src": "117:57:140",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "project:/contracts/token/ERC721/extensions/ERC721Votes.sol",
+        "file": "../../token/ERC721/extensions/ERC721Votes.sol",
+        "id": 16917,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 16993,
+        "sourceUnit": 27058,
+        "src": "176:55:140",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": true,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 16918,
+              "name": "ERC20Votes",
+              "nameLocations": [
+                "280:10:140"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 23440,
+              "src": "280:10:140"
+            },
+            "id": 16919,
+            "nodeType": "InheritanceSpecifier",
+            "src": "280:10:140"
+          }
+        ],
+        "canonicalName": "ERC20VotesTimestampMock",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 16942,
+        "linearizedBaseContracts": [
+          16942,
+          23440,
+          9539,
+          8501,
+          9554,
+          22379,
+          32725,
+          9520,
+          24354,
+          21766,
+          24318,
+          21844,
+          31176
+        ],
+        "name": "ERC20VotesTimestampMock",
+        "nameLocation": "253:23:140",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "baseFunctions": [
+              22757
+            ],
+            "body": {
+              "id": 16931,
+              "nodeType": "Block",
+              "src": "361:60:140",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "expression": {
+                          "id": 16927,
+                          "name": "block",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 4294967292,
+                          "src": "397:5:140",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_magic_block",
+                            "typeString": "block"
+                          }
+                        },
+                        "id": 16928,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "403:9:140",
+                        "memberName": "timestamp",
+                        "nodeType": "MemberAccess",
+                        "src": "397:15:140",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      ],
+                      "expression": {
+                        "id": 16925,
+                        "name": "SafeCast",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 36494,
+                        "src": "379:8:140",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_SafeCast_$36494_$",
+                          "typeString": "type(library SafeCast)"
+                        }
+                      },
+                      "id": 16926,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "388:8:140",
+                      "memberName": "toUint48",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 35606,
+                      "src": "379:17:140",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_pure$_t_uint256_$returns$_t_uint48_$",
+                        "typeString": "function (uint256) pure returns (uint48)"
+                      }
+                    },
+                    "id": 16929,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "379:34:140",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint48",
+                      "typeString": "uint48"
+                    }
+                  },
+                  "functionReturnParameters": 16924,
+                  "id": 16930,
+                  "nodeType": "Return",
+                  "src": "372:41:140"
+                }
+              ]
+            },
+            "functionSelector": "91ddadf4",
+            "id": 16932,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "clock",
+            "nameLocation": "307:5:140",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 16921,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "335:8:140"
+            },
+            "parameters": {
+              "id": 16920,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "312:2:140"
+            },
+            "returnParameters": {
+              "id": 16924,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 16923,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 16932,
+                  "src": "353:6:140",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint48",
+                    "typeString": "uint48"
+                  },
+                  "typeName": {
+                    "id": 16922,
+                    "name": "uint48",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "353:6:140",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint48",
+                      "typeString": "uint48"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "352:8:140"
+            },
+            "scope": 16942,
+            "src": "298:123:140",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "public"
+          },
+          {
+            "baseFunctions": [
+              22775
+            ],
+            "body": {
+              "id": 16940,
+              "nodeType": "Block",
+              "src": "558:42:140",
+              "statements": [
+                {
+                  "expression": {
+                    "hexValue": "6d6f64653d74696d657374616d70",
+                    "id": 16938,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "string",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "576:16:140",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_stringliteral_f5b078ad22f37ec6a1ef7bb7557a33caf5438015a34794acb2076082df8e563f",
+                      "typeString": "literal_string \"mode=timestamp\""
+                    },
+                    "value": "mode=timestamp"
+                  },
+                  "functionReturnParameters": 16937,
+                  "id": 16939,
+                  "nodeType": "Return",
+                  "src": "569:23:140"
+                }
+              ]
+            },
+            "functionSelector": "4bf5d7e9",
+            "id": 16941,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "CLOCK_MODE",
+            "nameLocation": "492:10:140",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 16934,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "525:8:140"
+            },
+            "parameters": {
+              "id": 16933,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "502:2:140"
+            },
+            "returnParameters": {
+              "id": 16937,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 16936,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 16941,
+                  "src": "543:13:140",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 16935,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "543:6:140",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "542:15:140"
+            },
+            "scope": 16942,
+            "src": "483:117:140",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "public"
+          }
+        ],
+        "scope": 16993,
+        "src": "235:368:140",
+        "usedErrors": [
+          31399,
+          31401
+        ]
+      },
+      {
+        "abstract": true,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 16943,
+              "name": "ERC20VotesComp",
+              "nameLocations": [
+                "656:14:140"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 23496,
+              "src": "656:14:140"
+            },
+            "id": 16944,
+            "nodeType": "InheritanceSpecifier",
+            "src": "656:14:140"
+          }
+        ],
+        "canonicalName": "ERC20VotesCompTimestampMock",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 16967,
+        "linearizedBaseContracts": [
+          16967,
+          23496,
+          23440,
+          9539,
+          8501,
+          9554,
+          22379,
+          32725,
+          9520,
+          24354,
+          21766,
+          24318,
+          21844,
+          31176
+        ],
+        "name": "ERC20VotesCompTimestampMock",
+        "nameLocation": "625:27:140",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "baseFunctions": [
+              22757
+            ],
+            "body": {
+              "id": 16956,
+              "nodeType": "Block",
+              "src": "741:60:140",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "expression": {
+                          "id": 16952,
+                          "name": "block",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 4294967292,
+                          "src": "777:5:140",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_magic_block",
+                            "typeString": "block"
+                          }
+                        },
+                        "id": 16953,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "783:9:140",
+                        "memberName": "timestamp",
+                        "nodeType": "MemberAccess",
+                        "src": "777:15:140",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      ],
+                      "expression": {
+                        "id": 16950,
+                        "name": "SafeCast",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 36494,
+                        "src": "759:8:140",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_SafeCast_$36494_$",
+                          "typeString": "type(library SafeCast)"
+                        }
+                      },
+                      "id": 16951,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "768:8:140",
+                      "memberName": "toUint48",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 35606,
+                      "src": "759:17:140",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_pure$_t_uint256_$returns$_t_uint48_$",
+                        "typeString": "function (uint256) pure returns (uint48)"
+                      }
+                    },
+                    "id": 16954,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "759:34:140",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint48",
+                      "typeString": "uint48"
+                    }
+                  },
+                  "functionReturnParameters": 16949,
+                  "id": 16955,
+                  "nodeType": "Return",
+                  "src": "752:41:140"
+                }
+              ]
+            },
+            "functionSelector": "91ddadf4",
+            "id": 16957,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "clock",
+            "nameLocation": "687:5:140",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 16946,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "715:8:140"
+            },
+            "parameters": {
+              "id": 16945,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "692:2:140"
+            },
+            "returnParameters": {
+              "id": 16949,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 16948,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 16957,
+                  "src": "733:6:140",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint48",
+                    "typeString": "uint48"
+                  },
+                  "typeName": {
+                    "id": 16947,
+                    "name": "uint48",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "733:6:140",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint48",
+                      "typeString": "uint48"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "732:8:140"
+            },
+            "scope": 16967,
+            "src": "678:123:140",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "public"
+          },
+          {
+            "baseFunctions": [
+              22775
+            ],
+            "body": {
+              "id": 16965,
+              "nodeType": "Block",
+              "src": "938:42:140",
+              "statements": [
+                {
+                  "expression": {
+                    "hexValue": "6d6f64653d74696d657374616d70",
+                    "id": 16963,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "string",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "956:16:140",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_stringliteral_f5b078ad22f37ec6a1ef7bb7557a33caf5438015a34794acb2076082df8e563f",
+                      "typeString": "literal_string \"mode=timestamp\""
+                    },
+                    "value": "mode=timestamp"
+                  },
+                  "functionReturnParameters": 16962,
+                  "id": 16964,
+                  "nodeType": "Return",
+                  "src": "949:23:140"
+                }
+              ]
+            },
+            "functionSelector": "4bf5d7e9",
+            "id": 16966,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "CLOCK_MODE",
+            "nameLocation": "872:10:140",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 16959,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "905:8:140"
+            },
+            "parameters": {
+              "id": 16958,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "882:2:140"
+            },
+            "returnParameters": {
+              "id": 16962,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 16961,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 16966,
+                  "src": "923:13:140",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 16960,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "923:6:140",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "922:15:140"
+            },
+            "scope": 16967,
+            "src": "863:117:140",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "public"
+          }
+        ],
+        "scope": 16993,
+        "src": "607:376:140",
+        "usedErrors": [
+          31399,
+          31401
+        ]
+      },
+      {
+        "abstract": true,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 16968,
+              "name": "ERC721Votes",
+              "nameLocations": [
+                "1033:11:140"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 27057,
+              "src": "1033:11:140"
+            },
+            "id": 16969,
+            "nodeType": "InheritanceSpecifier",
+            "src": "1033:11:140"
+          }
+        ],
+        "canonicalName": "ERC721VotesTimestampMock",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "fullyImplemented": true,
+        "id": 16992,
+        "linearizedBaseContracts": [
+          16992,
+          27057,
+          9051,
+          9539,
+          8501,
+          9554,
+          32725,
+          9520,
+          25944,
+          27332,
+          26060,
+          33667,
+          33983,
+          31176
+        ],
+        "name": "ERC721VotesTimestampMock",
+        "nameLocation": "1005:24:140",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "baseFunctions": [
+              8561
+            ],
+            "body": {
+              "id": 16981,
+              "nodeType": "Block",
+              "src": "1115:60:140",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "expression": {
+                          "id": 16977,
+                          "name": "block",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 4294967292,
+                          "src": "1151:5:140",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_magic_block",
+                            "typeString": "block"
+                          }
+                        },
+                        "id": 16978,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "1157:9:140",
+                        "memberName": "timestamp",
+                        "nodeType": "MemberAccess",
+                        "src": "1151:15:140",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      ],
+                      "expression": {
+                        "id": 16975,
+                        "name": "SafeCast",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 36494,
+                        "src": "1133:8:140",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_SafeCast_$36494_$",
+                          "typeString": "type(library SafeCast)"
+                        }
+                      },
+                      "id": 16976,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "1142:8:140",
+                      "memberName": "toUint48",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 35606,
+                      "src": "1133:17:140",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_pure$_t_uint256_$returns$_t_uint48_$",
+                        "typeString": "function (uint256) pure returns (uint48)"
+                      }
+                    },
+                    "id": 16979,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1133:34:140",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint48",
+                      "typeString": "uint48"
+                    }
+                  },
+                  "functionReturnParameters": 16974,
+                  "id": 16980,
+                  "nodeType": "Return",
+                  "src": "1126:41:140"
+                }
+              ]
+            },
+            "functionSelector": "91ddadf4",
+            "id": 16982,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "clock",
+            "nameLocation": "1061:5:140",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 16971,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1089:8:140"
+            },
+            "parameters": {
+              "id": 16970,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1066:2:140"
+            },
+            "returnParameters": {
+              "id": 16974,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 16973,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 16982,
+                  "src": "1107:6:140",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint48",
+                    "typeString": "uint48"
+                  },
+                  "typeName": {
+                    "id": 16972,
+                    "name": "uint48",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1107:6:140",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint48",
+                      "typeString": "uint48"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1106:8:140"
+            },
+            "scope": 16992,
+            "src": "1052:123:140",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "public"
+          },
+          {
+            "baseFunctions": [
+              8579
+            ],
+            "body": {
+              "id": 16990,
+              "nodeType": "Block",
+              "src": "1312:42:140",
+              "statements": [
+                {
+                  "expression": {
+                    "hexValue": "6d6f64653d74696d657374616d70",
+                    "id": 16988,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "string",
+                    "lValueRequested": false,
+                    "nodeType": "Literal",
+                    "src": "1330:16:140",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_stringliteral_f5b078ad22f37ec6a1ef7bb7557a33caf5438015a34794acb2076082df8e563f",
+                      "typeString": "literal_string \"mode=timestamp\""
+                    },
+                    "value": "mode=timestamp"
+                  },
+                  "functionReturnParameters": 16987,
+                  "id": 16989,
+                  "nodeType": "Return",
+                  "src": "1323:23:140"
+                }
+              ]
+            },
+            "functionSelector": "4bf5d7e9",
+            "id": 16991,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "CLOCK_MODE",
+            "nameLocation": "1246:10:140",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 16984,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1279:8:140"
+            },
+            "parameters": {
+              "id": 16983,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1256:2:140"
+            },
+            "returnParameters": {
+              "id": 16987,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 16986,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 16991,
+                  "src": "1297:13:140",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 16985,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1297:6:140",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1296:15:140"
+            },
+            "scope": 16992,
+            "src": "1237:117:140",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "public"
+          }
+        ],
+        "scope": 16993,
+        "src": "987:370:140",
+        "usedErrors": [
+          31399,
+          31401
+        ]
+      }
+    ],
+    "src": "35:1324:140"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.19+commit.7dd6d404.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.13",
+  "updatedAt": "2023-03-22T16:34:02.918Z",
+  "devdoc": {
+    "events": {
+      "Approval(address,address,uint256)": {
+        "details": "Emitted when the allowance of a `spender` for an `owner` is set by a call to {approve}. `value` is the new allowance."
+      },
+      "DelegateChanged(address,address,address)": {
+        "details": "Emitted when an account changes their delegate."
+      },
+      "DelegateVotesChanged(address,uint256,uint256)": {
+        "details": "Emitted when a token transfer or delegate change results in changes to a delegate's number of votes."
+      },
+      "EIP712DomainChanged()": {
+        "details": "MAY be emitted to signal that the domain could have changed."
+      },
+      "Transfer(address,address,uint256)": {
+        "details": "Emitted when `value` tokens are moved from one account (`from`) to another (`to`). Note that `value` may be zero."
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "CLOCK_MODE()": {
+        "details": "Description of the clock"
+      },
+      "DOMAIN_SEPARATOR()": {
+        "details": "See {IERC20Permit-DOMAIN_SEPARATOR}."
+      },
+      "allowance(address,address)": {
+        "details": "See {IERC20-allowance}."
+      },
+      "approve(address,uint256)": {
+        "details": "See {IERC20-approve}. NOTE: If `amount` is the maximum `uint256`, the allowance is not updated on `transferFrom`. This is semantically equivalent to an infinite approval. Requirements: - `spender` cannot be the zero address."
+      },
+      "balanceOf(address)": {
+        "details": "See {IERC20-balanceOf}."
+      },
+      "checkpoints(address,uint32)": {
+        "details": "Get the `pos`-th checkpoint for `account`."
+      },
+      "clock()": {
+        "details": "Clock used for flagging checkpoints. Can be overridden to implement timestamp based checkpoints (and voting)."
+      },
+      "decimals()": {
+        "details": "Returns the number of decimals used to get its user representation. For example, if `decimals` equals `2`, a balance of `505` tokens should be displayed to a user as `5.05` (`505 / 10 ** 2`). Tokens usually opt for a value of 18, imitating the relationship between Ether and Wei. This is the default value returned by this function, unless it's overridden. NOTE: This information is only used for _display_ purposes: it in no way affects any of the arithmetic of the contract, including {IERC20-balanceOf} and {IERC20-transfer}."
+      },
+      "decreaseAllowance(address,uint256)": {
+        "details": "Atomically decreases the allowance granted to `spender` by the caller. This is an alternative to {approve} that can be used as a mitigation for problems described in {IERC20-approve}. Emits an {Approval} event indicating the updated allowance. Requirements: - `spender` cannot be the zero address. - `spender` must have allowance for the caller of at least `subtractedValue`."
+      },
+      "delegate(address)": {
+        "details": "Delegate votes from the sender to `delegatee`."
+      },
+      "delegateBySig(address,uint256,uint256,uint8,bytes32,bytes32)": {
+        "details": "Delegates votes from signer to `delegatee`"
+      },
+      "delegates(address)": {
+        "details": "Get the address `account` is currently delegating to."
+      },
+      "eip712Domain()": {
+        "details": "See {EIP-5267}."
+      },
+      "getPastTotalSupply(uint256)": {
+        "details": "Retrieve the `totalSupply` at the end of `timepoint`. Note, this value is the sum of all balances. It is NOT the sum of all the delegated votes! Requirements: - `timepoint` must be in the past"
+      },
+      "getPastVotes(address,uint256)": {
+        "details": "Retrieve the number of votes for `account` at the end of `timepoint`. Requirements: - `timepoint` must be in the past"
+      },
+      "getVotes(address)": {
+        "details": "Gets the current votes balance for `account`"
+      },
+      "increaseAllowance(address,uint256)": {
+        "details": "Atomically increases the allowance granted to `spender` by the caller. This is an alternative to {approve} that can be used as a mitigation for problems described in {IERC20-approve}. Emits an {Approval} event indicating the updated allowance. Requirements: - `spender` cannot be the zero address."
+      },
+      "name()": {
+        "details": "Returns the name of the token."
+      },
+      "nonces(address)": {
+        "details": "See {IERC20Permit-nonces}."
+      },
+      "numCheckpoints(address)": {
+        "details": "Get number of checkpoints for `account`."
+      },
+      "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": {
+        "details": "See {IERC20Permit-permit}."
+      },
+      "symbol()": {
+        "details": "Returns the symbol of the token, usually a shorter version of the name."
+      },
+      "totalSupply()": {
+        "details": "See {IERC20-totalSupply}."
+      },
+      "transfer(address,uint256)": {
+        "details": "See {IERC20-transfer}. Requirements: - `to` cannot be the zero address. - the caller must have a balance of at least `amount`."
+      },
+      "transferFrom(address,address,uint256)": {
+        "details": "See {IERC20-transferFrom}. Emits an {Approval} event indicating the updated allowance. This is not required by the EIP. See the note at the beginning of {ERC20}. NOTE: Does not update the allowance if the current allowance is the maximum `uint256`. Requirements: - `from` and `to` cannot be the zero address. - `from` must have a balance of at least `amount`. - the caller must have allowance for ``from``'s tokens of at least `amount`."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}
