@@ -27,7 +27,7 @@ function NavBar() {
   useEffect(() => {
     setCurrentUrl(location);
   }, [location]);
-  if (location.startsWith('/login')) {
+  if (location.startsWith('/login') || location.startsWith('/commentform')) {
     return null;
   }
   return (

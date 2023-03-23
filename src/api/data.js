@@ -1,7 +1,40 @@
 /**
  * API 받기 전 사용할 더미데이터 모음
  */
-
+export const comments = {
+  comments: [
+    {
+      commentId: 1,
+      userId: 13,
+      userNickname: '홍길동',
+      numOfLike: 13,
+      isLiked: true,
+      isReported: false,
+      commentContent: '동화가 너무 재미있네요',
+      commentCreateDate: '2023-02-01T10:27:14.153045',
+    },
+    {
+      commentId: 3,
+      userId: 13,
+      userNickname: '홍길동',
+      numOfLike: 12,
+      isLiked: true,
+      isReported: false,
+      commentContent: '동화가 너무 재미있네요',
+      commentCreateDate: '2023-02-01T10:27:14.153045',
+    },
+    {
+      commentId: 4,
+      userId: 13,
+      userNickname: '홍길동',
+      numOfLike: 12,
+      isLiked: false,
+      isReported: false,
+      commentContent: '동화가 너무 재미있네요',
+      commentCreateDate: '2023-02-01T10:27:14.153045',
+    },
+  ],
+};
 export const challenges = {
   challenges: [
     {

@@ -9,6 +9,7 @@ import MyProfile from 'pages/MyProfile/MyProfile';
 import MyProfileEdit from 'pages/MyProfile/MyProfileEdit';
 import NicknameEdit from 'pages/MyProfile/NicknameEdit';
 import IntroductionEdit from 'pages/MyProfile/IntroductionEdit';
+import CommentForm from 'components/common/CommentForm';
 // react-cookie
 import { CookiesProvider } from 'react-cookie';
 // react-query
@@ -35,6 +36,7 @@ function App() {
               path="/myprofile/edit/introduction"
               element={<IntroductionEdit />}
             />
+            <Route path="/commentform" element={<CommentForm />} />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>

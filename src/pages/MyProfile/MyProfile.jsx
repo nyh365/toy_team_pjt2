@@ -82,8 +82,8 @@ function MyProfile() {
   //프로필 조회 api사용
   return (
     <div>
+      <CommentForm />
       <ProfileContainer>
-        <CommentForm />
         <ProfileImg2 />
         <NickNameWrapper>
           <NickName>닉네임</NickName>
