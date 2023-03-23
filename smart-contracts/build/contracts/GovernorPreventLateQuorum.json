@@ -1064,80 +1064,80 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "// SPDX-License-Identifier: MIT\r\n// OpenZeppelin Contracts (last updated v4.6.0) (governance/extensions/GovernorPreventLateQuorum.sol)\r\n\r\npragma solidity ^0.8.0;\r\n\r\nimport \"../Governor.sol\";\r\nimport \"../../utils/math/Math.sol\";\r\n\r\n/**\r\n * @dev A module that ensures there is a minimum voting period after quorum is reached. This prevents a large voter from\r\n * swaying a vote and triggering quorum at the last minute, by ensuring there is always time for other voters to react\r\n * and try to oppose the decision.\r\n *\r\n * If a vote causes quorum to be reached, the proposal's voting period may be extended so that it does not end before at\r\n * least a given number of blocks have passed (the \"vote extension\" parameter). This parameter can be set by the\r\n * governance executor (e.g. through a governance proposal).\r\n *\r\n * _Available since v4.5._\r\n */\r\nabstract contract GovernorPreventLateQuorum is Governor {\r\n    using SafeCast for uint256;\r\n\r\n    uint64 private _voteExtension;\r\n\r\n    /// @custom:oz-retyped-from mapping(uint256 => Timers.BlockNumber)\r\n    mapping(uint256 => uint64) private _extendedDeadlines;\r\n\r\n    /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.\r\n    event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);\r\n\r\n    /// @dev Emitted when the {lateQuorumVoteExtension} parameter is changed.\r\n    event LateQuorumVoteExtensionSet(uint64 oldVoteExtension, uint64 newVoteExtension);\r\n\r\n    /**\r\n     * @dev Initializes the vote extension parameter: the number of blocks that are required to pass since a proposal\r\n     * reaches quorum until its voting period ends. If necessary the voting period will be extended beyond the one set\r\n     * at proposal creation.\r\n     */\r\n    constructor(uint64 initialVoteExtension) {\r\n        _setLateQuorumVoteExtension(initialVoteExtension);\r\n    }\r\n\r\n    /**\r\n     * @dev Returns the proposal deadline, which may have been extended beyond that set at proposal creation, if the\r\n     * proposal reached quorum late in the voting period. See {Governor-proposalDeadline}.\r\n     */\r\n    function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {\r\n        return Math.max(super.proposalDeadline(proposalId), _extendedDeadlines[proposalId]);\r\n    }\r\n\r\n    /**\r\n     * @dev Casts a vote and detects if it caused quorum to be reached, potentially extending the voting period. See\r\n     * {Governor-_castVote}.\r\n     *\r\n     * May emit a {ProposalExtended} event.\r\n     */\r\n    function _castVote(\r\n        uint256 proposalId,\r\n        address account,\r\n        uint8 support,\r\n        string memory reason,\r\n        bytes memory params\r\n    ) internal virtual override returns (uint256) {\r\n        uint256 result = super._castVote(proposalId, account, support, reason, params);\r\n\r\n        if (_extendedDeadlines[proposalId] == 0 && _quorumReached(proposalId)) {\r\n            uint64 extendedDeadline = clock() + lateQuorumVoteExtension();\r\n\r\n            if (extendedDeadline > proposalDeadline(proposalId)) {\r\n                emit ProposalExtended(proposalId, extendedDeadline);\r\n            }\r\n\r\n            _extendedDeadlines[proposalId] = extendedDeadline;\r\n        }\r\n\r\n        return result;\r\n    }\r\n\r\n    /**\r\n     * @dev Returns the current value of the vote extension parameter: the number of blocks that are required to pass\r\n     * from the time a proposal reaches quorum until its voting period ends.\r\n     */\r\n    function lateQuorumVoteExtension() public view virtual returns (uint64) {\r\n        return _voteExtension;\r\n    }\r\n\r\n    /**\r\n     * @dev Changes the {lateQuorumVoteExtension}. This operation can only be performed by the governance executor,\r\n     * generally through a governance proposal.\r\n     *\r\n     * Emits a {LateQuorumVoteExtensionSet} event.\r\n     */\r\n    function setLateQuorumVoteExtension(uint64 newVoteExtension) public virtual onlyGovernance {\r\n        _setLateQuorumVoteExtension(newVoteExtension);\r\n    }\r\n\r\n    /**\r\n     * @dev Changes the {lateQuorumVoteExtension}. This is an internal function that can be exposed in a public function\r\n     * like {setLateQuorumVoteExtension} if another access control mechanism is needed.\r\n     *\r\n     * Emits a {LateQuorumVoteExtensionSet} event.\r\n     */\r\n    function _setLateQuorumVoteExtension(uint64 newVoteExtension) internal virtual {\r\n        emit LateQuorumVoteExtensionSet(_voteExtension, newVoteExtension);\r\n        _voteExtension = newVoteExtension;\r\n    }\r\n}\r\n",
-  "sourcePath": "C:\\Users\\akqjq\\Desktop\\S08P22A308\\smart-contracts\\contracts\\governance\\extensions\\GovernorPreventLateQuorum.sol",
+  "sourcePath": "C:\\Users\\SSAFY\\Desktop\\S08P22A308\\smart-contracts\\contracts\\governance\\extensions\\GovernorPreventLateQuorum.sol",
   "ast": {
     "absolutePath": "project:/contracts/governance/extensions/GovernorPreventLateQuorum.sol",
     "exportedSymbols": {
       "Address": [
-        29410
+        29524
       ],
       "Context": [
-        31176
+        31290
       ],
       "DoubleEndedQueue": [
-        37454
+        37568
       ],
       "ECDSA": [
-        32521
+        32635
       ],
       "EIP712": [
-        32725
+        32839
       ],
       "ERC165": [
-        33667
+        33781
       ],
       "Governor": [
-        4238
+        4352
       ],
       "GovernorPreventLateQuorum": [
-        6918
+        7032
       ],
       "IERC1155Receiver": [
-        20519
+        20633
       ],
       "IERC165": [
-        33983
+        34097
       ],
       "IERC5267": [
-        9520
+        9634
       ],
       "IERC6372": [
-        9554
+        9668
       ],
       "IERC721Receiver": [
-        26078
+        26192
       ],
       "IGovernor": [
-        4569
+        4683
       ],
       "Math": [
-        34953
+        35067
       ],
       "SafeCast": [
-        36494
+        36608
       ],
       "ShortString": [
-        31391
+        31505
       ],
       "ShortStrings": [
-        31602
+        31716
       ],
       "SignedMath": [
-        36911
+        37025
       ],
       "StorageSlot": [
-        31712
+        31826
       ],
       "Strings": [
-        31941
+        32055
       ]
     },
-    "id": 6919,
+    "id": 7033,
     "license": "MIT",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 6750,
+        "id": 6864,
         "literals": [
           "solidity",
           "^",
@@ -1150,11 +1150,11 @@
       {
         "absolutePath": "project:/contracts/governance/Governor.sol",
         "file": "../Governor.sol",
-        "id": 6751,
+        "id": 6865,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 6919,
-        "sourceUnit": 4239,
+        "scope": 7033,
+        "sourceUnit": 4353,
         "src": "165:25:30",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1162,11 +1162,11 @@
       {
         "absolutePath": "project:/contracts/utils/math/Math.sol",
         "file": "../../utils/math/Math.sol",
-        "id": 6752,
+        "id": 6866,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 6919,
-        "sourceUnit": 34954,
+        "scope": 7033,
+        "sourceUnit": 35068,
         "src": "192:35:30",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1176,16 +1176,16 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 6754,
+              "id": 6868,
               "name": "Governor",
               "nameLocations": [
                 "900:8:30"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 4238,
+              "referencedDeclaration": 4352,
               "src": "900:8:30"
             },
-            "id": 6755,
+            "id": 6869,
             "nodeType": "InheritanceSpecifier",
             "src": "900:8:30"
           }
@@ -1194,25 +1194,25 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 6753,
+          "id": 6867,
           "nodeType": "StructuredDocumentation",
           "src": "231:620:30",
           "text": " @dev A module that ensures there is a minimum voting period after quorum is reached. This prevents a large voter from\n swaying a vote and triggering quorum at the last minute, by ensuring there is always time for other voters to react\n and try to oppose the decision.\n If a vote causes quorum to be reached, the proposal's voting period may be extended so that it does not end before at\n least a given number of blocks have passed (the \"vote extension\" parameter). This parameter can be set by the\n governance executor (e.g. through a governance proposal).\n _Available since v4.5._"
         },
         "fullyImplemented": false,
-        "id": 6918,
+        "id": 7032,
         "linearizedBaseContracts": [
-          6918,
-          4238,
-          20519,
-          26078,
-          4569,
-          9554,
-          32725,
-          9520,
-          33667,
-          33983,
-          31176
+          7032,
+          4352,
+          20633,
+          26192,
+          4683,
+          9668,
+          32839,
+          9634,
+          33781,
+          34097,
+          31290
         ],
         "name": "GovernorPreventLateQuorum",
         "nameLocation": "871:25:30",
@@ -1220,21 +1220,21 @@
         "nodes": [
           {
             "global": false,
-            "id": 6758,
+            "id": 6872,
             "libraryName": {
-              "id": 6756,
+              "id": 6870,
               "name": "SafeCast",
               "nameLocations": [
                 "922:8:30"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 36494,
+              "referencedDeclaration": 36608,
               "src": "922:8:30"
             },
             "nodeType": "UsingForDirective",
             "src": "916:27:30",
             "typeName": {
-              "id": 6757,
+              "id": 6871,
               "name": "uint256",
               "nodeType": "ElementaryTypeName",
               "src": "935:7:30",
@@ -1246,12 +1246,12 @@
           },
           {
             "constant": false,
-            "id": 6760,
+            "id": 6874,
             "mutability": "mutable",
             "name": "_voteExtension",
             "nameLocation": "966:14:30",
             "nodeType": "VariableDeclaration",
-            "scope": 6918,
+            "scope": 7032,
             "src": "951:29:30",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1260,7 +1260,7 @@
               "typeString": "uint64"
             },
             "typeName": {
-              "id": 6759,
+              "id": 6873,
               "name": "uint64",
               "nodeType": "ElementaryTypeName",
               "src": "951:6:30",
@@ -1274,17 +1274,17 @@
           {
             "constant": false,
             "documentation": {
-              "id": 6761,
+              "id": 6875,
               "nodeType": "StructuredDocumentation",
               "src": "989:66:30",
               "text": "@custom:oz-retyped-from mapping(uint256 => Timers.BlockNumber)"
             },
-            "id": 6765,
+            "id": 6879,
             "mutability": "mutable",
             "name": "_extendedDeadlines",
             "nameLocation": "1096:18:30",
             "nodeType": "VariableDeclaration",
-            "scope": 6918,
+            "scope": 7032,
             "src": "1061:53:30",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1293,11 +1293,11 @@
               "typeString": "mapping(uint256 => uint64)"
             },
             "typeName": {
-              "id": 6764,
+              "id": 6878,
               "keyName": "",
               "keyNameLocation": "-1:-1:-1",
               "keyType": {
-                "id": 6762,
+                "id": 6876,
                 "name": "uint256",
                 "nodeType": "ElementaryTypeName",
                 "src": "1069:7:30",
@@ -1315,7 +1315,7 @@
               "valueName": "",
               "valueNameLocation": "-1:-1:-1",
               "valueType": {
-                "id": 6763,
+                "id": 6877,
                 "name": "uint64",
                 "nodeType": "ElementaryTypeName",
                 "src": "1080:6:30",
@@ -1330,29 +1330,29 @@
           {
             "anonymous": false,
             "documentation": {
-              "id": 6766,
+              "id": 6880,
               "nodeType": "StructuredDocumentation",
               "src": "1123:106:30",
               "text": "@dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period."
             },
             "eventSelector": "541f725fb9f7c98a30cc9c0ff32fbb14358cd7159c847a3aa20a2bdc442ba511",
-            "id": 6772,
+            "id": 6886,
             "name": "ProposalExtended",
             "nameLocation": "1241:16:30",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 6771,
+              "id": 6885,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 6768,
+                  "id": 6882,
                   "indexed": true,
                   "mutability": "mutable",
                   "name": "proposalId",
                   "nameLocation": "1274:10:30",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6772,
+                  "scope": 6886,
                   "src": "1258:26:30",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1361,7 +1361,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 6767,
+                    "id": 6881,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "1258:7:30",
@@ -1374,13 +1374,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 6770,
+                  "id": 6884,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "extendedDeadline",
                   "nameLocation": "1293:16:30",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6772,
+                  "scope": 6886,
                   "src": "1286:23:30",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1389,7 +1389,7 @@
                     "typeString": "uint64"
                   },
                   "typeName": {
-                    "id": 6769,
+                    "id": 6883,
                     "name": "uint64",
                     "nodeType": "ElementaryTypeName",
                     "src": "1286:6:30",
@@ -1408,29 +1408,29 @@
           {
             "anonymous": false,
             "documentation": {
-              "id": 6773,
+              "id": 6887,
               "nodeType": "StructuredDocumentation",
               "src": "1319:73:30",
               "text": "@dev Emitted when the {lateQuorumVoteExtension} parameter is changed."
             },
             "eventSelector": "7ca4ac117ed3cdce75c1161d8207c440389b1a15d69d096831664657c07dafc2",
-            "id": 6779,
+            "id": 6893,
             "name": "LateQuorumVoteExtensionSet",
             "nameLocation": "1404:26:30",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 6778,
+              "id": 6892,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 6775,
+                  "id": 6889,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "oldVoteExtension",
                   "nameLocation": "1438:16:30",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6779,
+                  "scope": 6893,
                   "src": "1431:23:30",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1439,7 +1439,7 @@
                     "typeString": "uint64"
                   },
                   "typeName": {
-                    "id": 6774,
+                    "id": 6888,
                     "name": "uint64",
                     "nodeType": "ElementaryTypeName",
                     "src": "1431:6:30",
@@ -1452,13 +1452,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 6777,
+                  "id": 6891,
                   "indexed": false,
                   "mutability": "mutable",
                   "name": "newVoteExtension",
                   "nameLocation": "1463:16:30",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6779,
+                  "scope": 6893,
                   "src": "1456:23:30",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1467,7 +1467,7 @@
                     "typeString": "uint64"
                   },
                   "typeName": {
-                    "id": 6776,
+                    "id": 6890,
                     "name": "uint64",
                     "nodeType": "ElementaryTypeName",
                     "src": "1456:6:30",
@@ -1485,7 +1485,7 @@
           },
           {
             "body": {
-              "id": 6789,
+              "id": 6903,
               "nodeType": "Block",
               "src": "1817:68:30",
               "statements": [
@@ -1493,11 +1493,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 6786,
+                        "id": 6900,
                         "name": "initialVoteExtension",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 6782,
+                        "referencedDeclaration": 6896,
                         "src": "1856:20:30",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint64",
@@ -1512,18 +1512,18 @@
                           "typeString": "uint64"
                         }
                       ],
-                      "id": 6785,
+                      "id": 6899,
                       "name": "_setLateQuorumVoteExtension",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 6917,
+                      "referencedDeclaration": 7031,
                       "src": "1828:27:30",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint64_$returns$__$",
                         "typeString": "function (uint64)"
                       }
                     },
-                    "id": 6787,
+                    "id": 6901,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1539,19 +1539,19 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 6788,
+                  "id": 6902,
                   "nodeType": "ExpressionStatement",
                   "src": "1828:49:30"
                 }
               ]
             },
             "documentation": {
-              "id": 6780,
+              "id": 6894,
               "nodeType": "StructuredDocumentation",
               "src": "1489:281:30",
               "text": " @dev Initializes the vote extension parameter: the number of blocks that are required to pass since a proposal\n reaches quorum until its voting period ends. If necessary the voting period will be extended beyond the one set\n at proposal creation."
             },
-            "id": 6790,
+            "id": 6904,
             "implemented": true,
             "kind": "constructor",
             "modifiers": [],
@@ -1559,17 +1559,17 @@
             "nameLocation": "-1:-1:-1",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 6783,
+              "id": 6897,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 6782,
+                  "id": 6896,
                   "mutability": "mutable",
                   "name": "initialVoteExtension",
                   "nameLocation": "1795:20:30",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6790,
+                  "scope": 6904,
                   "src": "1788:27:30",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1578,7 +1578,7 @@
                     "typeString": "uint64"
                   },
                   "typeName": {
-                    "id": 6781,
+                    "id": 6895,
                     "name": "uint64",
                     "nodeType": "ElementaryTypeName",
                     "src": "1788:6:30",
@@ -1593,12 +1593,12 @@
               "src": "1787:29:30"
             },
             "returnParameters": {
-              "id": 6784,
+              "id": 6898,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1817:0:30"
             },
-            "scope": 6918,
+            "scope": 7032,
             "src": "1776:109:30",
             "stateMutability": "nonpayable",
             "virtual": false,
@@ -1606,10 +1606,10 @@
           },
           {
             "baseFunctions": [
-              3234
+              3348
             ],
             "body": {
-              "id": 6810,
+              "id": 6924,
               "nodeType": "Block",
               "src": "2214:102:30",
               "statements": [
@@ -1619,11 +1619,11 @@
                       {
                         "arguments": [
                           {
-                            "id": 6803,
+                            "id": 6917,
                             "name": "proposalId",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 6793,
+                            "referencedDeclaration": 6907,
                             "src": "2264:10:30",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint256",
@@ -1639,18 +1639,18 @@
                             }
                           ],
                           "expression": {
-                            "id": 6801,
+                            "id": 6915,
                             "name": "super",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
                             "referencedDeclaration": 4294967271,
                             "src": "2241:5:30",
                             "typeDescriptions": {
-                              "typeIdentifier": "t_type$_t_super$_GovernorPreventLateQuorum_$6918_$",
+                              "typeIdentifier": "t_type$_t_super$_GovernorPreventLateQuorum_$7032_$",
                               "typeString": "type(contract super GovernorPreventLateQuorum)"
                             }
                           },
-                          "id": 6802,
+                          "id": 6916,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -1658,14 +1658,14 @@
                           "memberLocation": "2247:16:30",
                           "memberName": "proposalDeadline",
                           "nodeType": "MemberAccess",
-                          "referencedDeclaration": 3234,
+                          "referencedDeclaration": 3348,
                           "src": "2241:22:30",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_view$_t_uint256_$returns$_t_uint256_$",
                             "typeString": "function (uint256) view returns (uint256)"
                           }
                         },
-                        "id": 6804,
+                        "id": 6918,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -1683,24 +1683,24 @@
                       },
                       {
                         "baseExpression": {
-                          "id": 6805,
+                          "id": 6919,
                           "name": "_extendedDeadlines",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 6765,
+                          "referencedDeclaration": 6879,
                           "src": "2277:18:30",
                           "typeDescriptions": {
                             "typeIdentifier": "t_mapping$_t_uint256_$_t_uint64_$",
                             "typeString": "mapping(uint256 => uint64)"
                           }
                         },
-                        "id": 6807,
+                        "id": 6921,
                         "indexExpression": {
-                          "id": 6806,
+                          "id": 6920,
                           "name": "proposalId",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 6793,
+                          "referencedDeclaration": 6907,
                           "src": "2296:10:30",
                           "typeDescriptions": {
                             "typeIdentifier": "t_uint256",
@@ -1731,18 +1731,18 @@
                         }
                       ],
                       "expression": {
-                        "id": 6799,
+                        "id": 6913,
                         "name": "Math",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 34953,
+                        "referencedDeclaration": 35067,
                         "src": "2232:4:30",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_Math_$34953_$",
+                          "typeIdentifier": "t_type$_t_contract$_Math_$35067_$",
                           "typeString": "type(library Math)"
                         }
                       },
-                      "id": 6800,
+                      "id": 6914,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -1750,14 +1750,14 @@
                       "memberLocation": "2237:3:30",
                       "memberName": "max",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 34112,
+                      "referencedDeclaration": 34226,
                       "src": "2232:8:30",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_pure$_t_uint256_$_t_uint256_$returns$_t_uint256_$",
                         "typeString": "function (uint256,uint256) pure returns (uint256)"
                       }
                     },
-                    "id": 6808,
+                    "id": 6922,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1773,21 +1773,21 @@
                       "typeString": "uint256"
                     }
                   },
-                  "functionReturnParameters": 6798,
-                  "id": 6809,
+                  "functionReturnParameters": 6912,
+                  "id": 6923,
                   "nodeType": "Return",
                   "src": "2225:83:30"
                 }
               ]
             },
             "documentation": {
-              "id": 6791,
+              "id": 6905,
               "nodeType": "StructuredDocumentation",
               "src": "1893:222:30",
               "text": " @dev Returns the proposal deadline, which may have been extended beyond that set at proposal creation, if the\n proposal reached quorum late in the voting period. See {Governor-proposalDeadline}."
             },
             "functionSelector": "c01f9e37",
-            "id": 6811,
+            "id": 6925,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -1795,23 +1795,23 @@
             "nameLocation": "2130:16:30",
             "nodeType": "FunctionDefinition",
             "overrides": {
-              "id": 6795,
+              "id": 6909,
               "nodeType": "OverrideSpecifier",
               "overrides": [],
               "src": "2187:8:30"
             },
             "parameters": {
-              "id": 6794,
+              "id": 6908,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 6793,
+                  "id": 6907,
                   "mutability": "mutable",
                   "name": "proposalId",
                   "nameLocation": "2155:10:30",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6811,
+                  "scope": 6925,
                   "src": "2147:18:30",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1820,7 +1820,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 6792,
+                    "id": 6906,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "2147:7:30",
@@ -1835,17 +1835,17 @@
               "src": "2146:20:30"
             },
             "returnParameters": {
-              "id": 6798,
+              "id": 6912,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 6797,
+                  "id": 6911,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6811,
+                  "scope": 6925,
                   "src": "2205:7:30",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1854,7 +1854,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 6796,
+                    "id": 6910,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "2205:7:30",
@@ -1868,7 +1868,7 @@
               ],
               "src": "2204:9:30"
             },
-            "scope": 6918,
+            "scope": 7032,
             "src": "2121:195:30",
             "stateMutability": "view",
             "virtual": true,
@@ -1876,26 +1876,26 @@
           },
           {
             "baseFunctions": [
-              4127
+              4241
             ],
             "body": {
-              "id": 6878,
+              "id": 6992,
               "nodeType": "Block",
               "src": "2753:515:30",
               "statements": [
                 {
                   "assignments": [
-                    6829
+                    6943
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 6829,
+                      "id": 6943,
                       "mutability": "mutable",
                       "name": "result",
                       "nameLocation": "2772:6:30",
                       "nodeType": "VariableDeclaration",
-                      "scope": 6878,
+                      "scope": 6992,
                       "src": "2764:14:30",
                       "stateVariable": false,
                       "storageLocation": "default",
@@ -1904,7 +1904,7 @@
                         "typeString": "uint256"
                       },
                       "typeName": {
-                        "id": 6828,
+                        "id": 6942,
                         "name": "uint256",
                         "nodeType": "ElementaryTypeName",
                         "src": "2764:7:30",
@@ -1916,15 +1916,15 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 6838,
+                  "id": 6952,
                   "initialValue": {
                     "arguments": [
                       {
-                        "id": 6832,
+                        "id": 6946,
                         "name": "proposalId",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 6814,
+                        "referencedDeclaration": 6928,
                         "src": "2797:10:30",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -1932,11 +1932,11 @@
                         }
                       },
                       {
-                        "id": 6833,
+                        "id": 6947,
                         "name": "account",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 6816,
+                        "referencedDeclaration": 6930,
                         "src": "2809:7:30",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -1944,11 +1944,11 @@
                         }
                       },
                       {
-                        "id": 6834,
+                        "id": 6948,
                         "name": "support",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 6818,
+                        "referencedDeclaration": 6932,
                         "src": "2818:7:30",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint8",
@@ -1956,11 +1956,11 @@
                         }
                       },
                       {
-                        "id": 6835,
+                        "id": 6949,
                         "name": "reason",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 6820,
+                        "referencedDeclaration": 6934,
                         "src": "2827:6:30",
                         "typeDescriptions": {
                           "typeIdentifier": "t_string_memory_ptr",
@@ -1968,11 +1968,11 @@
                         }
                       },
                       {
-                        "id": 6836,
+                        "id": 6950,
                         "name": "params",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 6822,
+                        "referencedDeclaration": 6936,
                         "src": "2835:6:30",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes_memory_ptr",
@@ -2004,18 +2004,18 @@
                         }
                       ],
                       "expression": {
-                        "id": 6830,
+                        "id": 6944,
                         "name": "super",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 4294967271,
                         "src": "2781:5:30",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_super$_GovernorPreventLateQuorum_$6918_$",
+                          "typeIdentifier": "t_type$_t_super$_GovernorPreventLateQuorum_$7032_$",
                           "typeString": "type(contract super GovernorPreventLateQuorum)"
                         }
                       },
-                      "id": 6831,
+                      "id": 6945,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -2023,14 +2023,14 @@
                       "memberLocation": "2787:9:30",
                       "memberName": "_castVote",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 4127,
+                      "referencedDeclaration": 4241,
                       "src": "2781:15:30",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint256_$_t_address_$_t_uint8_$_t_string_memory_ptr_$_t_bytes_memory_ptr_$returns$_t_uint256_$",
                         "typeString": "function (uint256,address,uint8,string memory,bytes memory) returns (uint256)"
                       }
                     },
-                    "id": 6837,
+                    "id": 6951,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2055,7 +2055,7 @@
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
                     },
-                    "id": 6847,
+                    "id": 6961,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2065,31 +2065,31 @@
                         "typeIdentifier": "t_uint64",
                         "typeString": "uint64"
                       },
-                      "id": 6843,
+                      "id": 6957,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "leftExpression": {
                         "baseExpression": {
-                          "id": 6839,
+                          "id": 6953,
                           "name": "_extendedDeadlines",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 6765,
+                          "referencedDeclaration": 6879,
                           "src": "2859:18:30",
                           "typeDescriptions": {
                             "typeIdentifier": "t_mapping$_t_uint256_$_t_uint64_$",
                             "typeString": "mapping(uint256 => uint64)"
                           }
                         },
-                        "id": 6841,
+                        "id": 6955,
                         "indexExpression": {
-                          "id": 6840,
+                          "id": 6954,
                           "name": "proposalId",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 6814,
+                          "referencedDeclaration": 6928,
                           "src": "2878:10:30",
                           "typeDescriptions": {
                             "typeIdentifier": "t_uint256",
@@ -2111,7 +2111,7 @@
                       "operator": "==",
                       "rightExpression": {
                         "hexValue": "30",
-                        "id": 6842,
+                        "id": 6956,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2136,11 +2136,11 @@
                     "rightExpression": {
                       "arguments": [
                         {
-                          "id": 6845,
+                          "id": 6959,
                           "name": "proposalId",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 6814,
+                          "referencedDeclaration": 6928,
                           "src": "2913:10:30",
                           "typeDescriptions": {
                             "typeIdentifier": "t_uint256",
@@ -2155,18 +2155,18 @@
                             "typeString": "uint256"
                           }
                         ],
-                        "id": 6844,
+                        "id": 6958,
                         "name": "_quorumReached",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 3256,
+                        "referencedDeclaration": 3370,
                         "src": "2898:14:30",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_internal_view$_t_uint256_$returns$_t_bool_$",
                           "typeString": "function (uint256) view returns (bool)"
                         }
                       },
-                      "id": 6846,
+                      "id": 6960,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -2188,27 +2188,27 @@
                       "typeString": "bool"
                     }
                   },
-                  "id": 6875,
+                  "id": 6989,
                   "nodeType": "IfStatement",
                   "src": "2855:380:30",
                   "trueBody": {
-                    "id": 6874,
+                    "id": 6988,
                     "nodeType": "Block",
                     "src": "2926:309:30",
                     "statements": [
                       {
                         "assignments": [
-                          6849
+                          6963
                         ],
                         "declarations": [
                           {
                             "constant": false,
-                            "id": 6849,
+                            "id": 6963,
                             "mutability": "mutable",
                             "name": "extendedDeadline",
                             "nameLocation": "2948:16:30",
                             "nodeType": "VariableDeclaration",
-                            "scope": 6874,
+                            "scope": 6988,
                             "src": "2941:23:30",
                             "stateVariable": false,
                             "storageLocation": "default",
@@ -2217,7 +2217,7 @@
                               "typeString": "uint64"
                             },
                             "typeName": {
-                              "id": 6848,
+                              "id": 6962,
                               "name": "uint64",
                               "nodeType": "ElementaryTypeName",
                               "src": "2941:6:30",
@@ -2229,13 +2229,13 @@
                             "visibility": "internal"
                           }
                         ],
-                        "id": 6855,
+                        "id": 6969,
                         "initialValue": {
                           "commonType": {
                             "typeIdentifier": "t_uint64",
                             "typeString": "uint64"
                           },
-                          "id": 6854,
+                          "id": 6968,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -2244,18 +2244,18 @@
                             "arguments": [],
                             "expression": {
                               "argumentTypes": [],
-                              "id": 6850,
+                              "id": 6964,
                               "name": "clock",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 4338,
+                              "referencedDeclaration": 4452,
                               "src": "2967:5:30",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_function_internal_view$__$returns$_t_uint48_$",
                                 "typeString": "function () view returns (uint48)"
                               }
                             },
-                            "id": 6851,
+                            "id": 6965,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
@@ -2277,18 +2277,18 @@
                             "arguments": [],
                             "expression": {
                               "argumentTypes": [],
-                              "id": 6852,
+                              "id": 6966,
                               "name": "lateQuorumVoteExtension",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 6888,
+                              "referencedDeclaration": 7002,
                               "src": "2977:23:30",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_function_internal_view$__$returns$_t_uint64_$",
                                 "typeString": "function () view returns (uint64)"
                               }
                             },
-                            "id": 6853,
+                            "id": 6967,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
@@ -2319,17 +2319,17 @@
                             "typeIdentifier": "t_uint256",
                             "typeString": "uint256"
                           },
-                          "id": 6860,
+                          "id": 6974,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
                           "lValueRequested": false,
                           "leftExpression": {
-                            "id": 6856,
+                            "id": 6970,
                             "name": "extendedDeadline",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 6849,
+                            "referencedDeclaration": 6963,
                             "src": "3023:16:30",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint64",
@@ -2341,11 +2341,11 @@
                           "rightExpression": {
                             "arguments": [
                               {
-                                "id": 6858,
+                                "id": 6972,
                                 "name": "proposalId",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 6814,
+                                "referencedDeclaration": 6928,
                                 "src": "3059:10:30",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_uint256",
@@ -2360,20 +2360,20 @@
                                   "typeString": "uint256"
                                 }
                               ],
-                              "id": 6857,
+                              "id": 6971,
                               "name": "proposalDeadline",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [
-                                6811
+                                6925
                               ],
-                              "referencedDeclaration": 6811,
+                              "referencedDeclaration": 6925,
                               "src": "3042:16:30",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_function_internal_view$_t_uint256_$returns$_t_uint256_$",
                                 "typeString": "function (uint256) view returns (uint256)"
                               }
                             },
-                            "id": 6859,
+                            "id": 6973,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
@@ -2395,11 +2395,11 @@
                             "typeString": "bool"
                           }
                         },
-                        "id": 6867,
+                        "id": 6981,
                         "nodeType": "IfStatement",
                         "src": "3019:139:30",
                         "trueBody": {
-                          "id": 6866,
+                          "id": 6980,
                           "nodeType": "Block",
                           "src": "3072:86:30",
                           "statements": [
@@ -2407,11 +2407,11 @@
                               "eventCall": {
                                 "arguments": [
                                   {
-                                    "id": 6862,
+                                    "id": 6976,
                                     "name": "proposalId",
                                     "nodeType": "Identifier",
                                     "overloadedDeclarations": [],
-                                    "referencedDeclaration": 6814,
+                                    "referencedDeclaration": 6928,
                                     "src": "3113:10:30",
                                     "typeDescriptions": {
                                       "typeIdentifier": "t_uint256",
@@ -2419,11 +2419,11 @@
                                     }
                                   },
                                   {
-                                    "id": 6863,
+                                    "id": 6977,
                                     "name": "extendedDeadline",
                                     "nodeType": "Identifier",
                                     "overloadedDeclarations": [],
-                                    "referencedDeclaration": 6849,
+                                    "referencedDeclaration": 6963,
                                     "src": "3125:16:30",
                                     "typeDescriptions": {
                                       "typeIdentifier": "t_uint64",
@@ -2442,18 +2442,18 @@
                                       "typeString": "uint64"
                                     }
                                   ],
-                                  "id": 6861,
+                                  "id": 6975,
                                   "name": "ProposalExtended",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
-                                  "referencedDeclaration": 6772,
+                                  "referencedDeclaration": 6886,
                                   "src": "3096:16:30",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_function_event_nonpayable$_t_uint256_$_t_uint64_$returns$__$",
                                     "typeString": "function (uint256,uint64)"
                                   }
                                 },
-                                "id": 6864,
+                                "id": 6978,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": false,
@@ -2469,7 +2469,7 @@
                                   "typeString": "tuple()"
                                 }
                               },
-                              "id": 6865,
+                              "id": 6979,
                               "nodeType": "EmitStatement",
                               "src": "3091:51:30"
                             }
@@ -2478,31 +2478,31 @@
                       },
                       {
                         "expression": {
-                          "id": 6872,
+                          "id": 6986,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
                           "lValueRequested": false,
                           "leftHandSide": {
                             "baseExpression": {
-                              "id": 6868,
+                              "id": 6982,
                               "name": "_extendedDeadlines",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 6765,
+                              "referencedDeclaration": 6879,
                               "src": "3174:18:30",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_mapping$_t_uint256_$_t_uint64_$",
                                 "typeString": "mapping(uint256 => uint64)"
                               }
                             },
-                            "id": 6870,
+                            "id": 6984,
                             "indexExpression": {
-                              "id": 6869,
+                              "id": 6983,
                               "name": "proposalId",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 6814,
+                              "referencedDeclaration": 6928,
                               "src": "3193:10:30",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_uint256",
@@ -2523,11 +2523,11 @@
                           "nodeType": "Assignment",
                           "operator": "=",
                           "rightHandSide": {
-                            "id": 6871,
+                            "id": 6985,
                             "name": "extendedDeadline",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 6849,
+                            "referencedDeclaration": 6963,
                             "src": "3207:16:30",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint64",
@@ -2540,7 +2540,7 @@
                             "typeString": "uint64"
                           }
                         },
-                        "id": 6873,
+                        "id": 6987,
                         "nodeType": "ExpressionStatement",
                         "src": "3174:49:30"
                       }
@@ -2549,31 +2549,31 @@
                 },
                 {
                   "expression": {
-                    "id": 6876,
+                    "id": 6990,
                     "name": "result",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 6829,
+                    "referencedDeclaration": 6943,
                     "src": "3254:6:30",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "functionReturnParameters": 6827,
-                  "id": 6877,
+                  "functionReturnParameters": 6941,
+                  "id": 6991,
                   "nodeType": "Return",
                   "src": "3247:13:30"
                 }
               ]
             },
             "documentation": {
-              "id": 6812,
+              "id": 6926,
               "nodeType": "StructuredDocumentation",
               "src": "2324:213:30",
               "text": " @dev Casts a vote and detects if it caused quorum to be reached, potentially extending the voting period. See\n {Governor-_castVote}.\n May emit a {ProposalExtended} event."
             },
-            "id": 6879,
+            "id": 6993,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -2581,23 +2581,23 @@
             "nameLocation": "2552:9:30",
             "nodeType": "FunctionDefinition",
             "overrides": {
-              "id": 6824,
+              "id": 6938,
               "nodeType": "OverrideSpecifier",
               "overrides": [],
               "src": "2726:8:30"
             },
             "parameters": {
-              "id": 6823,
+              "id": 6937,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 6814,
+                  "id": 6928,
                   "mutability": "mutable",
                   "name": "proposalId",
                   "nameLocation": "2580:10:30",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6879,
+                  "scope": 6993,
                   "src": "2572:18:30",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2606,7 +2606,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 6813,
+                    "id": 6927,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "2572:7:30",
@@ -2619,12 +2619,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 6816,
+                  "id": 6930,
                   "mutability": "mutable",
                   "name": "account",
                   "nameLocation": "2609:7:30",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6879,
+                  "scope": 6993,
                   "src": "2601:15:30",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2633,7 +2633,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 6815,
+                    "id": 6929,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "2601:7:30",
@@ -2647,12 +2647,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 6818,
+                  "id": 6932,
                   "mutability": "mutable",
                   "name": "support",
                   "nameLocation": "2633:7:30",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6879,
+                  "scope": 6993,
                   "src": "2627:13:30",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2661,7 +2661,7 @@
                     "typeString": "uint8"
                   },
                   "typeName": {
-                    "id": 6817,
+                    "id": 6931,
                     "name": "uint8",
                     "nodeType": "ElementaryTypeName",
                     "src": "2627:5:30",
@@ -2674,12 +2674,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 6820,
+                  "id": 6934,
                   "mutability": "mutable",
                   "name": "reason",
                   "nameLocation": "2665:6:30",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6879,
+                  "scope": 6993,
                   "src": "2651:20:30",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -2688,7 +2688,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 6819,
+                    "id": 6933,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "2651:6:30",
@@ -2701,12 +2701,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 6822,
+                  "id": 6936,
                   "mutability": "mutable",
                   "name": "params",
                   "nameLocation": "2695:6:30",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6879,
+                  "scope": 6993,
                   "src": "2682:19:30",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -2715,7 +2715,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 6821,
+                    "id": 6935,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "2682:5:30",
@@ -2730,17 +2730,17 @@
               "src": "2561:147:30"
             },
             "returnParameters": {
-              "id": 6827,
+              "id": 6941,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 6826,
+                  "id": 6940,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6879,
+                  "scope": 6993,
                   "src": "2744:7:30",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2749,7 +2749,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 6825,
+                    "id": 6939,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "2744:7:30",
@@ -2763,7 +2763,7 @@
               ],
               "src": "2743:9:30"
             },
-            "scope": 6918,
+            "scope": 7032,
             "src": "2543:725:30",
             "stateMutability": "nonpayable",
             "virtual": true,
@@ -2771,38 +2771,38 @@
           },
           {
             "body": {
-              "id": 6887,
+              "id": 7001,
               "nodeType": "Block",
               "src": "3563:40:30",
               "statements": [
                 {
                   "expression": {
-                    "id": 6885,
+                    "id": 6999,
                     "name": "_voteExtension",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 6760,
+                    "referencedDeclaration": 6874,
                     "src": "3581:14:30",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint64",
                       "typeString": "uint64"
                     }
                   },
-                  "functionReturnParameters": 6884,
-                  "id": 6886,
+                  "functionReturnParameters": 6998,
+                  "id": 7000,
                   "nodeType": "Return",
                   "src": "3574:21:30"
                 }
               ]
             },
             "documentation": {
-              "id": 6880,
+              "id": 6994,
               "nodeType": "StructuredDocumentation",
               "src": "3276:209:30",
               "text": " @dev Returns the current value of the vote extension parameter: the number of blocks that are required to pass\n from the time a proposal reaches quorum until its voting period ends."
             },
             "functionSelector": "32b8113e",
-            "id": 6888,
+            "id": 7002,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -2810,23 +2810,23 @@
             "nameLocation": "3500:23:30",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 6881,
+              "id": 6995,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "3523:2:30"
             },
             "returnParameters": {
-              "id": 6884,
+              "id": 6998,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 6883,
+                  "id": 6997,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6888,
+                  "scope": 7002,
                   "src": "3555:6:30",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2835,7 +2835,7 @@
                     "typeString": "uint64"
                   },
                   "typeName": {
-                    "id": 6882,
+                    "id": 6996,
                     "name": "uint64",
                     "nodeType": "ElementaryTypeName",
                     "src": "3555:6:30",
@@ -2849,7 +2849,7 @@
               ],
               "src": "3554:8:30"
             },
-            "scope": 6918,
+            "scope": 7032,
             "src": "3491:112:30",
             "stateMutability": "view",
             "virtual": true,
@@ -2857,7 +2857,7 @@
           },
           {
             "body": {
-              "id": 6900,
+              "id": 7014,
               "nodeType": "Block",
               "src": "3946:64:30",
               "statements": [
@@ -2865,11 +2865,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 6897,
+                        "id": 7011,
                         "name": "newVoteExtension",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 6891,
+                        "referencedDeclaration": 7005,
                         "src": "3985:16:30",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint64",
@@ -2884,18 +2884,18 @@
                           "typeString": "uint64"
                         }
                       ],
-                      "id": 6896,
+                      "id": 7010,
                       "name": "_setLateQuorumVoteExtension",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 6917,
+                      "referencedDeclaration": 7031,
                       "src": "3957:27:30",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_uint64_$returns$__$",
                         "typeString": "function (uint64)"
                       }
                     },
-                    "id": 6898,
+                    "id": 7012,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2911,34 +2911,34 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 6899,
+                  "id": 7013,
                   "nodeType": "ExpressionStatement",
                   "src": "3957:45:30"
                 }
               ]
             },
             "documentation": {
-              "id": 6889,
+              "id": 7003,
               "nodeType": "StructuredDocumentation",
               "src": "3611:238:30",
               "text": " @dev Changes the {lateQuorumVoteExtension}. This operation can only be performed by the governance executor,\n generally through a governance proposal.\n Emits a {LateQuorumVoteExtensionSet} event."
             },
             "functionSelector": "d07f91e9",
-            "id": 6901,
+            "id": 7015,
             "implemented": true,
             "kind": "function",
             "modifiers": [
               {
-                "id": 6894,
+                "id": 7008,
                 "kind": "modifierInvocation",
                 "modifierName": {
-                  "id": 6893,
+                  "id": 7007,
                   "name": "onlyGovernance",
                   "nameLocations": [
                     "3931:14:30"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 2952,
+                  "referencedDeclaration": 3066,
                   "src": "3931:14:30"
                 },
                 "nodeType": "ModifierInvocation",
@@ -2949,17 +2949,17 @@
             "nameLocation": "3864:26:30",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 6892,
+              "id": 7006,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 6891,
+                  "id": 7005,
                   "mutability": "mutable",
                   "name": "newVoteExtension",
                   "nameLocation": "3898:16:30",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6901,
+                  "scope": 7015,
                   "src": "3891:23:30",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2968,7 +2968,7 @@
                     "typeString": "uint64"
                   },
                   "typeName": {
-                    "id": 6890,
+                    "id": 7004,
                     "name": "uint64",
                     "nodeType": "ElementaryTypeName",
                     "src": "3891:6:30",
@@ -2983,12 +2983,12 @@
               "src": "3890:25:30"
             },
             "returnParameters": {
-              "id": 6895,
+              "id": 7009,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "3946:0:30"
             },
-            "scope": 6918,
+            "scope": 7032,
             "src": "3855:155:30",
             "stateMutability": "nonpayable",
             "virtual": true,
@@ -2996,7 +2996,7 @@
           },
           {
             "body": {
-              "id": 6916,
+              "id": 7030,
               "nodeType": "Block",
               "src": "4386:128:30",
               "statements": [
@@ -3004,11 +3004,11 @@
                   "eventCall": {
                     "arguments": [
                       {
-                        "id": 6908,
+                        "id": 7022,
                         "name": "_voteExtension",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 6760,
+                        "referencedDeclaration": 6874,
                         "src": "4429:14:30",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint64",
@@ -3016,11 +3016,11 @@
                         }
                       },
                       {
-                        "id": 6909,
+                        "id": 7023,
                         "name": "newVoteExtension",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 6904,
+                        "referencedDeclaration": 7018,
                         "src": "4445:16:30",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint64",
@@ -3039,18 +3039,18 @@
                           "typeString": "uint64"
                         }
                       ],
-                      "id": 6907,
+                      "id": 7021,
                       "name": "LateQuorumVoteExtensionSet",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 6779,
+                      "referencedDeclaration": 6893,
                       "src": "4402:26:30",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_uint64_$_t_uint64_$returns$__$",
                         "typeString": "function (uint64,uint64)"
                       }
                     },
-                    "id": 6910,
+                    "id": 7024,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3066,23 +3066,23 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 6911,
+                  "id": 7025,
                   "nodeType": "EmitStatement",
                   "src": "4397:65:30"
                 },
                 {
                   "expression": {
-                    "id": 6914,
+                    "id": 7028,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
-                      "id": 6912,
+                      "id": 7026,
                       "name": "_voteExtension",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 6760,
+                      "referencedDeclaration": 6874,
                       "src": "4473:14:30",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint64",
@@ -3092,11 +3092,11 @@
                     "nodeType": "Assignment",
                     "operator": "=",
                     "rightHandSide": {
-                      "id": 6913,
+                      "id": 7027,
                       "name": "newVoteExtension",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 6904,
+                      "referencedDeclaration": 7018,
                       "src": "4490:16:30",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint64",
@@ -3109,19 +3109,19 @@
                       "typeString": "uint64"
                     }
                   },
-                  "id": 6915,
+                  "id": 7029,
                   "nodeType": "ExpressionStatement",
                   "src": "4473:33:30"
                 }
               ]
             },
             "documentation": {
-              "id": 6902,
+              "id": 7016,
               "nodeType": "StructuredDocumentation",
               "src": "4018:283:30",
               "text": " @dev Changes the {lateQuorumVoteExtension}. This is an internal function that can be exposed in a public function\n like {setLateQuorumVoteExtension} if another access control mechanism is needed.\n Emits a {LateQuorumVoteExtensionSet} event."
             },
-            "id": 6917,
+            "id": 7031,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -3129,17 +3129,17 @@
             "nameLocation": "4316:27:30",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 6905,
+              "id": 7019,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 6904,
+                  "id": 7018,
                   "mutability": "mutable",
                   "name": "newVoteExtension",
                   "nameLocation": "4351:16:30",
                   "nodeType": "VariableDeclaration",
-                  "scope": 6917,
+                  "scope": 7031,
                   "src": "4344:23:30",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -3148,7 +3148,7 @@
                     "typeString": "uint64"
                   },
                   "typeName": {
-                    "id": 6903,
+                    "id": 7017,
                     "name": "uint64",
                     "nodeType": "ElementaryTypeName",
                     "src": "4344:6:30",
@@ -3163,24 +3163,24 @@
               "src": "4343:25:30"
             },
             "returnParameters": {
-              "id": 6906,
+              "id": 7020,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "4386:0:30"
             },
-            "scope": 6918,
+            "scope": 7032,
             "src": "4307:207:30",
             "stateMutability": "nonpayable",
             "virtual": true,
             "visibility": "internal"
           }
         ],
-        "scope": 6919,
+        "scope": 7033,
         "src": "853:3664:30",
         "usedErrors": [
-          31399,
-          31401,
-          37120
+          31513,
+          31515,
+          37234
         ]
       }
     ],
@@ -3192,7 +3192,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.13",
-  "updatedAt": "2023-03-22T16:34:02.615Z",
+  "updatedAt": "2023-03-23T05:45:08.120Z",
   "devdoc": {
     "details": "A module that ensures there is a minimum voting period after quorum is reached. This prevents a large voter from swaying a vote and triggering quorum at the last minute, by ensuring there is always time for other voters to react and try to oppose the decision. If a vote causes quorum to be reached, the proposal's voting period may be extended so that it does not end before at least a given number of blocks have passed (the \"vote extension\" parameter). This parameter can be set by the governance executor (e.g. through a governance proposal). _Available since v4.5._",
     "errors": {

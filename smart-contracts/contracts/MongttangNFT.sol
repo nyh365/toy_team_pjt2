@@ -63,20 +63,25 @@ contract MongttangNFT is ERC721, Ownable {
         return _nftBalances[tokenId];
     }
 
-    function getMyNfts() public view returns (uint[] memory) {
+    function getMyNfts() public view returns (uint[][] memory) {
+
         uint256 count = 0;
         for(uint i = 1; i<=_tokenIds.current(); i++) {
             if( ownerOf(i) == _msgSender()) {
                 count++;
             }
         }
-        uint[] memory nftIds = new uint[](count);
+
+        uint[][] memory nftWithDeposit = new uint[][](count);        
         count = 0;
-        for(uint i = 1; i<=_tokenIds.current(); i++) {
-            if( ownerOf(i) == _msgSender()) {
-                nftIds[count++] = i;
+        for(uint i = 1; i<=_tokenIds.current(); i++){
+            if(ownerOf(i) == _msgSender()){
+                nftWithDeposit[count] = new uint[](2);                
+                nftWithDeposit[count][0] = i;
+                nftWithDeposit[count++][1] = _nftBalances[i];
             }
         }
-        return nftIds;
+        
+        return nftWithDeposit;
     }
 }

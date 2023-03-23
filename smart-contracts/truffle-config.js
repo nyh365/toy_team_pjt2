@@ -41,10 +41,10 @@
  * https://trufflesuite.com/docs/truffle/getting-started/using-the-truffle-dashboard/
  */
 
-require('dotenv').config();
-const { MNEMONIC, SSAFY_RPC_KEY } = process.env;
+// require('dotenv').config();
+// const { MNEMONIC, SSAFY_RPC_KEY } = process.env;
 
-const HDWalletProvider = require('@truffle/hdwallet-provider');
+// const HDWalletProvider = require('@truffle/hdwallet-provider');
 
 
 module.exports = {
@@ -92,13 +92,13 @@ module.exports = {
     // },
     //
     // Useful for private networks
-    private: {
-      provider: () => new HDWalletProvider(MNEMONIC, SSAFY_RPC_KEY),
-      network_id: 31221,   // This network is yours, in the cloud.
-      production: true,    // Treats this network as if it was a public net. (default: false)
-      gasPrice: 0,
-      gas: 0,
-    }
+    // private: {
+    //   provider: () => new HDWalletProvider(MNEMONIC, SSAFY_RPC_KEY),
+    //   network_id: 31221,   // This network is yours, in the cloud.
+    //   production: true,    // Treats this network as if it was a public net. (default: false)
+    //   gasPrice: 0,
+    //   gas: 0,
+    // }
   },
 
   // Set default mocha options here, use special reporters, etc.

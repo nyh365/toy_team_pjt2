@@ -1013,86 +1013,86 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "// SPDX-License-Identifier: MIT\r\n// OpenZeppelin Contracts (last updated v4.6.0) (governance/extensions/GovernorVotes.sol)\r\n\r\npragma solidity ^0.8.0;\r\n\r\nimport \"../Governor.sol\";\r\nimport \"../../interfaces/IERC5805.sol\";\r\n\r\n/**\r\n * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token, or since v4.5 an {ERC721Votes} token.\r\n *\r\n * _Available since v4.3._\r\n */\r\nabstract contract GovernorVotes is Governor {\r\n    IERC5805 public immutable token;\r\n\r\n    constructor(IVotes tokenAddress) {\r\n        token = IERC5805(address(tokenAddress));\r\n    }\r\n\r\n    /**\r\n     * @dev Clock (as specified in EIP-6372) is set to match the token's clock. Fallback to block numbers if the token\r\n     * does not implement EIP-6372.\r\n     */\r\n    function clock() public view virtual override returns (uint48) {\r\n        try token.clock() returns (uint48 timepoint) {\r\n            return timepoint;\r\n        } catch {\r\n            return SafeCast.toUint48(block.number);\r\n        }\r\n    }\r\n\r\n    /**\r\n     * @dev Machine-readable description of the clock as specified in EIP-6372.\r\n     */\r\n    // solhint-disable-next-line func-name-mixedcase\r\n    function CLOCK_MODE() public view virtual override returns (string memory) {\r\n        try token.CLOCK_MODE() returns (string memory clockmode) {\r\n            return clockmode;\r\n        } catch {\r\n            return \"mode=blocknumber&from=default\";\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Read the voting weight from the token's built in snapshot mechanism (see {Governor-_getVotes}).\r\n     */\r\n    function _getVotes(\r\n        address account,\r\n        uint256 timepoint,\r\n        bytes memory /*params*/\r\n    ) internal view virtual override returns (uint256) {\r\n        return token.getPastVotes(account, timepoint);\r\n    }\r\n}\r\n",
-  "sourcePath": "C:\\Users\\akqjq\\Desktop\\S08P22A308\\smart-contracts\\contracts\\governance\\extensions\\GovernorVotes.sol",
+  "sourcePath": "C:\\Users\\SSAFY\\Desktop\\S08P22A308\\smart-contracts\\contracts\\governance\\extensions\\GovernorVotes.sol",
   "ast": {
     "absolutePath": "project:/contracts/governance/extensions/GovernorVotes.sol",
     "exportedSymbols": {
       "Address": [
-        29410
+        29524
       ],
       "Context": [
-        31176
+        31290
       ],
       "DoubleEndedQueue": [
-        37454
+        37568
       ],
       "ECDSA": [
-        32521
+        32635
       ],
       "EIP712": [
-        32725
+        32839
       ],
       "ERC165": [
-        33667
+        33781
       ],
       "Governor": [
-        4238
+        4352
       ],
       "GovernorVotes": [
-        8077
+        8191
       ],
       "IERC1155Receiver": [
-        20519
+        20633
       ],
       "IERC165": [
-        33983
+        34097
       ],
       "IERC5267": [
-        9520
+        9634
       ],
       "IERC5805": [
-        9539
+        9653
       ],
       "IERC6372": [
-        9554
+        9668
       ],
       "IERC721Receiver": [
-        26078
+        26192
       ],
       "IGovernor": [
-        4569
+        4683
       ],
       "IVotes": [
-        8501
+        8615
       ],
       "Math": [
-        34953
+        35067
       ],
       "SafeCast": [
-        36494
+        36608
       ],
       "ShortString": [
-        31391
+        31505
       ],
       "ShortStrings": [
-        31602
+        31716
       ],
       "SignedMath": [
-        36911
+        37025
       ],
       "StorageSlot": [
-        31712
+        31826
       ],
       "Strings": [
-        31941
+        32055
       ]
     },
-    "id": 8078,
+    "id": 8192,
     "license": "MIT",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 7982,
+        "id": 8096,
         "literals": [
           "solidity",
           "^",
@@ -1105,11 +1105,11 @@
       {
         "absolutePath": "project:/contracts/governance/Governor.sol",
         "file": "../Governor.sol",
-        "id": 7983,
+        "id": 8097,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 8078,
-        "sourceUnit": 4239,
+        "scope": 8192,
+        "sourceUnit": 4353,
         "src": "153:25:35",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1117,11 +1117,11 @@
       {
         "absolutePath": "project:/contracts/interfaces/IERC5805.sol",
         "file": "../../interfaces/IERC5805.sol",
-        "id": 7984,
+        "id": 8098,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 8078,
-        "sourceUnit": 9540,
+        "scope": 8192,
+        "sourceUnit": 9654,
         "src": "180:39:35",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1131,16 +1131,16 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 7986,
+              "id": 8100,
               "name": "Governor",
               "nameLocations": [
                 "428:8:35"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 4238,
+              "referencedDeclaration": 4352,
               "src": "428:8:35"
             },
-            "id": 7987,
+            "id": 8101,
             "nodeType": "InheritanceSpecifier",
             "src": "428:8:35"
           }
@@ -1149,25 +1149,25 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 7985,
+          "id": 8099,
           "nodeType": "StructuredDocumentation",
           "src": "223:168:35",
           "text": " @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token, or since v4.5 an {ERC721Votes} token.\n _Available since v4.3._"
         },
         "fullyImplemented": false,
-        "id": 8077,
+        "id": 8191,
         "linearizedBaseContracts": [
-          8077,
-          4238,
-          20519,
-          26078,
-          4569,
-          9554,
-          32725,
-          9520,
-          33667,
-          33983,
-          31176
+          8191,
+          4352,
+          20633,
+          26192,
+          4683,
+          9668,
+          32839,
+          9634,
+          33781,
+          34097,
+          31290
         ],
         "name": "GovernorVotes",
         "nameLocation": "411:13:35",
@@ -1176,36 +1176,36 @@
           {
             "constant": false,
             "functionSelector": "fc0c546a",
-            "id": 7990,
+            "id": 8104,
             "mutability": "immutable",
             "name": "token",
             "nameLocation": "470:5:35",
             "nodeType": "VariableDeclaration",
-            "scope": 8077,
+            "scope": 8191,
             "src": "444:31:35",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_contract$_IERC5805_$9539",
+              "typeIdentifier": "t_contract$_IERC5805_$9653",
               "typeString": "contract IERC5805"
             },
             "typeName": {
-              "id": 7989,
+              "id": 8103,
               "nodeType": "UserDefinedTypeName",
               "pathNode": {
-                "id": 7988,
+                "id": 8102,
                 "name": "IERC5805",
                 "nameLocations": [
                   "444:8:35"
                 ],
                 "nodeType": "IdentifierPath",
-                "referencedDeclaration": 9539,
+                "referencedDeclaration": 9653,
                 "src": "444:8:35"
               },
-              "referencedDeclaration": 9539,
+              "referencedDeclaration": 9653,
               "src": "444:8:35",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_IERC5805_$9539",
+                "typeIdentifier": "t_contract$_IERC5805_$9653",
                 "typeString": "contract IERC5805"
               }
             },
@@ -1213,26 +1213,26 @@
           },
           {
             "body": {
-              "id": 8005,
+              "id": 8119,
               "nodeType": "Block",
               "src": "517:58:35",
               "statements": [
                 {
                   "expression": {
-                    "id": 8003,
+                    "id": 8117,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
-                      "id": 7996,
+                      "id": 8110,
                       "name": "token",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 7990,
+                      "referencedDeclaration": 8104,
                       "src": "528:5:35",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_IERC5805_$9539",
+                        "typeIdentifier": "t_contract$_IERC5805_$9653",
                         "typeString": "contract IERC5805"
                       }
                     },
@@ -1243,14 +1243,14 @@
                         {
                           "arguments": [
                             {
-                              "id": 8000,
+                              "id": 8114,
                               "name": "tokenAddress",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 7993,
+                              "referencedDeclaration": 8107,
                               "src": "553:12:35",
                               "typeDescriptions": {
-                                "typeIdentifier": "t_contract$_IVotes_$8501",
+                                "typeIdentifier": "t_contract$_IVotes_$8615",
                                 "typeString": "contract IVotes"
                               }
                             }
@@ -1258,11 +1258,11 @@
                           "expression": {
                             "argumentTypes": [
                               {
-                                "typeIdentifier": "t_contract$_IVotes_$8501",
+                                "typeIdentifier": "t_contract$_IVotes_$8615",
                                 "typeString": "contract IVotes"
                               }
                             ],
-                            "id": 7999,
+                            "id": 8113,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": true,
@@ -1274,14 +1274,14 @@
                               "typeString": "type(address)"
                             },
                             "typeName": {
-                              "id": 7998,
+                              "id": 8112,
                               "name": "address",
                               "nodeType": "ElementaryTypeName",
                               "src": "545:7:35",
                               "typeDescriptions": {}
                             }
                           },
-                          "id": 8001,
+                          "id": 8115,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -1305,18 +1305,18 @@
                             "typeString": "address"
                           }
                         ],
-                        "id": 7997,
+                        "id": 8111,
                         "name": "IERC5805",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 9539,
+                        "referencedDeclaration": 9653,
                         "src": "536:8:35",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_IERC5805_$9539_$",
+                          "typeIdentifier": "t_type$_t_contract$_IERC5805_$9653_$",
                           "typeString": "type(contract IERC5805)"
                         }
                       },
-                      "id": 8002,
+                      "id": 8116,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -1328,23 +1328,23 @@
                       "src": "536:31:35",
                       "tryCall": false,
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_IERC5805_$9539",
+                        "typeIdentifier": "t_contract$_IERC5805_$9653",
                         "typeString": "contract IERC5805"
                       }
                     },
                     "src": "528:39:35",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_IERC5805_$9539",
+                      "typeIdentifier": "t_contract$_IERC5805_$9653",
                       "typeString": "contract IERC5805"
                     }
                   },
-                  "id": 8004,
+                  "id": 8118,
                   "nodeType": "ExpressionStatement",
                   "src": "528:39:35"
                 }
               ]
             },
-            "id": 8006,
+            "id": 8120,
             "implemented": true,
             "kind": "constructor",
             "modifiers": [],
@@ -1352,41 +1352,41 @@
             "nameLocation": "-1:-1:-1",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 7994,
+              "id": 8108,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 7993,
+                  "id": 8107,
                   "mutability": "mutable",
                   "name": "tokenAddress",
                   "nameLocation": "503:12:35",
                   "nodeType": "VariableDeclaration",
-                  "scope": 8006,
+                  "scope": 8120,
                   "src": "496:19:35",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_IVotes_$8501",
+                    "typeIdentifier": "t_contract$_IVotes_$8615",
                     "typeString": "contract IVotes"
                   },
                   "typeName": {
-                    "id": 7992,
+                    "id": 8106,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 7991,
+                      "id": 8105,
                       "name": "IVotes",
                       "nameLocations": [
                         "496:6:35"
                       ],
                       "nodeType": "IdentifierPath",
-                      "referencedDeclaration": 8501,
+                      "referencedDeclaration": 8615,
                       "src": "496:6:35"
                     },
-                    "referencedDeclaration": 8501,
+                    "referencedDeclaration": 8615,
                     "src": "496:6:35",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_IVotes_$8501",
+                      "typeIdentifier": "t_contract$_IVotes_$8615",
                       "typeString": "contract IVotes"
                     }
                   },
@@ -1396,12 +1396,12 @@
               "src": "495:21:35"
             },
             "returnParameters": {
-              "id": 7995,
+              "id": 8109,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "517:0:35"
             },
-            "scope": 8077,
+            "scope": 8191,
             "src": "484:91:35",
             "stateMutability": "nonpayable",
             "virtual": false,
@@ -1409,10 +1409,10 @@
           },
           {
             "baseFunctions": [
-              4338
+              4452
             ],
             "body": {
-              "id": 8032,
+              "id": 8146,
               "nodeType": "Block",
               "src": "821:178:35",
               "statements": [
@@ -1420,45 +1420,45 @@
                   "clauses": [
                     {
                       "block": {
-                        "id": 8021,
+                        "id": 8135,
                         "nodeType": "Block",
                         "src": "877:43:35",
                         "statements": [
                           {
                             "expression": {
-                              "id": 8019,
+                              "id": 8133,
                               "name": "timepoint",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 8017,
+                              "referencedDeclaration": 8131,
                               "src": "899:9:35",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_uint48",
                                 "typeString": "uint48"
                               }
                             },
-                            "functionReturnParameters": 8012,
-                            "id": 8020,
+                            "functionReturnParameters": 8126,
+                            "id": 8134,
                             "nodeType": "Return",
                             "src": "892:16:35"
                           }
                         ]
                       },
                       "errorName": "",
-                      "id": 8022,
+                      "id": 8136,
                       "nodeType": "TryCatchClause",
                       "parameters": {
-                        "id": 8018,
+                        "id": 8132,
                         "nodeType": "ParameterList",
                         "parameters": [
                           {
                             "constant": false,
-                            "id": 8017,
+                            "id": 8131,
                             "mutability": "mutable",
                             "name": "timepoint",
                             "nameLocation": "866:9:35",
                             "nodeType": "VariableDeclaration",
-                            "scope": 8022,
+                            "scope": 8136,
                             "src": "859:16:35",
                             "stateVariable": false,
                             "storageLocation": "default",
@@ -1467,7 +1467,7 @@
                               "typeString": "uint48"
                             },
                             "typeName": {
-                              "id": 8016,
+                              "id": 8130,
                               "name": "uint48",
                               "nodeType": "ElementaryTypeName",
                               "src": "859:6:35",
@@ -1485,7 +1485,7 @@
                     },
                     {
                       "block": {
-                        "id": 8029,
+                        "id": 8143,
                         "nodeType": "Block",
                         "src": "927:65:35",
                         "statements": [
@@ -1494,7 +1494,7 @@
                               "arguments": [
                                 {
                                   "expression": {
-                                    "id": 8025,
+                                    "id": 8139,
                                     "name": "block",
                                     "nodeType": "Identifier",
                                     "overloadedDeclarations": [],
@@ -1505,7 +1505,7 @@
                                       "typeString": "block"
                                     }
                                   },
-                                  "id": 8026,
+                                  "id": 8140,
                                   "isConstant": false,
                                   "isLValue": false,
                                   "isPure": false,
@@ -1528,18 +1528,18 @@
                                   }
                                 ],
                                 "expression": {
-                                  "id": 8023,
+                                  "id": 8137,
                                   "name": "SafeCast",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
-                                  "referencedDeclaration": 36494,
+                                  "referencedDeclaration": 36608,
                                   "src": "949:8:35",
                                   "typeDescriptions": {
-                                    "typeIdentifier": "t_type$_t_contract$_SafeCast_$36494_$",
+                                    "typeIdentifier": "t_type$_t_contract$_SafeCast_$36608_$",
                                     "typeString": "type(library SafeCast)"
                                   }
                                 },
-                                "id": 8024,
+                                "id": 8138,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": false,
@@ -1547,14 +1547,14 @@
                                 "memberLocation": "958:8:35",
                                 "memberName": "toUint48",
                                 "nodeType": "MemberAccess",
-                                "referencedDeclaration": 35606,
+                                "referencedDeclaration": 35720,
                                 "src": "949:17:35",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_function_internal_pure$_t_uint256_$returns$_t_uint48_$",
                                   "typeString": "function (uint256) pure returns (uint48)"
                                 }
                               },
-                              "id": 8027,
+                              "id": 8141,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": false,
@@ -1570,15 +1570,15 @@
                                 "typeString": "uint48"
                               }
                             },
-                            "functionReturnParameters": 8012,
-                            "id": 8028,
+                            "functionReturnParameters": 8126,
+                            "id": 8142,
                             "nodeType": "Return",
                             "src": "942:38:35"
                           }
                         ]
                       },
                       "errorName": "",
-                      "id": 8030,
+                      "id": 8144,
                       "nodeType": "TryCatchClause",
                       "src": "921:71:35"
                     }
@@ -1588,18 +1588,18 @@
                     "expression": {
                       "argumentTypes": [],
                       "expression": {
-                        "id": 8013,
+                        "id": 8127,
                         "name": "token",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 7990,
+                        "referencedDeclaration": 8104,
                         "src": "836:5:35",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IERC5805_$9539",
+                          "typeIdentifier": "t_contract$_IERC5805_$9653",
                           "typeString": "contract IERC5805"
                         }
                       },
-                      "id": 8014,
+                      "id": 8128,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -1607,14 +1607,14 @@
                       "memberLocation": "842:5:35",
                       "memberName": "clock",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 9547,
+                      "referencedDeclaration": 9661,
                       "src": "836:11:35",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$__$returns$_t_uint48_$",
                         "typeString": "function () view external returns (uint48)"
                       }
                     },
-                    "id": 8015,
+                    "id": 8129,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1630,20 +1630,20 @@
                       "typeString": "uint48"
                     }
                   },
-                  "id": 8031,
+                  "id": 8145,
                   "nodeType": "TryStatement",
                   "src": "832:160:35"
                 }
               ]
             },
             "documentation": {
-              "id": 8007,
+              "id": 8121,
               "nodeType": "StructuredDocumentation",
               "src": "583:169:35",
               "text": " @dev Clock (as specified in EIP-6372) is set to match the token's clock. Fallback to block numbers if the token\n does not implement EIP-6372."
             },
             "functionSelector": "91ddadf4",
-            "id": 8033,
+            "id": 8147,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -1651,29 +1651,29 @@
             "nameLocation": "767:5:35",
             "nodeType": "FunctionDefinition",
             "overrides": {
-              "id": 8009,
+              "id": 8123,
               "nodeType": "OverrideSpecifier",
               "overrides": [],
               "src": "795:8:35"
             },
             "parameters": {
-              "id": 8008,
+              "id": 8122,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "772:2:35"
             },
             "returnParameters": {
-              "id": 8012,
+              "id": 8126,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 8011,
+                  "id": 8125,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 8033,
+                  "scope": 8147,
                   "src": "813:6:35",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1682,7 +1682,7 @@
                     "typeString": "uint48"
                   },
                   "typeName": {
-                    "id": 8010,
+                    "id": 8124,
                     "name": "uint48",
                     "nodeType": "ElementaryTypeName",
                     "src": "813:6:35",
@@ -1696,7 +1696,7 @@
               ],
               "src": "812:8:35"
             },
-            "scope": 8077,
+            "scope": 8191,
             "src": "758:241:35",
             "stateMutability": "view",
             "virtual": true,
@@ -1704,10 +1704,10 @@
           },
           {
             "baseFunctions": [
-              4345
+              4459
             ],
             "body": {
-              "id": 8055,
+              "id": 8169,
               "nodeType": "Block",
               "src": "1235:190:35",
               "statements": [
@@ -1715,45 +1715,45 @@
                   "clauses": [
                     {
                       "block": {
-                        "id": 8048,
+                        "id": 8162,
                         "nodeType": "Block",
                         "src": "1303:43:35",
                         "statements": [
                           {
                             "expression": {
-                              "id": 8046,
+                              "id": 8160,
                               "name": "clockmode",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 8044,
+                              "referencedDeclaration": 8158,
                               "src": "1325:9:35",
                               "typeDescriptions": {
                                 "typeIdentifier": "t_string_memory_ptr",
                                 "typeString": "string memory"
                               }
                             },
-                            "functionReturnParameters": 8039,
-                            "id": 8047,
+                            "functionReturnParameters": 8153,
+                            "id": 8161,
                             "nodeType": "Return",
                             "src": "1318:16:35"
                           }
                         ]
                       },
                       "errorName": "",
-                      "id": 8049,
+                      "id": 8163,
                       "nodeType": "TryCatchClause",
                       "parameters": {
-                        "id": 8045,
+                        "id": 8159,
                         "nodeType": "ParameterList",
                         "parameters": [
                           {
                             "constant": false,
-                            "id": 8044,
+                            "id": 8158,
                             "mutability": "mutable",
                             "name": "clockmode",
                             "nameLocation": "1292:9:35",
                             "nodeType": "VariableDeclaration",
-                            "scope": 8049,
+                            "scope": 8163,
                             "src": "1278:23:35",
                             "stateVariable": false,
                             "storageLocation": "memory",
@@ -1762,7 +1762,7 @@
                               "typeString": "string"
                             },
                             "typeName": {
-                              "id": 8043,
+                              "id": 8157,
                               "name": "string",
                               "nodeType": "ElementaryTypeName",
                               "src": "1278:6:35",
@@ -1780,14 +1780,14 @@
                     },
                     {
                       "block": {
-                        "id": 8052,
+                        "id": 8166,
                         "nodeType": "Block",
                         "src": "1353:65:35",
                         "statements": [
                           {
                             "expression": {
                               "hexValue": "6d6f64653d626c6f636b6e756d6265722666726f6d3d64656661756c74",
-                              "id": 8050,
+                              "id": 8164,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
@@ -1801,15 +1801,15 @@
                               },
                               "value": "mode=blocknumber&from=default"
                             },
-                            "functionReturnParameters": 8039,
-                            "id": 8051,
+                            "functionReturnParameters": 8153,
+                            "id": 8165,
                             "nodeType": "Return",
                             "src": "1368:38:35"
                           }
                         ]
                       },
                       "errorName": "",
-                      "id": 8053,
+                      "id": 8167,
                       "nodeType": "TryCatchClause",
                       "src": "1347:71:35"
                     }
@@ -1819,18 +1819,18 @@
                     "expression": {
                       "argumentTypes": [],
                       "expression": {
-                        "id": 8040,
+                        "id": 8154,
                         "name": "token",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 7990,
+                        "referencedDeclaration": 8104,
                         "src": "1250:5:35",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IERC5805_$9539",
+                          "typeIdentifier": "t_contract$_IERC5805_$9653",
                           "typeString": "contract IERC5805"
                         }
                       },
-                      "id": 8041,
+                      "id": 8155,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -1838,14 +1838,14 @@
                       "memberLocation": "1256:10:35",
                       "memberName": "CLOCK_MODE",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 9553,
+                      "referencedDeclaration": 9667,
                       "src": "1250:16:35",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$__$returns$_t_string_memory_ptr_$",
                         "typeString": "function () view external returns (string memory)"
                       }
                     },
-                    "id": 8042,
+                    "id": 8156,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1861,20 +1861,20 @@
                       "typeString": "string memory"
                     }
                   },
-                  "id": 8054,
+                  "id": 8168,
                   "nodeType": "TryStatement",
                   "src": "1246:172:35"
                 }
               ]
             },
             "documentation": {
-              "id": 8034,
+              "id": 8148,
               "nodeType": "StructuredDocumentation",
               "src": "1007:93:35",
               "text": " @dev Machine-readable description of the clock as specified in EIP-6372."
             },
             "functionSelector": "4bf5d7e9",
-            "id": 8056,
+            "id": 8170,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -1882,29 +1882,29 @@
             "nameLocation": "1169:10:35",
             "nodeType": "FunctionDefinition",
             "overrides": {
-              "id": 8036,
+              "id": 8150,
               "nodeType": "OverrideSpecifier",
               "overrides": [],
               "src": "1202:8:35"
             },
             "parameters": {
-              "id": 8035,
+              "id": 8149,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1179:2:35"
             },
             "returnParameters": {
-              "id": 8039,
+              "id": 8153,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 8038,
+                  "id": 8152,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 8056,
+                  "scope": 8170,
                   "src": "1220:13:35",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -1913,7 +1913,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 8037,
+                    "id": 8151,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "1220:6:35",
@@ -1927,7 +1927,7 @@
               ],
               "src": "1219:15:35"
             },
-            "scope": 8077,
+            "scope": 8191,
             "src": "1160:265:35",
             "stateMutability": "view",
             "virtual": true,
@@ -1935,10 +1935,10 @@
           },
           {
             "baseFunctions": [
-              3276
+              3390
             ],
             "body": {
-              "id": 8075,
+              "id": 8189,
               "nodeType": "Block",
               "src": "1718:64:35",
               "statements": [
@@ -1946,11 +1946,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 8071,
+                        "id": 8185,
                         "name": "account",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 8059,
+                        "referencedDeclaration": 8173,
                         "src": "1755:7:35",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -1958,11 +1958,11 @@
                         }
                       },
                       {
-                        "id": 8072,
+                        "id": 8186,
                         "name": "timepoint",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 8061,
+                        "referencedDeclaration": 8175,
                         "src": "1764:9:35",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -1982,18 +1982,18 @@
                         }
                       ],
                       "expression": {
-                        "id": 8069,
+                        "id": 8183,
                         "name": "token",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 7990,
+                        "referencedDeclaration": 8104,
                         "src": "1736:5:35",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_IERC5805_$9539",
+                          "typeIdentifier": "t_contract$_IERC5805_$9653",
                           "typeString": "contract IERC5805"
                         }
                       },
-                      "id": 8070,
+                      "id": 8184,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -2001,14 +2001,14 @@
                       "memberLocation": "1742:12:35",
                       "memberName": "getPastVotes",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 8462,
+                      "referencedDeclaration": 8576,
                       "src": "1736:18:35",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_view$_t_address_$_t_uint256_$returns$_t_uint256_$",
                         "typeString": "function (address,uint256) view external returns (uint256)"
                       }
                     },
-                    "id": 8073,
+                    "id": 8187,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2024,20 +2024,20 @@
                       "typeString": "uint256"
                     }
                   },
-                  "functionReturnParameters": 8068,
-                  "id": 8074,
+                  "functionReturnParameters": 8182,
+                  "id": 8188,
                   "nodeType": "Return",
                   "src": "1729:45:35"
                 }
               ]
             },
             "documentation": {
-              "id": 8057,
+              "id": 8171,
               "nodeType": "StructuredDocumentation",
               "src": "1433:116:35",
               "text": " Read the voting weight from the token's built in snapshot mechanism (see {Governor-_getVotes})."
             },
-            "id": 8076,
+            "id": 8190,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -2045,23 +2045,23 @@
             "nameLocation": "1564:9:35",
             "nodeType": "FunctionDefinition",
             "overrides": {
-              "id": 8065,
+              "id": 8179,
               "nodeType": "OverrideSpecifier",
               "overrides": [],
               "src": "1691:8:35"
             },
             "parameters": {
-              "id": 8064,
+              "id": 8178,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 8059,
+                  "id": 8173,
                   "mutability": "mutable",
                   "name": "account",
                   "nameLocation": "1592:7:35",
                   "nodeType": "VariableDeclaration",
-                  "scope": 8076,
+                  "scope": 8190,
                   "src": "1584:15:35",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2070,7 +2070,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 8058,
+                    "id": 8172,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "1584:7:35",
@@ -2084,12 +2084,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 8061,
+                  "id": 8175,
                   "mutability": "mutable",
                   "name": "timepoint",
                   "nameLocation": "1618:9:35",
                   "nodeType": "VariableDeclaration",
-                  "scope": 8076,
+                  "scope": 8190,
                   "src": "1610:17:35",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2098,7 +2098,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 8060,
+                    "id": 8174,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "1610:7:35",
@@ -2111,12 +2111,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 8063,
+                  "id": 8177,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 8076,
+                  "scope": 8190,
                   "src": "1638:12:35",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -2125,7 +2125,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 8062,
+                    "id": 8176,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "1638:5:35",
@@ -2140,17 +2140,17 @@
               "src": "1573:95:35"
             },
             "returnParameters": {
-              "id": 8068,
+              "id": 8182,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 8067,
+                  "id": 8181,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 8076,
+                  "scope": 8190,
                   "src": "1709:7:35",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2159,7 +2159,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 8066,
+                    "id": 8180,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "1709:7:35",
@@ -2173,19 +2173,19 @@
               ],
               "src": "1708:9:35"
             },
-            "scope": 8077,
+            "scope": 8191,
             "src": "1555:227:35",
             "stateMutability": "view",
             "virtual": true,
             "visibility": "internal"
           }
         ],
-        "scope": 8078,
+        "scope": 8192,
         "src": "393:1392:35",
         "usedErrors": [
-          31399,
-          31401,
-          37120
+          31513,
+          31515,
+          37234
         ]
       }
     ],
@@ -2197,7 +2197,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.13",
-  "updatedAt": "2023-03-22T16:34:02.627Z",
+  "updatedAt": "2023-03-23T05:45:08.134Z",
   "devdoc": {
     "details": "Extension of {Governor} for voting weight extraction from an {ERC20Votes} token, or since v4.5 an {ERC721Votes} token. _Available since v4.3._",
     "errors": {

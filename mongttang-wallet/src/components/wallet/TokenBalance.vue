@@ -1,12 +1,12 @@
 <template>
-    <div>        
+    <div>      
       SSF : {{ ssf }}
     </div>
     <div>
-      MMT : {{ mtt }}
+      MTT : {{ mtt }}
     </div>
     <div>
-        <button type="button" class="btn btn-primary">거래소</button>
+        <RouterLink to="/trade"><button type="button" class="btn btn-primary">거래소</button></RouterLink>
         <button type="button" class="btn btn-primary">내보내기</button>
         <button type="button" class="btn btn-primary">입금하기</button>
     </div>
@@ -22,10 +22,20 @@
         ssf : 0,
         mtt : 0
       }
+    },
+    computed: {
+      privateKey() {
+        return this.$store.state.privateKey;
+      }
+
     },  
     created(){
-      this.mtt = getMTTBalance("0x10CA83EdC0E53589B22f23f4dEaAb53EEe70b1f9");
-      this.ssf = getSSFBalance("0x10CA83EdC0E53589B22f23f4dEaAb53EEe70b1f9");
+      getMTTBalance(this.privateKey).then(response => {
+        this.mtt = response;
+      });
+      getSSFBalance(this.privateKey).then(response => {
+        this.ssf = response;
+      });
     },
 }
   </script>

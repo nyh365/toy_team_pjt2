@@ -9,7 +9,7 @@ async function getMTTBalance(accountAddress){
     let balance;
     try{
         balance = await mttContract.methods.balanceOf(accountAddress).call();
-        console.log("mtt : "+balance);
+        console.log("mtt: "+ balance);
     } catch(error){
         console.error(error);
     }
@@ -22,7 +22,7 @@ async function getSSFBalance(accountAddress){
     let balance;
     try{
         balance = await ssfContract.methods.balanceOf(accountAddress).call();
-        console.log("ssf : "+balance)
+        console.log("ssf: "+ balance);
     } catch(error){
         console.error(error);
     }
@@ -30,11 +30,11 @@ async function getSSFBalance(accountAddress){
     return balance;
 }
 
-async function getNTFList(accountAddress){
+async function getNTFList(){
     const erc20Contract = new rpcInstance.eth.Contract(NFT_CONTRACT_ABI, NFT_CONTRACT_ADDRESS);
     let nfts;
     try{
-        nfts = await erc20Contract.methods.balanceOf(accountAddress).call();
+        nfts = await erc20Contract.methods.getMyNfts().call();
     } catch(error){
         console.error(error);
     }

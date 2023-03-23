@@ -326,53 +326,53 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "// SPDX-License-Identifier: MIT\r\n// OpenZeppelin Contracts (last updated v4.8.0) (access/AccessControlDefaultAdminRules.sol)\r\n\r\npragma solidity ^0.8.0;\r\n\r\nimport \"./AccessControl.sol\";\r\nimport \"./IAccessControlDefaultAdminRules.sol\";\r\nimport \"../utils/math/SafeCast.sol\";\r\nimport \"../interfaces/IERC5313.sol\";\r\n\r\n/**\r\n * @dev Extension of {AccessControl} that allows specifying special rules to manage\r\n * the `DEFAULT_ADMIN_ROLE` holder, which is a sensitive role with special permissions\r\n * over other roles that may potentially have privileged rights in the system.\r\n *\r\n * If a specific role doesn't have an admin role assigned, the holder of the\r\n * `DEFAULT_ADMIN_ROLE` will have the ability to grant it and revoke it.\r\n *\r\n * This contract implements the following risk mitigations on top of {AccessControl}:\r\n *\r\n * * Only one account holds the `DEFAULT_ADMIN_ROLE` since deployment until it's potentially renounced.\r\n * * Enforce a 2-step process to transfer the `DEFAULT_ADMIN_ROLE` to another account.\r\n * * Enforce a configurable delay between the two steps, with the ability to cancel in between.\r\n *   - Even after the timer has passed to avoid locking it forever.\r\n * * It is not possible to use another role to manage the `DEFAULT_ADMIN_ROLE`.\r\n *\r\n * Example usage:\r\n *\r\n * ```solidity\r\n * contract MyToken is AccessControlDefaultAdminRules {\r\n *   constructor() AccessControlDefaultAdminRules(\r\n *     3 days,\r\n *     msg.sender // Explicit initial `DEFAULT_ADMIN_ROLE` holder\r\n *    ) {}\r\n *}\r\n * ```\r\n *\r\n * NOTE: The `delay` can only be set in the constructor and is fixed thereafter.\r\n *\r\n * _Available since v4.9._\r\n */\r\nabstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRules, IERC5313, AccessControl {\r\n    uint48 private immutable _defaultAdminDelay;\r\n\r\n    address private _currentDefaultAdmin;\r\n    address private _pendingDefaultAdmin;\r\n\r\n    uint48 private _defaultAdminTransferDelayedUntil;\r\n\r\n    /**\r\n     * @dev Sets the initial values for {defaultAdminDelay} in seconds and {defaultAdmin}.\r\n     *\r\n     * The `defaultAdminDelay` value is immutable. It can only be set at the constructor.\r\n     */\r\n    constructor(uint48 defaultAdminDelay_, address initialDefaultAdmin) {\r\n        _defaultAdminDelay = defaultAdminDelay_;\r\n        _grantRole(DEFAULT_ADMIN_ROLE, initialDefaultAdmin);\r\n    }\r\n\r\n    /**\r\n     * @dev See {IERC5313-owner}.\r\n     */\r\n    function owner() public view virtual returns (address) {\r\n        return defaultAdmin();\r\n    }\r\n\r\n    /**\r\n     * @inheritdoc IAccessControlDefaultAdminRules\r\n     */\r\n    function defaultAdminDelay() public view virtual returns (uint48) {\r\n        return _defaultAdminDelay;\r\n    }\r\n\r\n    /**\r\n     * @inheritdoc IAccessControlDefaultAdminRules\r\n     */\r\n    function defaultAdmin() public view virtual returns (address) {\r\n        return _currentDefaultAdmin;\r\n    }\r\n\r\n    /**\r\n     * @inheritdoc IAccessControlDefaultAdminRules\r\n     */\r\n    function pendingDefaultAdmin() public view virtual returns (address) {\r\n        return _pendingDefaultAdmin;\r\n    }\r\n\r\n    /**\r\n     * @inheritdoc IAccessControlDefaultAdminRules\r\n     */\r\n    function defaultAdminTransferDelayedUntil() public view virtual returns (uint48) {\r\n        return _defaultAdminTransferDelayedUntil;\r\n    }\r\n\r\n    /**\r\n     * @dev See {IERC165-supportsInterface}.\r\n     */\r\n    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {\r\n        return interfaceId == type(IAccessControlDefaultAdminRules).interfaceId || super.supportsInterface(interfaceId);\r\n    }\r\n\r\n    /**\r\n     * @inheritdoc IAccessControlDefaultAdminRules\r\n     */\r\n    function beginDefaultAdminTransfer(address newAdmin) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {\r\n        _beginDefaultAdminTransfer(newAdmin);\r\n    }\r\n\r\n    /**\r\n     * @inheritdoc IAccessControlDefaultAdminRules\r\n     */\r\n    function acceptDefaultAdminTransfer() public virtual {\r\n        require(_msgSender() == pendingDefaultAdmin(), \"AccessControl: pending admin must accept\");\r\n        _acceptDefaultAdminTransfer();\r\n    }\r\n\r\n    /**\r\n     * @inheritdoc IAccessControlDefaultAdminRules\r\n     */\r\n    function cancelDefaultAdminTransfer() public virtual onlyRole(DEFAULT_ADMIN_ROLE) {\r\n        _resetDefaultAdminTransfer();\r\n    }\r\n\r\n    /**\r\n     * @dev Revokes `role` from the calling account.\r\n     *\r\n     * For `DEFAULT_ADMIN_ROLE`, only allows renouncing in two steps, so it's required\r\n     * that the {defaultAdminTransferDelayedUntil} has passed and the pending default admin is the zero address.\r\n     * After its execution, it will not be possible to call `onlyRole(DEFAULT_ADMIN_ROLE)`\r\n     * functions.\r\n     *\r\n     * For other roles, see {AccessControl-renounceRole}.\r\n     *\r\n     * NOTE: Renouncing `DEFAULT_ADMIN_ROLE` will leave the contract without a defaultAdmin,\r\n     * thereby disabling any functionality that is only available to the default admin, and the\r\n     * possibility of reassigning a non-administrated role.\r\n     */\r\n    function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {\r\n        if (role == DEFAULT_ADMIN_ROLE) {\r\n            require(\r\n                pendingDefaultAdmin() == address(0) && _hasDefaultAdminTransferDelayPassed(),\r\n                \"AccessControl: only can renounce in two delayed steps\"\r\n            );\r\n        }\r\n        super.renounceRole(role, account);\r\n    }\r\n\r\n    /**\r\n     * @dev See {AccessControl-grantRole}. Reverts for `DEFAULT_ADMIN_ROLE`.\r\n     */\r\n    function grantRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {\r\n        require(role != DEFAULT_ADMIN_ROLE, \"AccessControl: can't directly grant default admin role\");\r\n        super.grantRole(role, account);\r\n    }\r\n\r\n    /**\r\n     * @dev See {AccessControl-revokeRole}. Reverts for `DEFAULT_ADMIN_ROLE`.\r\n     */\r\n    function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {\r\n        require(role != DEFAULT_ADMIN_ROLE, \"AccessControl: can't directly revoke default admin role\");\r\n        super.revokeRole(role, account);\r\n    }\r\n\r\n    /**\r\n     * @dev See {AccessControl-_setRoleAdmin}. Reverts for `DEFAULT_ADMIN_ROLE`.\r\n     */\r\n    function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual override {\r\n        require(role != DEFAULT_ADMIN_ROLE, \"AccessControl: can't violate default admin rules\");\r\n        super._setRoleAdmin(role, adminRole);\r\n    }\r\n\r\n    /**\r\n     * @dev Grants `role` to `account`.\r\n     *\r\n     * For `DEFAULT_ADMIN_ROLE`, it only allows granting if there isn't already a role's holder\r\n     * or if the role has been previously renounced.\r\n     *\r\n     * For other roles, see {AccessControl-renounceRole}.\r\n     *\r\n     * NOTE: Exposing this function through another mechanism may make the\r\n     * `DEFAULT_ADMIN_ROLE` assignable again. Make sure to guarantee this is\r\n     * the expected behavior in your implementation.\r\n     */\r\n    function _grantRole(bytes32 role, address account) internal virtual override {\r\n        if (role == DEFAULT_ADMIN_ROLE) {\r\n            require(defaultAdmin() == address(0), \"AccessControl: default admin already granted\");\r\n            _currentDefaultAdmin = account;\r\n        }\r\n        super._grantRole(role, account);\r\n    }\r\n\r\n    /**\r\n     * @dev See {acceptDefaultAdminTransfer}.\r\n     *\r\n     * Internal function without access restriction.\r\n     */\r\n    function _acceptDefaultAdminTransfer() internal virtual {\r\n        require(_hasDefaultAdminTransferDelayPassed(), \"AccessControl: transfer delay not passed\");\r\n        _revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin());\r\n        _grantRole(DEFAULT_ADMIN_ROLE, pendingDefaultAdmin());\r\n        _resetDefaultAdminTransfer();\r\n    }\r\n\r\n    /**\r\n     * @dev See {beginDefaultAdminTransfer}.\r\n     *\r\n     * Internal function without access restriction.\r\n     */\r\n    function _beginDefaultAdminTransfer(address newAdmin) internal virtual {\r\n        _defaultAdminTransferDelayedUntil = SafeCast.toUint48(block.timestamp) + defaultAdminDelay();\r\n        _pendingDefaultAdmin = newAdmin;\r\n        emit DefaultAdminRoleChangeStarted(pendingDefaultAdmin(), defaultAdminTransferDelayedUntil());\r\n    }\r\n\r\n    /**\r\n     * @dev See {AccessControl-_revokeRole}.\r\n     */\r\n    function _revokeRole(bytes32 role, address account) internal virtual override {\r\n        if (role == DEFAULT_ADMIN_ROLE) {\r\n            delete _currentDefaultAdmin;\r\n        }\r\n        super._revokeRole(role, account);\r\n    }\r\n\r\n    /**\r\n     * @dev Resets the pending default admin and delayed until.\r\n     */\r\n    function _resetDefaultAdminTransfer() private {\r\n        delete _pendingDefaultAdmin;\r\n        delete _defaultAdminTransferDelayedUntil;\r\n    }\r\n\r\n    /**\r\n     * @dev Checks if a {defaultAdminTransferDelayedUntil} has been set and passed.\r\n     */\r\n    function _hasDefaultAdminTransferDelayPassed() private view returns (bool) {\r\n        uint48 delayedUntil = defaultAdminTransferDelayedUntil();\r\n        return delayedUntil > 0 && delayedUntil < block.timestamp;\r\n    }\r\n}\r\n",
-  "sourcePath": "C:\\Users\\akqjq\\Desktop\\S08P22A308\\smart-contracts\\contracts\\access\\AccessControlDefaultAdminRules.sol",
+  "sourcePath": "C:\\Users\\SSAFY\\Desktop\\S08P22A308\\smart-contracts\\contracts\\access\\AccessControlDefaultAdminRules.sol",
   "ast": {
     "absolutePath": "project:/contracts/access/AccessControlDefaultAdminRules.sol",
     "exportedSymbols": {
       "AccessControl": [
-        574
+        688
       ],
       "AccessControlDefaultAdminRules": [
-        1042
+        1156
       ],
       "Context": [
-        31176
+        31290
       ],
       "ERC165": [
-        33667
+        33781
       ],
       "IAccessControl": [
-        1240
+        1354
       ],
       "IAccessControlDefaultAdminRules": [
-        1292
+        1406
       ],
       "IERC165": [
-        33983
+        34097
       ],
       "IERC5313": [
-        9530
+        9644
       ],
       "Math": [
-        34953
+        35067
       ],
       "SafeCast": [
-        36494
+        36608
       ],
       "SignedMath": [
-        36911
+        37025
       ],
       "Strings": [
-        31941
+        32055
       ]
     },
-    "id": 1043,
+    "id": 1157,
     "license": "MIT",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 631,
+        "id": 745,
         "literals": [
           "solidity",
           "^",
@@ -385,11 +385,11 @@
       {
         "absolutePath": "project:/contracts/access/AccessControl.sol",
         "file": "./AccessControl.sol",
-        "id": 632,
+        "id": 746,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 1043,
-        "sourceUnit": 575,
+        "scope": 1157,
+        "sourceUnit": 689,
         "src": "155:29:4",
         "symbolAliases": [],
         "unitAlias": ""
@@ -397,11 +397,11 @@
       {
         "absolutePath": "project:/contracts/access/IAccessControlDefaultAdminRules.sol",
         "file": "./IAccessControlDefaultAdminRules.sol",
-        "id": 633,
+        "id": 747,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 1043,
-        "sourceUnit": 1293,
+        "scope": 1157,
+        "sourceUnit": 1407,
         "src": "186:47:4",
         "symbolAliases": [],
         "unitAlias": ""
@@ -409,11 +409,11 @@
       {
         "absolutePath": "project:/contracts/utils/math/SafeCast.sol",
         "file": "../utils/math/SafeCast.sol",
-        "id": 634,
+        "id": 748,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 1043,
-        "sourceUnit": 36495,
+        "scope": 1157,
+        "sourceUnit": 36609,
         "src": "235:36:4",
         "symbolAliases": [],
         "unitAlias": ""
@@ -421,11 +421,11 @@
       {
         "absolutePath": "project:/contracts/interfaces/IERC5313.sol",
         "file": "../interfaces/IERC5313.sol",
-        "id": 635,
+        "id": 749,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 1043,
-        "sourceUnit": 9531,
+        "scope": 1157,
+        "sourceUnit": 9645,
         "src": "273:36:4",
         "symbolAliases": [],
         "unitAlias": ""
@@ -435,46 +435,46 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 637,
+              "id": 751,
               "name": "IAccessControlDefaultAdminRules",
               "nameLocations": [
                 "1697:31:4"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 1292,
+              "referencedDeclaration": 1406,
               "src": "1697:31:4"
             },
-            "id": 638,
+            "id": 752,
             "nodeType": "InheritanceSpecifier",
             "src": "1697:31:4"
           },
           {
             "baseName": {
-              "id": 639,
+              "id": 753,
               "name": "IERC5313",
               "nameLocations": [
                 "1730:8:4"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 9530,
+              "referencedDeclaration": 9644,
               "src": "1730:8:4"
             },
-            "id": 640,
+            "id": 754,
             "nodeType": "InheritanceSpecifier",
             "src": "1730:8:4"
           },
           {
             "baseName": {
-              "id": 641,
+              "id": 755,
               "name": "AccessControl",
               "nameLocations": [
                 "1740:13:4"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 574,
+              "referencedDeclaration": 688,
               "src": "1740:13:4"
             },
-            "id": 642,
+            "id": 756,
             "nodeType": "InheritanceSpecifier",
             "src": "1740:13:4"
           }
@@ -483,22 +483,22 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "documentation": {
-          "id": 636,
+          "id": 750,
           "nodeType": "StructuredDocumentation",
           "src": "313:1330:4",
           "text": " @dev Extension of {AccessControl} that allows specifying special rules to manage\n the `DEFAULT_ADMIN_ROLE` holder, which is a sensitive role with special permissions\n over other roles that may potentially have privileged rights in the system.\n If a specific role doesn't have an admin role assigned, the holder of the\n `DEFAULT_ADMIN_ROLE` will have the ability to grant it and revoke it.\n This contract implements the following risk mitigations on top of {AccessControl}:\n * Only one account holds the `DEFAULT_ADMIN_ROLE` since deployment until it's potentially renounced.\n * Enforce a 2-step process to transfer the `DEFAULT_ADMIN_ROLE` to another account.\n * Enforce a configurable delay between the two steps, with the ability to cancel in between.\n   - Even after the timer has passed to avoid locking it forever.\n * It is not possible to use another role to manage the `DEFAULT_ADMIN_ROLE`.\n Example usage:\n ```solidity\n contract MyToken is AccessControlDefaultAdminRules {\n   constructor() AccessControlDefaultAdminRules(\n     3 days,\n     msg.sender // Explicit initial `DEFAULT_ADMIN_ROLE` holder\n    ) {}\n}\n ```\n NOTE: The `delay` can only be set in the constructor and is fixed thereafter.\n _Available since v4.9._"
         },
         "fullyImplemented": true,
-        "id": 1042,
+        "id": 1156,
         "linearizedBaseContracts": [
-          1042,
-          574,
-          33667,
-          33983,
-          9530,
-          1292,
-          1240,
-          31176
+          1156,
+          688,
+          33781,
+          34097,
+          9644,
+          1406,
+          1354,
+          31290
         ],
         "name": "AccessControlDefaultAdminRules",
         "nameLocation": "1663:30:4",
@@ -506,12 +506,12 @@
         "nodes": [
           {
             "constant": false,
-            "id": 644,
+            "id": 758,
             "mutability": "immutable",
             "name": "_defaultAdminDelay",
             "nameLocation": "1786:18:4",
             "nodeType": "VariableDeclaration",
-            "scope": 1042,
+            "scope": 1156,
             "src": "1761:43:4",
             "stateVariable": true,
             "storageLocation": "default",
@@ -520,7 +520,7 @@
               "typeString": "uint48"
             },
             "typeName": {
-              "id": 643,
+              "id": 757,
               "name": "uint48",
               "nodeType": "ElementaryTypeName",
               "src": "1761:6:4",
@@ -533,12 +533,12 @@
           },
           {
             "constant": false,
-            "id": 646,
+            "id": 760,
             "mutability": "mutable",
             "name": "_currentDefaultAdmin",
             "nameLocation": "1829:20:4",
             "nodeType": "VariableDeclaration",
-            "scope": 1042,
+            "scope": 1156,
             "src": "1813:36:4",
             "stateVariable": true,
             "storageLocation": "default",
@@ -547,7 +547,7 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 645,
+              "id": 759,
               "name": "address",
               "nodeType": "ElementaryTypeName",
               "src": "1813:7:4",
@@ -561,12 +561,12 @@
           },
           {
             "constant": false,
-            "id": 648,
+            "id": 762,
             "mutability": "mutable",
             "name": "_pendingDefaultAdmin",
             "nameLocation": "1872:20:4",
             "nodeType": "VariableDeclaration",
-            "scope": 1042,
+            "scope": 1156,
             "src": "1856:36:4",
             "stateVariable": true,
             "storageLocation": "default",
@@ -575,7 +575,7 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 647,
+              "id": 761,
               "name": "address",
               "nodeType": "ElementaryTypeName",
               "src": "1856:7:4",
@@ -589,12 +589,12 @@
           },
           {
             "constant": false,
-            "id": 650,
+            "id": 764,
             "mutability": "mutable",
             "name": "_defaultAdminTransferDelayedUntil",
             "nameLocation": "1916:33:4",
             "nodeType": "VariableDeclaration",
-            "scope": 1042,
+            "scope": 1156,
             "src": "1901:48:4",
             "stateVariable": true,
             "storageLocation": "default",
@@ -603,7 +603,7 @@
               "typeString": "uint48"
             },
             "typeName": {
-              "id": 649,
+              "id": 763,
               "name": "uint48",
               "nodeType": "ElementaryTypeName",
               "src": "1901:6:4",
@@ -616,23 +616,23 @@
           },
           {
             "body": {
-              "id": 667,
+              "id": 781,
               "nodeType": "Block",
               "src": "2235:120:4",
               "statements": [
                 {
                   "expression": {
-                    "id": 660,
+                    "id": 774,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
-                      "id": 658,
+                      "id": 772,
                       "name": "_defaultAdminDelay",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 644,
+                      "referencedDeclaration": 758,
                       "src": "2246:18:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint48",
@@ -642,11 +642,11 @@
                     "nodeType": "Assignment",
                     "operator": "=",
                     "rightHandSide": {
-                      "id": 659,
+                      "id": 773,
                       "name": "defaultAdminDelay_",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 653,
+                      "referencedDeclaration": 767,
                       "src": "2267:18:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint48",
@@ -659,7 +659,7 @@
                       "typeString": "uint48"
                     }
                   },
-                  "id": 661,
+                  "id": 775,
                   "nodeType": "ExpressionStatement",
                   "src": "2246:39:4"
                 },
@@ -667,11 +667,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 663,
+                        "id": 777,
                         "name": "DEFAULT_ADMIN_ROLE",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 286,
+                        "referencedDeclaration": 400,
                         "src": "2307:18:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
@@ -679,11 +679,11 @@
                         }
                       },
                       {
-                        "id": 664,
+                        "id": 778,
                         "name": "initialDefaultAdmin",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 655,
+                        "referencedDeclaration": 769,
                         "src": "2327:19:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -702,20 +702,20 @@
                           "typeString": "address"
                         }
                       ],
-                      "id": 662,
+                      "id": 776,
                       "name": "_grantRole",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        929
+                        1043
                       ],
-                      "referencedDeclaration": 929,
+                      "referencedDeclaration": 1043,
                       "src": "2296:10:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
                         "typeString": "function (bytes32,address)"
                       }
                     },
-                    "id": 665,
+                    "id": 779,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -731,19 +731,19 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 666,
+                  "id": 780,
                   "nodeType": "ExpressionStatement",
                   "src": "2296:51:4"
                 }
               ]
             },
             "documentation": {
-              "id": 651,
+              "id": 765,
               "nodeType": "StructuredDocumentation",
               "src": "1958:203:4",
               "text": " @dev Sets the initial values for {defaultAdminDelay} in seconds and {defaultAdmin}.\n The `defaultAdminDelay` value is immutable. It can only be set at the constructor."
             },
-            "id": 668,
+            "id": 782,
             "implemented": true,
             "kind": "constructor",
             "modifiers": [],
@@ -751,17 +751,17 @@
             "nameLocation": "-1:-1:-1",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 656,
+              "id": 770,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 653,
+                  "id": 767,
                   "mutability": "mutable",
                   "name": "defaultAdminDelay_",
                   "nameLocation": "2186:18:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 668,
+                  "scope": 782,
                   "src": "2179:25:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -770,7 +770,7 @@
                     "typeString": "uint48"
                   },
                   "typeName": {
-                    "id": 652,
+                    "id": 766,
                     "name": "uint48",
                     "nodeType": "ElementaryTypeName",
                     "src": "2179:6:4",
@@ -783,12 +783,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 655,
+                  "id": 769,
                   "mutability": "mutable",
                   "name": "initialDefaultAdmin",
                   "nameLocation": "2214:19:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 668,
+                  "scope": 782,
                   "src": "2206:27:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -797,7 +797,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 654,
+                    "id": 768,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "2206:7:4",
@@ -813,12 +813,12 @@
               "src": "2178:56:4"
             },
             "returnParameters": {
-              "id": 657,
+              "id": 771,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "2235:0:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "2167:188:4",
             "stateMutability": "nonpayable",
             "virtual": false,
@@ -826,10 +826,10 @@
           },
           {
             "baseFunctions": [
-              9529
+              9643
             ],
             "body": {
-              "id": 677,
+              "id": 791,
               "nodeType": "Block",
               "src": "2471:40:4",
               "statements": [
@@ -838,18 +838,18 @@
                     "arguments": [],
                     "expression": {
                       "argumentTypes": [],
-                      "id": 674,
+                      "id": 788,
                       "name": "defaultAdmin",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 696,
+                      "referencedDeclaration": 810,
                       "src": "2489:12:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
                         "typeString": "function () view returns (address)"
                       }
                     },
-                    "id": 675,
+                    "id": 789,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -865,21 +865,21 @@
                       "typeString": "address"
                     }
                   },
-                  "functionReturnParameters": 673,
-                  "id": 676,
+                  "functionReturnParameters": 787,
+                  "id": 790,
                   "nodeType": "Return",
                   "src": "2482:21:4"
                 }
               ]
             },
             "documentation": {
-              "id": 669,
+              "id": 783,
               "nodeType": "StructuredDocumentation",
               "src": "2363:47:4",
               "text": " @dev See {IERC5313-owner}."
             },
             "functionSelector": "8da5cb5b",
-            "id": 678,
+            "id": 792,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -887,23 +887,23 @@
             "nameLocation": "2425:5:4",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 670,
+              "id": 784,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "2430:2:4"
             },
             "returnParameters": {
-              "id": 673,
+              "id": 787,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 672,
+                  "id": 786,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 678,
+                  "scope": 792,
                   "src": "2462:7:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -912,7 +912,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 671,
+                    "id": 785,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "2462:7:4",
@@ -927,7 +927,7 @@
               ],
               "src": "2461:9:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "2416:95:4",
             "stateMutability": "view",
             "virtual": true,
@@ -935,41 +935,41 @@
           },
           {
             "baseFunctions": [
-              1259
+              1373
             ],
             "body": {
-              "id": 686,
+              "id": 800,
               "nodeType": "Block",
               "src": "2655:44:4",
               "statements": [
                 {
                   "expression": {
-                    "id": 684,
+                    "id": 798,
                     "name": "_defaultAdminDelay",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 644,
+                    "referencedDeclaration": 758,
                     "src": "2673:18:4",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint48",
                       "typeString": "uint48"
                     }
                   },
-                  "functionReturnParameters": 683,
-                  "id": 685,
+                  "functionReturnParameters": 797,
+                  "id": 799,
                   "nodeType": "Return",
                   "src": "2666:25:4"
                 }
               ]
             },
             "documentation": {
-              "id": 679,
+              "id": 793,
               "nodeType": "StructuredDocumentation",
               "src": "2519:64:4",
               "text": " @inheritdoc IAccessControlDefaultAdminRules"
             },
             "functionSelector": "cc8463c8",
-            "id": 687,
+            "id": 801,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -977,23 +977,23 @@
             "nameLocation": "2598:17:4",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 680,
+              "id": 794,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "2615:2:4"
             },
             "returnParameters": {
-              "id": 683,
+              "id": 797,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 682,
+                  "id": 796,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 687,
+                  "scope": 801,
                   "src": "2647:6:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1002,7 +1002,7 @@
                     "typeString": "uint48"
                   },
                   "typeName": {
-                    "id": 681,
+                    "id": 795,
                     "name": "uint48",
                     "nodeType": "ElementaryTypeName",
                     "src": "2647:6:4",
@@ -1016,7 +1016,7 @@
               ],
               "src": "2646:8:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "2589:110:4",
             "stateMutability": "view",
             "virtual": true,
@@ -1024,41 +1024,41 @@
           },
           {
             "baseFunctions": [
-              1265
+              1379
             ],
             "body": {
-              "id": 695,
+              "id": 809,
               "nodeType": "Block",
               "src": "2839:46:4",
               "statements": [
                 {
                   "expression": {
-                    "id": 693,
+                    "id": 807,
                     "name": "_currentDefaultAdmin",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 646,
+                    "referencedDeclaration": 760,
                     "src": "2857:20:4",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
                     }
                   },
-                  "functionReturnParameters": 692,
-                  "id": 694,
+                  "functionReturnParameters": 806,
+                  "id": 808,
                   "nodeType": "Return",
                   "src": "2850:27:4"
                 }
               ]
             },
             "documentation": {
-              "id": 688,
+              "id": 802,
               "nodeType": "StructuredDocumentation",
               "src": "2707:64:4",
               "text": " @inheritdoc IAccessControlDefaultAdminRules"
             },
             "functionSelector": "84ef8ffc",
-            "id": 696,
+            "id": 810,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -1066,23 +1066,23 @@
             "nameLocation": "2786:12:4",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 689,
+              "id": 803,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "2798:2:4"
             },
             "returnParameters": {
-              "id": 692,
+              "id": 806,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 691,
+                  "id": 805,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 696,
+                  "scope": 810,
                   "src": "2830:7:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1091,7 +1091,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 690,
+                    "id": 804,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "2830:7:4",
@@ -1106,7 +1106,7 @@
               ],
               "src": "2829:9:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "2777:108:4",
             "stateMutability": "view",
             "virtual": true,
@@ -1114,41 +1114,41 @@
           },
           {
             "baseFunctions": [
-              1271
+              1385
             ],
             "body": {
-              "id": 704,
+              "id": 818,
               "nodeType": "Block",
               "src": "3032:46:4",
               "statements": [
                 {
                   "expression": {
-                    "id": 702,
+                    "id": 816,
                     "name": "_pendingDefaultAdmin",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 648,
+                    "referencedDeclaration": 762,
                     "src": "3050:20:4",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
                     }
                   },
-                  "functionReturnParameters": 701,
-                  "id": 703,
+                  "functionReturnParameters": 815,
+                  "id": 817,
                   "nodeType": "Return",
                   "src": "3043:27:4"
                 }
               ]
             },
             "documentation": {
-              "id": 697,
+              "id": 811,
               "nodeType": "StructuredDocumentation",
               "src": "2893:64:4",
               "text": " @inheritdoc IAccessControlDefaultAdminRules"
             },
             "functionSelector": "cf6eefb7",
-            "id": 705,
+            "id": 819,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -1156,23 +1156,23 @@
             "nameLocation": "2972:19:4",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 698,
+              "id": 812,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "2991:2:4"
             },
             "returnParameters": {
-              "id": 701,
+              "id": 815,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 700,
+                  "id": 814,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 705,
+                  "scope": 819,
                   "src": "3023:7:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1181,7 +1181,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 699,
+                    "id": 813,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "3023:7:4",
@@ -1196,7 +1196,7 @@
               ],
               "src": "3022:9:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "2963:115:4",
             "stateMutability": "view",
             "virtual": true,
@@ -1204,41 +1204,41 @@
           },
           {
             "baseFunctions": [
-              1277
+              1391
             ],
             "body": {
-              "id": 713,
+              "id": 827,
               "nodeType": "Block",
               "src": "3237:59:4",
               "statements": [
                 {
                   "expression": {
-                    "id": 711,
+                    "id": 825,
                     "name": "_defaultAdminTransferDelayedUntil",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 650,
+                    "referencedDeclaration": 764,
                     "src": "3255:33:4",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint48",
                       "typeString": "uint48"
                     }
                   },
-                  "functionReturnParameters": 710,
-                  "id": 712,
+                  "functionReturnParameters": 824,
+                  "id": 826,
                   "nodeType": "Return",
                   "src": "3248:40:4"
                 }
               ]
             },
             "documentation": {
-              "id": 706,
+              "id": 820,
               "nodeType": "StructuredDocumentation",
               "src": "3086:64:4",
               "text": " @inheritdoc IAccessControlDefaultAdminRules"
             },
             "functionSelector": "7a33eb5d",
-            "id": 714,
+            "id": 828,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -1246,23 +1246,23 @@
             "nameLocation": "3165:32:4",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 707,
+              "id": 821,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "3197:2:4"
             },
             "returnParameters": {
-              "id": 710,
+              "id": 824,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 709,
+                  "id": 823,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 714,
+                  "scope": 828,
                   "src": "3229:6:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1271,7 +1271,7 @@
                     "typeString": "uint48"
                   },
                   "typeName": {
-                    "id": 708,
+                    "id": 822,
                     "name": "uint48",
                     "nodeType": "ElementaryTypeName",
                     "src": "3229:6:4",
@@ -1285,7 +1285,7 @@
               ],
               "src": "3228:8:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "3156:140:4",
             "stateMutability": "view",
             "virtual": true,
@@ -1293,10 +1293,10 @@
           },
           {
             "baseFunctions": [
-              319
+              433
             ],
             "body": {
-              "id": 735,
+              "id": 849,
               "nodeType": "Block",
               "src": "3459:130:4",
               "statements": [
@@ -1306,7 +1306,7 @@
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
                     },
-                    "id": 733,
+                    "id": 847,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1316,17 +1316,17 @@
                         "typeIdentifier": "t_bytes4",
                         "typeString": "bytes4"
                       },
-                      "id": 728,
+                      "id": 842,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "leftExpression": {
-                        "id": 723,
+                        "id": 837,
                         "name": "interfaceId",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 717,
+                        "referencedDeclaration": 831,
                         "src": "3477:11:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes4",
@@ -1339,14 +1339,14 @@
                         "expression": {
                           "arguments": [
                             {
-                              "id": 725,
+                              "id": 839,
                               "name": "IAccessControlDefaultAdminRules",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
-                              "referencedDeclaration": 1292,
+                              "referencedDeclaration": 1406,
                               "src": "3497:31:4",
                               "typeDescriptions": {
-                                "typeIdentifier": "t_type$_t_contract$_IAccessControlDefaultAdminRules_$1292_$",
+                                "typeIdentifier": "t_type$_t_contract$_IAccessControlDefaultAdminRules_$1406_$",
                                 "typeString": "type(contract IAccessControlDefaultAdminRules)"
                               }
                             }
@@ -1354,11 +1354,11 @@
                           "expression": {
                             "argumentTypes": [
                               {
-                                "typeIdentifier": "t_type$_t_contract$_IAccessControlDefaultAdminRules_$1292_$",
+                                "typeIdentifier": "t_type$_t_contract$_IAccessControlDefaultAdminRules_$1406_$",
                                 "typeString": "type(contract IAccessControlDefaultAdminRules)"
                               }
                             ],
-                            "id": 724,
+                            "id": 838,
                             "name": "type",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
@@ -1369,7 +1369,7 @@
                               "typeString": "function () pure"
                             }
                           },
-                          "id": 726,
+                          "id": 840,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -1381,11 +1381,11 @@
                           "src": "3492:37:4",
                           "tryCall": false,
                           "typeDescriptions": {
-                            "typeIdentifier": "t_magic_meta_type_t_contract$_IAccessControlDefaultAdminRules_$1292",
+                            "typeIdentifier": "t_magic_meta_type_t_contract$_IAccessControlDefaultAdminRules_$1406",
                             "typeString": "type(contract IAccessControlDefaultAdminRules)"
                           }
                         },
-                        "id": 727,
+                        "id": 841,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -1410,11 +1410,11 @@
                     "rightExpression": {
                       "arguments": [
                         {
-                          "id": 731,
+                          "id": 845,
                           "name": "interfaceId",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 717,
+                          "referencedDeclaration": 831,
                           "src": "3569:11:4",
                           "typeDescriptions": {
                             "typeIdentifier": "t_bytes4",
@@ -1430,18 +1430,18 @@
                           }
                         ],
                         "expression": {
-                          "id": 729,
+                          "id": 843,
                           "name": "super",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
                           "referencedDeclaration": 4294967271,
                           "src": "3545:5:4",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_super$_AccessControlDefaultAdminRules_$1042_$",
+                            "typeIdentifier": "t_type$_t_super$_AccessControlDefaultAdminRules_$1156_$",
                             "typeString": "type(contract super AccessControlDefaultAdminRules)"
                           }
                         },
-                        "id": 730,
+                        "id": 844,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -1449,14 +1449,14 @@
                         "memberLocation": "3551:17:4",
                         "memberName": "supportsInterface",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 319,
+                        "referencedDeclaration": 433,
                         "src": "3545:23:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_internal_view$_t_bytes4_$returns$_t_bool_$",
                           "typeString": "function (bytes4) view returns (bool)"
                         }
                       },
-                      "id": 732,
+                      "id": 846,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -1478,21 +1478,21 @@
                       "typeString": "bool"
                     }
                   },
-                  "functionReturnParameters": 722,
-                  "id": 734,
+                  "functionReturnParameters": 836,
+                  "id": 848,
                   "nodeType": "Return",
                   "src": "3470:111:4"
                 }
               ]
             },
             "documentation": {
-              "id": 715,
+              "id": 829,
               "nodeType": "StructuredDocumentation",
               "src": "3304:58:4",
               "text": " @dev See {IERC165-supportsInterface}."
             },
             "functionSelector": "01ffc9a7",
-            "id": 736,
+            "id": 850,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -1500,23 +1500,23 @@
             "nameLocation": "3377:17:4",
             "nodeType": "FunctionDefinition",
             "overrides": {
-              "id": 719,
+              "id": 833,
               "nodeType": "OverrideSpecifier",
               "overrides": [],
               "src": "3435:8:4"
             },
             "parameters": {
-              "id": 718,
+              "id": 832,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 717,
+                  "id": 831,
                   "mutability": "mutable",
                   "name": "interfaceId",
                   "nameLocation": "3402:11:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 736,
+                  "scope": 850,
                   "src": "3395:18:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1525,7 +1525,7 @@
                     "typeString": "bytes4"
                   },
                   "typeName": {
-                    "id": 716,
+                    "id": 830,
                     "name": "bytes4",
                     "nodeType": "ElementaryTypeName",
                     "src": "3395:6:4",
@@ -1540,17 +1540,17 @@
               "src": "3394:20:4"
             },
             "returnParameters": {
-              "id": 722,
+              "id": 836,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 721,
+                  "id": 835,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 736,
+                  "scope": 850,
                   "src": "3453:4:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1559,7 +1559,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 720,
+                    "id": 834,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "3453:4:4",
@@ -1573,7 +1573,7 @@
               ],
               "src": "3452:6:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "3368:221:4",
             "stateMutability": "view",
             "virtual": true,
@@ -1581,10 +1581,10 @@
           },
           {
             "baseFunctions": [
-              1283
+              1397
             ],
             "body": {
-              "id": 749,
+              "id": 863,
               "nodeType": "Block",
               "src": "3764:55:4",
               "statements": [
@@ -1592,11 +1592,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 746,
+                        "id": 860,
                         "name": "newAdmin",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 739,
+                        "referencedDeclaration": 853,
                         "src": "3802:8:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -1611,18 +1611,18 @@
                           "typeString": "address"
                         }
                       ],
-                      "id": 745,
+                      "id": 859,
                       "name": "_beginDefaultAdminTransfer",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 984,
+                      "referencedDeclaration": 1098,
                       "src": "3775:26:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_address_$returns$__$",
                         "typeString": "function (address)"
                       }
                     },
-                    "id": 747,
+                    "id": 861,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1638,31 +1638,31 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 748,
+                  "id": 862,
                   "nodeType": "ExpressionStatement",
                   "src": "3775:36:4"
                 }
               ]
             },
             "documentation": {
-              "id": 737,
+              "id": 851,
               "nodeType": "StructuredDocumentation",
               "src": "3597:64:4",
               "text": " @inheritdoc IAccessControlDefaultAdminRules"
             },
             "functionSelector": "634e93da",
-            "id": 750,
+            "id": 864,
             "implemented": true,
             "kind": "function",
             "modifiers": [
               {
                 "arguments": [
                   {
-                    "id": 742,
+                    "id": 856,
                     "name": "DEFAULT_ADMIN_ROLE",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 286,
+                    "referencedDeclaration": 400,
                     "src": "3744:18:4",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
@@ -1670,16 +1670,16 @@
                     }
                   }
                 ],
-                "id": 743,
+                "id": 857,
                 "kind": "modifierInvocation",
                 "modifierName": {
-                  "id": 741,
+                  "id": 855,
                   "name": "onlyRole",
                   "nameLocations": [
                     "3735:8:4"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 297,
+                  "referencedDeclaration": 411,
                   "src": "3735:8:4"
                 },
                 "nodeType": "ModifierInvocation",
@@ -1690,17 +1690,17 @@
             "nameLocation": "3676:25:4",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 740,
+              "id": 854,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 739,
+                  "id": 853,
                   "mutability": "mutable",
                   "name": "newAdmin",
                   "nameLocation": "3710:8:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 750,
+                  "scope": 864,
                   "src": "3702:16:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1709,7 +1709,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 738,
+                    "id": 852,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "3702:7:4",
@@ -1725,12 +1725,12 @@
               "src": "3701:18:4"
             },
             "returnParameters": {
-              "id": 744,
+              "id": 858,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "3764:0:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "3667:152:4",
             "stateMutability": "nonpayable",
             "virtual": true,
@@ -1738,10 +1738,10 @@
           },
           {
             "baseFunctions": [
-              1287
+              1401
             ],
             "body": {
-              "id": 766,
+              "id": 880,
               "nodeType": "Block",
               "src": "3950:149:4",
               "statements": [
@@ -1753,7 +1753,7 @@
                           "typeIdentifier": "t_address",
                           "typeString": "address"
                         },
-                        "id": 759,
+                        "id": 873,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -1762,18 +1762,18 @@
                           "arguments": [],
                           "expression": {
                             "argumentTypes": [],
-                            "id": 755,
+                            "id": 869,
                             "name": "_msgSender",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 31166,
+                            "referencedDeclaration": 31280,
                             "src": "3969:10:4",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
                               "typeString": "function () view returns (address)"
                             }
                           },
-                          "id": 756,
+                          "id": 870,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -1795,18 +1795,18 @@
                           "arguments": [],
                           "expression": {
                             "argumentTypes": [],
-                            "id": 757,
+                            "id": 871,
                             "name": "pendingDefaultAdmin",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 705,
+                            "referencedDeclaration": 819,
                             "src": "3985:19:4",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
                               "typeString": "function () view returns (address)"
                             }
                           },
-                          "id": 758,
+                          "id": 872,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -1830,7 +1830,7 @@
                       },
                       {
                         "hexValue": "416363657373436f6e74726f6c3a2070656e64696e672061646d696e206d75737420616363657074",
-                        "id": 760,
+                        "id": 874,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -1856,7 +1856,7 @@
                           "typeString": "literal_string \"AccessControl: pending admin must accept\""
                         }
                       ],
-                      "id": 754,
+                      "id": 868,
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
@@ -1870,7 +1870,7 @@
                         "typeString": "function (bool,string memory) pure"
                       }
                     },
-                    "id": 761,
+                    "id": 875,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1886,7 +1886,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 762,
+                  "id": 876,
                   "nodeType": "ExpressionStatement",
                   "src": "3961:90:4"
                 },
@@ -1895,18 +1895,18 @@
                     "arguments": [],
                     "expression": {
                       "argumentTypes": [],
-                      "id": 763,
+                      "id": 877,
                       "name": "_acceptDefaultAdminTransfer",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 955,
+                      "referencedDeclaration": 1069,
                       "src": "4062:27:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
                         "typeString": "function ()"
                       }
                     },
-                    "id": 764,
+                    "id": 878,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1922,20 +1922,20 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 765,
+                  "id": 879,
                   "nodeType": "ExpressionStatement",
                   "src": "4062:29:4"
                 }
               ]
             },
             "documentation": {
-              "id": 751,
+              "id": 865,
               "nodeType": "StructuredDocumentation",
               "src": "3827:64:4",
               "text": " @inheritdoc IAccessControlDefaultAdminRules"
             },
             "functionSelector": "cefc1429",
-            "id": 767,
+            "id": 881,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -1943,18 +1943,18 @@
             "nameLocation": "3906:26:4",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 752,
+              "id": 866,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "3932:2:4"
             },
             "returnParameters": {
-              "id": 753,
+              "id": 867,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "3950:0:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "3897:202:4",
             "stateMutability": "nonpayable",
             "virtual": true,
@@ -1962,10 +1962,10 @@
           },
           {
             "baseFunctions": [
-              1291
+              1405
             ],
             "body": {
-              "id": 777,
+              "id": 891,
               "nodeType": "Block",
               "src": "4259:47:4",
               "statements": [
@@ -1974,18 +1974,18 @@
                     "arguments": [],
                     "expression": {
                       "argumentTypes": [],
-                      "id": 774,
+                      "id": 888,
                       "name": "_resetDefaultAdminTransfer",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1020,
+                      "referencedDeclaration": 1134,
                       "src": "4270:26:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
                         "typeString": "function ()"
                       }
                     },
-                    "id": 775,
+                    "id": 889,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2001,31 +2001,31 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 776,
+                  "id": 890,
                   "nodeType": "ExpressionStatement",
                   "src": "4270:28:4"
                 }
               ]
             },
             "documentation": {
-              "id": 768,
+              "id": 882,
               "nodeType": "StructuredDocumentation",
               "src": "4107:64:4",
               "text": " @inheritdoc IAccessControlDefaultAdminRules"
             },
             "functionSelector": "d602b9fd",
-            "id": 778,
+            "id": 892,
             "implemented": true,
             "kind": "function",
             "modifiers": [
               {
                 "arguments": [
                   {
-                    "id": 771,
+                    "id": 885,
                     "name": "DEFAULT_ADMIN_ROLE",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 286,
+                    "referencedDeclaration": 400,
                     "src": "4239:18:4",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
@@ -2033,16 +2033,16 @@
                     }
                   }
                 ],
-                "id": 772,
+                "id": 886,
                 "kind": "modifierInvocation",
                 "modifierName": {
-                  "id": 770,
+                  "id": 884,
                   "name": "onlyRole",
                   "nameLocations": [
                     "4230:8:4"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 297,
+                  "referencedDeclaration": 411,
                   "src": "4230:8:4"
                 },
                 "nodeType": "ModifierInvocation",
@@ -2053,18 +2053,18 @@
             "nameLocation": "4186:26:4",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 769,
+              "id": 883,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "4212:2:4"
             },
             "returnParameters": {
-              "id": 773,
+              "id": 887,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "4259:0:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "4177:129:4",
             "stateMutability": "nonpayable",
             "virtual": true,
@@ -2072,11 +2072,11 @@
           },
           {
             "baseFunctions": [
-              468,
-              1239
+              582,
+              1353
             ],
             "body": {
-              "id": 815,
+              "id": 929,
               "nodeType": "Block",
               "src": "5142:312:4",
               "statements": [
@@ -2086,17 +2086,17 @@
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
                     },
-                    "id": 791,
+                    "id": 905,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftExpression": {
-                      "id": 789,
+                      "id": 903,
                       "name": "role",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 781,
+                      "referencedDeclaration": 895,
                       "src": "5157:4:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bytes32",
@@ -2106,11 +2106,11 @@
                     "nodeType": "BinaryOperation",
                     "operator": "==",
                     "rightExpression": {
-                      "id": 790,
+                      "id": 904,
                       "name": "DEFAULT_ADMIN_ROLE",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 286,
+                      "referencedDeclaration": 400,
                       "src": "5165:18:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bytes32",
@@ -2123,11 +2123,11 @@
                       "typeString": "bool"
                     }
                   },
-                  "id": 807,
+                  "id": 921,
                   "nodeType": "IfStatement",
                   "src": "5153:250:4",
                   "trueBody": {
-                    "id": 806,
+                    "id": 920,
                     "nodeType": "Block",
                     "src": "5185:218:4",
                     "statements": [
@@ -2139,7 +2139,7 @@
                                 "typeIdentifier": "t_bool",
                                 "typeString": "bool"
                               },
-                              "id": 802,
+                              "id": 916,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": false,
@@ -2149,7 +2149,7 @@
                                   "typeIdentifier": "t_address",
                                   "typeString": "address"
                                 },
-                                "id": 799,
+                                "id": 913,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": false,
@@ -2158,18 +2158,18 @@
                                   "arguments": [],
                                   "expression": {
                                     "argumentTypes": [],
-                                    "id": 793,
+                                    "id": 907,
                                     "name": "pendingDefaultAdmin",
                                     "nodeType": "Identifier",
                                     "overloadedDeclarations": [],
-                                    "referencedDeclaration": 705,
+                                    "referencedDeclaration": 819,
                                     "src": "5226:19:4",
                                     "typeDescriptions": {
                                       "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
                                       "typeString": "function () view returns (address)"
                                     }
                                   },
-                                  "id": 794,
+                                  "id": 908,
                                   "isConstant": false,
                                   "isLValue": false,
                                   "isPure": false,
@@ -2191,7 +2191,7 @@
                                   "arguments": [
                                     {
                                       "hexValue": "30",
-                                      "id": 797,
+                                      "id": 911,
                                       "isConstant": false,
                                       "isLValue": false,
                                       "isPure": true,
@@ -2213,7 +2213,7 @@
                                         "typeString": "int_const 0"
                                       }
                                     ],
-                                    "id": 796,
+                                    "id": 910,
                                     "isConstant": false,
                                     "isLValue": false,
                                     "isPure": true,
@@ -2225,14 +2225,14 @@
                                       "typeString": "type(address)"
                                     },
                                     "typeName": {
-                                      "id": 795,
+                                      "id": 909,
                                       "name": "address",
                                       "nodeType": "ElementaryTypeName",
                                       "src": "5251:7:4",
                                       "typeDescriptions": {}
                                     }
                                   },
-                                  "id": 798,
+                                  "id": 912,
                                   "isConstant": false,
                                   "isLValue": false,
                                   "isPure": true,
@@ -2260,18 +2260,18 @@
                                 "arguments": [],
                                 "expression": {
                                   "argumentTypes": [],
-                                  "id": 800,
+                                  "id": 914,
                                   "name": "_hasDefaultAdminTransferDelayPassed",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
-                                  "referencedDeclaration": 1041,
+                                  "referencedDeclaration": 1155,
                                   "src": "5265:35:4",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_function_internal_view$__$returns$_t_bool_$",
                                     "typeString": "function () view returns (bool)"
                                   }
                                 },
-                                "id": 801,
+                                "id": 915,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": false,
@@ -2295,7 +2295,7 @@
                             },
                             {
                               "hexValue": "416363657373436f6e74726f6c3a206f6e6c792063616e2072656e6f756e636520696e2074776f2064656c61796564207374657073",
-                              "id": 803,
+                              "id": 917,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
@@ -2321,7 +2321,7 @@
                                 "typeString": "literal_string \"AccessControl: only can renounce in two delayed steps\""
                               }
                             ],
-                            "id": 792,
+                            "id": 906,
                             "name": "require",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [
@@ -2335,7 +2335,7 @@
                               "typeString": "function (bool,string memory) pure"
                             }
                           },
-                          "id": 804,
+                          "id": 918,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -2351,7 +2351,7 @@
                             "typeString": "tuple()"
                           }
                         },
-                        "id": 805,
+                        "id": 919,
                         "nodeType": "ExpressionStatement",
                         "src": "5200:191:4"
                       }
@@ -2362,11 +2362,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 811,
+                        "id": 925,
                         "name": "role",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 781,
+                        "referencedDeclaration": 895,
                         "src": "5432:4:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
@@ -2374,11 +2374,11 @@
                         }
                       },
                       {
-                        "id": 812,
+                        "id": 926,
                         "name": "account",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 783,
+                        "referencedDeclaration": 897,
                         "src": "5438:7:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -2398,18 +2398,18 @@
                         }
                       ],
                       "expression": {
-                        "id": 808,
+                        "id": 922,
                         "name": "super",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 4294967271,
                         "src": "5413:5:4",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_super$_AccessControlDefaultAdminRules_$1042_$",
+                          "typeIdentifier": "t_type$_t_super$_AccessControlDefaultAdminRules_$1156_$",
                           "typeString": "type(contract super AccessControlDefaultAdminRules)"
                         }
                       },
-                      "id": 810,
+                      "id": 924,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -2417,14 +2417,14 @@
                       "memberLocation": "5419:12:4",
                       "memberName": "renounceRole",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 468,
+                      "referencedDeclaration": 582,
                       "src": "5413:18:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
                         "typeString": "function (bytes32,address)"
                       }
                     },
-                    "id": 813,
+                    "id": 927,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2440,20 +2440,20 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 814,
+                  "id": 928,
                   "nodeType": "ExpressionStatement",
                   "src": "5413:33:4"
                 }
               ]
             },
             "documentation": {
-              "id": 779,
+              "id": 893,
               "nodeType": "StructuredDocumentation",
               "src": "4314:714:4",
               "text": " @dev Revokes `role` from the calling account.\n For `DEFAULT_ADMIN_ROLE`, only allows renouncing in two steps, so it's required\n that the {defaultAdminTransferDelayedUntil} has passed and the pending default admin is the zero address.\n After its execution, it will not be possible to call `onlyRole(DEFAULT_ADMIN_ROLE)`\n functions.\n For other roles, see {AccessControl-renounceRole}.\n NOTE: Renouncing `DEFAULT_ADMIN_ROLE` will leave the contract without a defaultAdmin,\n thereby disabling any functionality that is only available to the default admin, and the\n possibility of reassigning a non-administrated role."
             },
             "functionSelector": "36568abe",
-            "id": 816,
+            "id": 930,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -2461,44 +2461,44 @@
             "nameLocation": "5043:12:4",
             "nodeType": "FunctionDefinition",
             "overrides": {
-              "id": 787,
+              "id": 901,
               "nodeType": "OverrideSpecifier",
               "overrides": [
                 {
-                  "id": 785,
+                  "id": 899,
                   "name": "AccessControl",
                   "nameLocations": [
                     "5111:13:4"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 574,
+                  "referencedDeclaration": 688,
                   "src": "5111:13:4"
                 },
                 {
-                  "id": 786,
+                  "id": 900,
                   "name": "IAccessControl",
                   "nameLocations": [
                     "5126:14:4"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 1240,
+                  "referencedDeclaration": 1354,
                   "src": "5126:14:4"
                 }
               ],
               "src": "5102:39:4"
             },
             "parameters": {
-              "id": 784,
+              "id": 898,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 781,
+                  "id": 895,
                   "mutability": "mutable",
                   "name": "role",
                   "nameLocation": "5064:4:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 816,
+                  "scope": 930,
                   "src": "5056:12:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2507,7 +2507,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 780,
+                    "id": 894,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "5056:7:4",
@@ -2520,12 +2520,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 783,
+                  "id": 897,
                   "mutability": "mutable",
                   "name": "account",
                   "nameLocation": "5078:7:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 816,
+                  "scope": 930,
                   "src": "5070:15:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2534,7 +2534,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 782,
+                    "id": 896,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "5070:7:4",
@@ -2550,12 +2550,12 @@
               "src": "5055:31:4"
             },
             "returnParameters": {
-              "id": 788,
+              "id": 902,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "5142:0:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "5034:420:4",
             "stateMutability": "nonpayable",
             "virtual": true,
@@ -2563,11 +2563,11 @@
           },
           {
             "baseFunctions": [
-              425,
-              1223
+              539,
+              1337
             ],
             "body": {
-              "id": 841,
+              "id": 955,
               "nodeType": "Block",
               "src": "5663:153:4",
               "statements": [
@@ -2579,17 +2579,17 @@
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
                         },
-                        "id": 830,
+                        "id": 944,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
                         "lValueRequested": false,
                         "leftExpression": {
-                          "id": 828,
+                          "id": 942,
                           "name": "role",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 819,
+                          "referencedDeclaration": 933,
                           "src": "5682:4:4",
                           "typeDescriptions": {
                             "typeIdentifier": "t_bytes32",
@@ -2599,11 +2599,11 @@
                         "nodeType": "BinaryOperation",
                         "operator": "!=",
                         "rightExpression": {
-                          "id": 829,
+                          "id": 943,
                           "name": "DEFAULT_ADMIN_ROLE",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 286,
+                          "referencedDeclaration": 400,
                           "src": "5690:18:4",
                           "typeDescriptions": {
                             "typeIdentifier": "t_bytes32",
@@ -2618,7 +2618,7 @@
                       },
                       {
                         "hexValue": "416363657373436f6e74726f6c3a2063616e2774206469726563746c79206772616e742064656661756c742061646d696e20726f6c65",
-                        "id": 831,
+                        "id": 945,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2644,7 +2644,7 @@
                           "typeString": "literal_string \"AccessControl: can't directly grant default admin role\""
                         }
                       ],
-                      "id": 827,
+                      "id": 941,
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
@@ -2658,7 +2658,7 @@
                         "typeString": "function (bool,string memory) pure"
                       }
                     },
-                    "id": 832,
+                    "id": 946,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2674,7 +2674,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 833,
+                  "id": 947,
                   "nodeType": "ExpressionStatement",
                   "src": "5674:93:4"
                 },
@@ -2682,11 +2682,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 837,
+                        "id": 951,
                         "name": "role",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 819,
+                        "referencedDeclaration": 933,
                         "src": "5794:4:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
@@ -2694,11 +2694,11 @@
                         }
                       },
                       {
-                        "id": 838,
+                        "id": 952,
                         "name": "account",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 821,
+                        "referencedDeclaration": 935,
                         "src": "5800:7:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -2718,18 +2718,18 @@
                         }
                       ],
                       "expression": {
-                        "id": 834,
+                        "id": 948,
                         "name": "super",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 4294967271,
                         "src": "5778:5:4",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_super$_AccessControlDefaultAdminRules_$1042_$",
+                          "typeIdentifier": "t_type$_t_super$_AccessControlDefaultAdminRules_$1156_$",
                           "typeString": "type(contract super AccessControlDefaultAdminRules)"
                         }
                       },
-                      "id": 836,
+                      "id": 950,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -2737,14 +2737,14 @@
                       "memberLocation": "5784:9:4",
                       "memberName": "grantRole",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 425,
+                      "referencedDeclaration": 539,
                       "src": "5778:15:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
                         "typeString": "function (bytes32,address)"
                       }
                     },
-                    "id": 839,
+                    "id": 953,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2760,20 +2760,20 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 840,
+                  "id": 954,
                   "nodeType": "ExpressionStatement",
                   "src": "5778:30:4"
                 }
               ]
             },
             "documentation": {
-              "id": 817,
+              "id": 931,
               "nodeType": "StructuredDocumentation",
               "src": "5462:90:4",
               "text": " @dev See {AccessControl-grantRole}. Reverts for `DEFAULT_ADMIN_ROLE`."
             },
             "functionSelector": "2f2ff15d",
-            "id": 842,
+            "id": 956,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -2781,44 +2781,44 @@
             "nameLocation": "5567:9:4",
             "nodeType": "FunctionDefinition",
             "overrides": {
-              "id": 825,
+              "id": 939,
               "nodeType": "OverrideSpecifier",
               "overrides": [
                 {
-                  "id": 823,
+                  "id": 937,
                   "name": "AccessControl",
                   "nameLocations": [
                     "5632:13:4"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 574,
+                  "referencedDeclaration": 688,
                   "src": "5632:13:4"
                 },
                 {
-                  "id": 824,
+                  "id": 938,
                   "name": "IAccessControl",
                   "nameLocations": [
                     "5647:14:4"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 1240,
+                  "referencedDeclaration": 1354,
                   "src": "5647:14:4"
                 }
               ],
               "src": "5623:39:4"
             },
             "parameters": {
-              "id": 822,
+              "id": 936,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 819,
+                  "id": 933,
                   "mutability": "mutable",
                   "name": "role",
                   "nameLocation": "5585:4:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 842,
+                  "scope": 956,
                   "src": "5577:12:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2827,7 +2827,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 818,
+                    "id": 932,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "5577:7:4",
@@ -2840,12 +2840,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 821,
+                  "id": 935,
                   "mutability": "mutable",
                   "name": "account",
                   "nameLocation": "5599:7:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 842,
+                  "scope": 956,
                   "src": "5591:15:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2854,7 +2854,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 820,
+                    "id": 934,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "5591:7:4",
@@ -2870,12 +2870,12 @@
               "src": "5576:31:4"
             },
             "returnParameters": {
-              "id": 826,
+              "id": 940,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "5663:0:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "5558:258:4",
             "stateMutability": "nonpayable",
             "virtual": true,
@@ -2883,11 +2883,11 @@
           },
           {
             "baseFunctions": [
-              445,
-              1231
+              559,
+              1345
             ],
             "body": {
-              "id": 867,
+              "id": 981,
               "nodeType": "Block",
               "src": "6027:155:4",
               "statements": [
@@ -2899,17 +2899,17 @@
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
                         },
-                        "id": 856,
+                        "id": 970,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
                         "lValueRequested": false,
                         "leftExpression": {
-                          "id": 854,
+                          "id": 968,
                           "name": "role",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 845,
+                          "referencedDeclaration": 959,
                           "src": "6046:4:4",
                           "typeDescriptions": {
                             "typeIdentifier": "t_bytes32",
@@ -2919,11 +2919,11 @@
                         "nodeType": "BinaryOperation",
                         "operator": "!=",
                         "rightExpression": {
-                          "id": 855,
+                          "id": 969,
                           "name": "DEFAULT_ADMIN_ROLE",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 286,
+                          "referencedDeclaration": 400,
                           "src": "6054:18:4",
                           "typeDescriptions": {
                             "typeIdentifier": "t_bytes32",
@@ -2938,7 +2938,7 @@
                       },
                       {
                         "hexValue": "416363657373436f6e74726f6c3a2063616e2774206469726563746c79207265766f6b652064656661756c742061646d696e20726f6c65",
-                        "id": 857,
+                        "id": 971,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2964,7 +2964,7 @@
                           "typeString": "literal_string \"AccessControl: can't directly revoke default admin role\""
                         }
                       ],
-                      "id": 853,
+                      "id": 967,
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
@@ -2978,7 +2978,7 @@
                         "typeString": "function (bool,string memory) pure"
                       }
                     },
-                    "id": 858,
+                    "id": 972,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2994,7 +2994,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 859,
+                  "id": 973,
                   "nodeType": "ExpressionStatement",
                   "src": "6038:94:4"
                 },
@@ -3002,11 +3002,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 863,
+                        "id": 977,
                         "name": "role",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 845,
+                        "referencedDeclaration": 959,
                         "src": "6160:4:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
@@ -3014,11 +3014,11 @@
                         }
                       },
                       {
-                        "id": 864,
+                        "id": 978,
                         "name": "account",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 847,
+                        "referencedDeclaration": 961,
                         "src": "6166:7:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -3038,18 +3038,18 @@
                         }
                       ],
                       "expression": {
-                        "id": 860,
+                        "id": 974,
                         "name": "super",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 4294967271,
                         "src": "6143:5:4",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_super$_AccessControlDefaultAdminRules_$1042_$",
+                          "typeIdentifier": "t_type$_t_super$_AccessControlDefaultAdminRules_$1156_$",
                           "typeString": "type(contract super AccessControlDefaultAdminRules)"
                         }
                       },
-                      "id": 862,
+                      "id": 976,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -3057,14 +3057,14 @@
                       "memberLocation": "6149:10:4",
                       "memberName": "revokeRole",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 445,
+                      "referencedDeclaration": 559,
                       "src": "6143:16:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
                         "typeString": "function (bytes32,address)"
                       }
                     },
-                    "id": 865,
+                    "id": 979,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3080,20 +3080,20 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 866,
+                  "id": 980,
                   "nodeType": "ExpressionStatement",
                   "src": "6143:31:4"
                 }
               ]
             },
             "documentation": {
-              "id": 843,
+              "id": 957,
               "nodeType": "StructuredDocumentation",
               "src": "5824:91:4",
               "text": " @dev See {AccessControl-revokeRole}. Reverts for `DEFAULT_ADMIN_ROLE`."
             },
             "functionSelector": "d547741f",
-            "id": 868,
+            "id": 982,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -3101,44 +3101,44 @@
             "nameLocation": "5930:10:4",
             "nodeType": "FunctionDefinition",
             "overrides": {
-              "id": 851,
+              "id": 965,
               "nodeType": "OverrideSpecifier",
               "overrides": [
                 {
-                  "id": 849,
+                  "id": 963,
                   "name": "AccessControl",
                   "nameLocations": [
                     "5996:13:4"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 574,
+                  "referencedDeclaration": 688,
                   "src": "5996:13:4"
                 },
                 {
-                  "id": 850,
+                  "id": 964,
                   "name": "IAccessControl",
                   "nameLocations": [
                     "6011:14:4"
                   ],
                   "nodeType": "IdentifierPath",
-                  "referencedDeclaration": 1240,
+                  "referencedDeclaration": 1354,
                   "src": "6011:14:4"
                 }
               ],
               "src": "5987:39:4"
             },
             "parameters": {
-              "id": 848,
+              "id": 962,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 845,
+                  "id": 959,
                   "mutability": "mutable",
                   "name": "role",
                   "nameLocation": "5949:4:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 868,
+                  "scope": 982,
                   "src": "5941:12:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -3147,7 +3147,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 844,
+                    "id": 958,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "5941:7:4",
@@ -3160,12 +3160,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 847,
+                  "id": 961,
                   "mutability": "mutable",
                   "name": "account",
                   "nameLocation": "5963:7:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 868,
+                  "scope": 982,
                   "src": "5955:15:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -3174,7 +3174,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 846,
+                    "id": 960,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "5955:7:4",
@@ -3190,12 +3190,12 @@
               "src": "5940:31:4"
             },
             "returnParameters": {
-              "id": 852,
+              "id": 966,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "6027:0:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "5921:261:4",
             "stateMutability": "nonpayable",
             "virtual": true,
@@ -3203,10 +3203,10 @@
           },
           {
             "baseFunctions": [
-              510
+              624
             ],
             "body": {
-              "id": 891,
+              "id": 1005,
               "nodeType": "Block",
               "src": "6372:153:4",
               "statements": [
@@ -3218,17 +3218,17 @@
                           "typeIdentifier": "t_bytes32",
                           "typeString": "bytes32"
                         },
-                        "id": 880,
+                        "id": 994,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
                         "lValueRequested": false,
                         "leftExpression": {
-                          "id": 878,
+                          "id": 992,
                           "name": "role",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 871,
+                          "referencedDeclaration": 985,
                           "src": "6391:4:4",
                           "typeDescriptions": {
                             "typeIdentifier": "t_bytes32",
@@ -3238,11 +3238,11 @@
                         "nodeType": "BinaryOperation",
                         "operator": "!=",
                         "rightExpression": {
-                          "id": 879,
+                          "id": 993,
                           "name": "DEFAULT_ADMIN_ROLE",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 286,
+                          "referencedDeclaration": 400,
                           "src": "6399:18:4",
                           "typeDescriptions": {
                             "typeIdentifier": "t_bytes32",
@@ -3257,7 +3257,7 @@
                       },
                       {
                         "hexValue": "416363657373436f6e74726f6c3a2063616e27742076696f6c6174652064656661756c742061646d696e2072756c6573",
-                        "id": 881,
+                        "id": 995,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3283,7 +3283,7 @@
                           "typeString": "literal_string \"AccessControl: can't violate default admin rules\""
                         }
                       ],
-                      "id": 877,
+                      "id": 991,
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
@@ -3297,7 +3297,7 @@
                         "typeString": "function (bool,string memory) pure"
                       }
                     },
-                    "id": 882,
+                    "id": 996,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3313,7 +3313,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 883,
+                  "id": 997,
                   "nodeType": "ExpressionStatement",
                   "src": "6383:87:4"
                 },
@@ -3321,11 +3321,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 887,
+                        "id": 1001,
                         "name": "role",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 871,
+                        "referencedDeclaration": 985,
                         "src": "6501:4:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
@@ -3333,11 +3333,11 @@
                         }
                       },
                       {
-                        "id": 888,
+                        "id": 1002,
                         "name": "adminRole",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 873,
+                        "referencedDeclaration": 987,
                         "src": "6507:9:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
@@ -3357,18 +3357,18 @@
                         }
                       ],
                       "expression": {
-                        "id": 884,
+                        "id": 998,
                         "name": "super",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 4294967271,
                         "src": "6481:5:4",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_super$_AccessControlDefaultAdminRules_$1042_$",
+                          "typeIdentifier": "t_type$_t_super$_AccessControlDefaultAdminRules_$1156_$",
                           "typeString": "type(contract super AccessControlDefaultAdminRules)"
                         }
                       },
-                      "id": 886,
+                      "id": 1000,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -3376,14 +3376,14 @@
                       "memberLocation": "6487:13:4",
                       "memberName": "_setRoleAdmin",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 510,
+                      "referencedDeclaration": 624,
                       "src": "6481:19:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_bytes32_$returns$__$",
                         "typeString": "function (bytes32,bytes32)"
                       }
                     },
-                    "id": 889,
+                    "id": 1003,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3399,19 +3399,19 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 890,
+                  "id": 1004,
                   "nodeType": "ExpressionStatement",
                   "src": "6481:36:4"
                 }
               ]
             },
             "documentation": {
-              "id": 869,
+              "id": 983,
               "nodeType": "StructuredDocumentation",
               "src": "6190:94:4",
               "text": " @dev See {AccessControl-_setRoleAdmin}. Reverts for `DEFAULT_ADMIN_ROLE`."
             },
-            "id": 892,
+            "id": 1006,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -3419,23 +3419,23 @@
             "nameLocation": "6299:13:4",
             "nodeType": "FunctionDefinition",
             "overrides": {
-              "id": 875,
+              "id": 989,
               "nodeType": "OverrideSpecifier",
               "overrides": [],
               "src": "6363:8:4"
             },
             "parameters": {
-              "id": 874,
+              "id": 988,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 871,
+                  "id": 985,
                   "mutability": "mutable",
                   "name": "role",
                   "nameLocation": "6321:4:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 892,
+                  "scope": 1006,
                   "src": "6313:12:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -3444,7 +3444,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 870,
+                    "id": 984,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "6313:7:4",
@@ -3457,12 +3457,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 873,
+                  "id": 987,
                   "mutability": "mutable",
                   "name": "adminRole",
                   "nameLocation": "6335:9:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 892,
+                  "scope": 1006,
                   "src": "6327:17:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -3471,7 +3471,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 872,
+                    "id": 986,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "6327:7:4",
@@ -3486,12 +3486,12 @@
               "src": "6312:33:4"
             },
             "returnParameters": {
-              "id": 876,
+              "id": 990,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "6372:0:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "6290:235:4",
             "stateMutability": "nonpayable",
             "virtual": true,
@@ -3499,10 +3499,10 @@
           },
           {
             "baseFunctions": [
-              542
+              656
             ],
             "body": {
-              "id": 928,
+              "id": 1042,
               "nodeType": "Block",
               "src": "7111:249:4",
               "statements": [
@@ -3512,17 +3512,17 @@
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
                     },
-                    "id": 903,
+                    "id": 1017,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftExpression": {
-                      "id": 901,
+                      "id": 1015,
                       "name": "role",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 895,
+                      "referencedDeclaration": 1009,
                       "src": "7126:4:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bytes32",
@@ -3532,11 +3532,11 @@
                     "nodeType": "BinaryOperation",
                     "operator": "==",
                     "rightExpression": {
-                      "id": 902,
+                      "id": 1016,
                       "name": "DEFAULT_ADMIN_ROLE",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 286,
+                      "referencedDeclaration": 400,
                       "src": "7134:18:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bytes32",
@@ -3549,11 +3549,11 @@
                       "typeString": "bool"
                     }
                   },
-                  "id": 920,
+                  "id": 1034,
                   "nodeType": "IfStatement",
                   "src": "7122:189:4",
                   "trueBody": {
-                    "id": 919,
+                    "id": 1033,
                     "nodeType": "Block",
                     "src": "7154:157:4",
                     "statements": [
@@ -3565,7 +3565,7 @@
                                 "typeIdentifier": "t_address",
                                 "typeString": "address"
                               },
-                              "id": 911,
+                              "id": 1025,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": false,
@@ -3574,18 +3574,18 @@
                                 "arguments": [],
                                 "expression": {
                                   "argumentTypes": [],
-                                  "id": 905,
+                                  "id": 1019,
                                   "name": "defaultAdmin",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
-                                  "referencedDeclaration": 696,
+                                  "referencedDeclaration": 810,
                                   "src": "7177:12:4",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
                                     "typeString": "function () view returns (address)"
                                   }
                                 },
-                                "id": 906,
+                                "id": 1020,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": false,
@@ -3607,7 +3607,7 @@
                                 "arguments": [
                                   {
                                     "hexValue": "30",
-                                    "id": 909,
+                                    "id": 1023,
                                     "isConstant": false,
                                     "isLValue": false,
                                     "isPure": true,
@@ -3629,7 +3629,7 @@
                                       "typeString": "int_const 0"
                                     }
                                   ],
-                                  "id": 908,
+                                  "id": 1022,
                                   "isConstant": false,
                                   "isLValue": false,
                                   "isPure": true,
@@ -3641,14 +3641,14 @@
                                     "typeString": "type(address)"
                                   },
                                   "typeName": {
-                                    "id": 907,
+                                    "id": 1021,
                                     "name": "address",
                                     "nodeType": "ElementaryTypeName",
                                     "src": "7195:7:4",
                                     "typeDescriptions": {}
                                   }
                                 },
-                                "id": 910,
+                                "id": 1024,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": true,
@@ -3672,7 +3672,7 @@
                             },
                             {
                               "hexValue": "416363657373436f6e74726f6c3a2064656661756c742061646d696e20616c7265616479206772616e746564",
-                              "id": 912,
+                              "id": 1026,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
@@ -3698,7 +3698,7 @@
                                 "typeString": "literal_string \"AccessControl: default admin already granted\""
                               }
                             ],
-                            "id": 904,
+                            "id": 1018,
                             "name": "require",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [
@@ -3712,7 +3712,7 @@
                               "typeString": "function (bool,string memory) pure"
                             }
                           },
-                          "id": 913,
+                          "id": 1027,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -3728,23 +3728,23 @@
                             "typeString": "tuple()"
                           }
                         },
-                        "id": 914,
+                        "id": 1028,
                         "nodeType": "ExpressionStatement",
                         "src": "7169:85:4"
                       },
                       {
                         "expression": {
-                          "id": 917,
+                          "id": 1031,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
                           "lValueRequested": false,
                           "leftHandSide": {
-                            "id": 915,
+                            "id": 1029,
                             "name": "_currentDefaultAdmin",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 646,
+                            "referencedDeclaration": 760,
                             "src": "7269:20:4",
                             "typeDescriptions": {
                               "typeIdentifier": "t_address",
@@ -3754,11 +3754,11 @@
                           "nodeType": "Assignment",
                           "operator": "=",
                           "rightHandSide": {
-                            "id": 916,
+                            "id": 1030,
                             "name": "account",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 897,
+                            "referencedDeclaration": 1011,
                             "src": "7292:7:4",
                             "typeDescriptions": {
                               "typeIdentifier": "t_address",
@@ -3771,7 +3771,7 @@
                             "typeString": "address"
                           }
                         },
-                        "id": 918,
+                        "id": 1032,
                         "nodeType": "ExpressionStatement",
                         "src": "7269:30:4"
                       }
@@ -3782,11 +3782,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 924,
+                        "id": 1038,
                         "name": "role",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 895,
+                        "referencedDeclaration": 1009,
                         "src": "7338:4:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
@@ -3794,11 +3794,11 @@
                         }
                       },
                       {
-                        "id": 925,
+                        "id": 1039,
                         "name": "account",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 897,
+                        "referencedDeclaration": 1011,
                         "src": "7344:7:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -3818,18 +3818,18 @@
                         }
                       ],
                       "expression": {
-                        "id": 921,
+                        "id": 1035,
                         "name": "super",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 4294967271,
                         "src": "7321:5:4",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_super$_AccessControlDefaultAdminRules_$1042_$",
+                          "typeIdentifier": "t_type$_t_super$_AccessControlDefaultAdminRules_$1156_$",
                           "typeString": "type(contract super AccessControlDefaultAdminRules)"
                         }
                       },
-                      "id": 923,
+                      "id": 1037,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -3837,14 +3837,14 @@
                       "memberLocation": "7327:10:4",
                       "memberName": "_grantRole",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 542,
+                      "referencedDeclaration": 656,
                       "src": "7321:16:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
                         "typeString": "function (bytes32,address)"
                       }
                     },
-                    "id": 926,
+                    "id": 1040,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3860,19 +3860,19 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 927,
+                  "id": 1041,
                   "nodeType": "ExpressionStatement",
                   "src": "7321:31:4"
                 }
               ]
             },
             "documentation": {
-              "id": 893,
+              "id": 1007,
               "nodeType": "StructuredDocumentation",
               "src": "6533:495:4",
               "text": " @dev Grants `role` to `account`.\n For `DEFAULT_ADMIN_ROLE`, it only allows granting if there isn't already a role's holder\n or if the role has been previously renounced.\n For other roles, see {AccessControl-renounceRole}.\n NOTE: Exposing this function through another mechanism may make the\n `DEFAULT_ADMIN_ROLE` assignable again. Make sure to guarantee this is\n the expected behavior in your implementation."
             },
-            "id": 929,
+            "id": 1043,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -3880,23 +3880,23 @@
             "nameLocation": "7043:10:4",
             "nodeType": "FunctionDefinition",
             "overrides": {
-              "id": 899,
+              "id": 1013,
               "nodeType": "OverrideSpecifier",
               "overrides": [],
               "src": "7102:8:4"
             },
             "parameters": {
-              "id": 898,
+              "id": 1012,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 895,
+                  "id": 1009,
                   "mutability": "mutable",
                   "name": "role",
                   "nameLocation": "7062:4:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 929,
+                  "scope": 1043,
                   "src": "7054:12:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -3905,7 +3905,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 894,
+                    "id": 1008,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "7054:7:4",
@@ -3918,12 +3918,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 897,
+                  "id": 1011,
                   "mutability": "mutable",
                   "name": "account",
                   "nameLocation": "7076:7:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 929,
+                  "scope": 1043,
                   "src": "7068:15:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -3932,7 +3932,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 896,
+                    "id": 1010,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "7068:7:4",
@@ -3948,12 +3948,12 @@
               "src": "7053:31:4"
             },
             "returnParameters": {
-              "id": 900,
+              "id": 1014,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "7111:0:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "7034:326:4",
             "stateMutability": "nonpayable",
             "virtual": true,
@@ -3961,7 +3961,7 @@
           },
           {
             "body": {
-              "id": 954,
+              "id": 1068,
               "nodeType": "Block",
               "src": "7551:270:4",
               "statements": [
@@ -3972,18 +3972,18 @@
                         "arguments": [],
                         "expression": {
                           "argumentTypes": [],
-                          "id": 934,
+                          "id": 1048,
                           "name": "_hasDefaultAdminTransferDelayPassed",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 1041,
+                          "referencedDeclaration": 1155,
                           "src": "7570:35:4",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_view$__$returns$_t_bool_$",
                             "typeString": "function () view returns (bool)"
                           }
                         },
-                        "id": 935,
+                        "id": 1049,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -4001,7 +4001,7 @@
                       },
                       {
                         "hexValue": "416363657373436f6e74726f6c3a207472616e736665722064656c6179206e6f7420706173736564",
-                        "id": 936,
+                        "id": 1050,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -4027,7 +4027,7 @@
                           "typeString": "literal_string \"AccessControl: transfer delay not passed\""
                         }
                       ],
-                      "id": 933,
+                      "id": 1047,
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
@@ -4041,7 +4041,7 @@
                         "typeString": "function (bool,string memory) pure"
                       }
                     },
-                    "id": 937,
+                    "id": 1051,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4057,7 +4057,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 938,
+                  "id": 1052,
                   "nodeType": "ExpressionStatement",
                   "src": "7562:90:4"
                 },
@@ -4065,11 +4065,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 940,
+                        "id": 1054,
                         "name": "DEFAULT_ADMIN_ROLE",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 286,
+                        "referencedDeclaration": 400,
                         "src": "7675:18:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
@@ -4080,18 +4080,18 @@
                         "arguments": [],
                         "expression": {
                           "argumentTypes": [],
-                          "id": 941,
+                          "id": 1055,
                           "name": "defaultAdmin",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 696,
+                          "referencedDeclaration": 810,
                           "src": "7695:12:4",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
                             "typeString": "function () view returns (address)"
                           }
                         },
-                        "id": 942,
+                        "id": 1056,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -4119,20 +4119,20 @@
                           "typeString": "address"
                         }
                       ],
-                      "id": 939,
+                      "id": 1053,
                       "name": "_revokeRole",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        1009
+                        1123
                       ],
-                      "referencedDeclaration": 1009,
+                      "referencedDeclaration": 1123,
                       "src": "7663:11:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
                         "typeString": "function (bytes32,address)"
                       }
                     },
-                    "id": 943,
+                    "id": 1057,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4148,7 +4148,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 944,
+                  "id": 1058,
                   "nodeType": "ExpressionStatement",
                   "src": "7663:47:4"
                 },
@@ -4156,11 +4156,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 946,
+                        "id": 1060,
                         "name": "DEFAULT_ADMIN_ROLE",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 286,
+                        "referencedDeclaration": 400,
                         "src": "7732:18:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
@@ -4171,18 +4171,18 @@
                         "arguments": [],
                         "expression": {
                           "argumentTypes": [],
-                          "id": 947,
+                          "id": 1061,
                           "name": "pendingDefaultAdmin",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 705,
+                          "referencedDeclaration": 819,
                           "src": "7752:19:4",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
                             "typeString": "function () view returns (address)"
                           }
                         },
-                        "id": 948,
+                        "id": 1062,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -4210,20 +4210,20 @@
                           "typeString": "address"
                         }
                       ],
-                      "id": 945,
+                      "id": 1059,
                       "name": "_grantRole",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        929
+                        1043
                       ],
-                      "referencedDeclaration": 929,
+                      "referencedDeclaration": 1043,
                       "src": "7721:10:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
                         "typeString": "function (bytes32,address)"
                       }
                     },
-                    "id": 949,
+                    "id": 1063,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4239,7 +4239,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 950,
+                  "id": 1064,
                   "nodeType": "ExpressionStatement",
                   "src": "7721:53:4"
                 },
@@ -4248,18 +4248,18 @@
                     "arguments": [],
                     "expression": {
                       "argumentTypes": [],
-                      "id": 951,
+                      "id": 1065,
                       "name": "_resetDefaultAdminTransfer",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1020,
+                      "referencedDeclaration": 1134,
                       "src": "7785:26:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
                         "typeString": "function ()"
                       }
                     },
-                    "id": 952,
+                    "id": 1066,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4275,19 +4275,19 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 953,
+                  "id": 1067,
                   "nodeType": "ExpressionStatement",
                   "src": "7785:28:4"
                 }
               ]
             },
             "documentation": {
-              "id": 930,
+              "id": 1044,
               "nodeType": "StructuredDocumentation",
               "src": "7368:121:4",
               "text": " @dev See {acceptDefaultAdminTransfer}.\n Internal function without access restriction."
             },
-            "id": 955,
+            "id": 1069,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -4295,18 +4295,18 @@
             "nameLocation": "7504:27:4",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 931,
+              "id": 1045,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "7531:2:4"
             },
             "returnParameters": {
-              "id": 932,
+              "id": 1046,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "7551:0:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "7495:326:4",
             "stateMutability": "nonpayable",
             "virtual": true,
@@ -4314,23 +4314,23 @@
           },
           {
             "body": {
-              "id": 983,
+              "id": 1097,
               "nodeType": "Block",
               "src": "8026:257:4",
               "statements": [
                 {
                   "expression": {
-                    "id": 970,
+                    "id": 1084,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
-                      "id": 961,
+                      "id": 1075,
                       "name": "_defaultAdminTransferDelayedUntil",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 650,
+                      "referencedDeclaration": 764,
                       "src": "8037:33:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint48",
@@ -4344,7 +4344,7 @@
                         "typeIdentifier": "t_uint48",
                         "typeString": "uint48"
                       },
-                      "id": 969,
+                      "id": 1083,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -4353,7 +4353,7 @@
                         "arguments": [
                           {
                             "expression": {
-                              "id": 964,
+                              "id": 1078,
                               "name": "block",
                               "nodeType": "Identifier",
                               "overloadedDeclarations": [],
@@ -4364,7 +4364,7 @@
                                 "typeString": "block"
                               }
                             },
-                            "id": 965,
+                            "id": 1079,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": false,
@@ -4387,18 +4387,18 @@
                             }
                           ],
                           "expression": {
-                            "id": 962,
+                            "id": 1076,
                             "name": "SafeCast",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 36494,
+                            "referencedDeclaration": 36608,
                             "src": "8073:8:4",
                             "typeDescriptions": {
-                              "typeIdentifier": "t_type$_t_contract$_SafeCast_$36494_$",
+                              "typeIdentifier": "t_type$_t_contract$_SafeCast_$36608_$",
                               "typeString": "type(library SafeCast)"
                             }
                           },
-                          "id": 963,
+                          "id": 1077,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -4406,14 +4406,14 @@
                           "memberLocation": "8082:8:4",
                           "memberName": "toUint48",
                           "nodeType": "MemberAccess",
-                          "referencedDeclaration": 35606,
+                          "referencedDeclaration": 35720,
                           "src": "8073:17:4",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_pure$_t_uint256_$returns$_t_uint48_$",
                             "typeString": "function (uint256) pure returns (uint48)"
                           }
                         },
-                        "id": 966,
+                        "id": 1080,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -4435,18 +4435,18 @@
                         "arguments": [],
                         "expression": {
                           "argumentTypes": [],
-                          "id": 967,
+                          "id": 1081,
                           "name": "defaultAdminDelay",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 687,
+                          "referencedDeclaration": 801,
                           "src": "8110:17:4",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_view$__$returns$_t_uint48_$",
                             "typeString": "function () view returns (uint48)"
                           }
                         },
-                        "id": 968,
+                        "id": 1082,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -4474,23 +4474,23 @@
                       "typeString": "uint48"
                     }
                   },
-                  "id": 971,
+                  "id": 1085,
                   "nodeType": "ExpressionStatement",
                   "src": "8037:92:4"
                 },
                 {
                   "expression": {
-                    "id": 974,
+                    "id": 1088,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
-                      "id": 972,
+                      "id": 1086,
                       "name": "_pendingDefaultAdmin",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 648,
+                      "referencedDeclaration": 762,
                       "src": "8140:20:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -4500,11 +4500,11 @@
                     "nodeType": "Assignment",
                     "operator": "=",
                     "rightHandSide": {
-                      "id": 973,
+                      "id": 1087,
                       "name": "newAdmin",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 958,
+                      "referencedDeclaration": 1072,
                       "src": "8163:8:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -4517,7 +4517,7 @@
                       "typeString": "address"
                     }
                   },
-                  "id": 975,
+                  "id": 1089,
                   "nodeType": "ExpressionStatement",
                   "src": "8140:31:4"
                 },
@@ -4528,18 +4528,18 @@
                         "arguments": [],
                         "expression": {
                           "argumentTypes": [],
-                          "id": 977,
+                          "id": 1091,
                           "name": "pendingDefaultAdmin",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 705,
+                          "referencedDeclaration": 819,
                           "src": "8217:19:4",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_view$__$returns$_t_address_$",
                             "typeString": "function () view returns (address)"
                           }
                         },
-                        "id": 978,
+                        "id": 1092,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -4559,18 +4559,18 @@
                         "arguments": [],
                         "expression": {
                           "argumentTypes": [],
-                          "id": 979,
+                          "id": 1093,
                           "name": "defaultAdminTransferDelayedUntil",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 714,
+                          "referencedDeclaration": 828,
                           "src": "8240:32:4",
                           "typeDescriptions": {
                             "typeIdentifier": "t_function_internal_view$__$returns$_t_uint48_$",
                             "typeString": "function () view returns (uint48)"
                           }
                         },
-                        "id": 980,
+                        "id": 1094,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -4598,18 +4598,18 @@
                           "typeString": "uint48"
                         }
                       ],
-                      "id": 976,
+                      "id": 1090,
                       "name": "DefaultAdminRoleChangeStarted",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1253,
+                      "referencedDeclaration": 1367,
                       "src": "8187:29:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_address_$_t_uint48_$returns$__$",
                         "typeString": "function (address,uint48)"
                       }
                     },
-                    "id": 981,
+                    "id": 1095,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4625,19 +4625,19 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 982,
+                  "id": 1096,
                   "nodeType": "EmitStatement",
                   "src": "8182:93:4"
                 }
               ]
             },
             "documentation": {
-              "id": 956,
+              "id": 1070,
               "nodeType": "StructuredDocumentation",
               "src": "7829:120:4",
               "text": " @dev See {beginDefaultAdminTransfer}.\n Internal function without access restriction."
             },
-            "id": 984,
+            "id": 1098,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -4645,17 +4645,17 @@
             "nameLocation": "7964:26:4",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 959,
+              "id": 1073,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 958,
+                  "id": 1072,
                   "mutability": "mutable",
                   "name": "newAdmin",
                   "nameLocation": "7999:8:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 984,
+                  "scope": 1098,
                   "src": "7991:16:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -4664,7 +4664,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 957,
+                    "id": 1071,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "7991:7:4",
@@ -4680,12 +4680,12 @@
               "src": "7990:18:4"
             },
             "returnParameters": {
-              "id": 960,
+              "id": 1074,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "8026:0:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "7955:328:4",
             "stateMutability": "nonpayable",
             "virtual": true,
@@ -4693,10 +4693,10 @@
           },
           {
             "baseFunctions": [
-              573
+              687
             ],
             "body": {
-              "id": 1008,
+              "id": 1122,
               "nodeType": "Block",
               "src": "8433:147:4",
               "statements": [
@@ -4706,17 +4706,17 @@
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
                     },
-                    "id": 995,
+                    "id": 1109,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftExpression": {
-                      "id": 993,
+                      "id": 1107,
                       "name": "role",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 987,
+                      "referencedDeclaration": 1101,
                       "src": "8448:4:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bytes32",
@@ -4726,11 +4726,11 @@
                     "nodeType": "BinaryOperation",
                     "operator": "==",
                     "rightExpression": {
-                      "id": 994,
+                      "id": 1108,
                       "name": "DEFAULT_ADMIN_ROLE",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 286,
+                      "referencedDeclaration": 400,
                       "src": "8456:18:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bytes32",
@@ -4743,17 +4743,17 @@
                       "typeString": "bool"
                     }
                   },
-                  "id": 1000,
+                  "id": 1114,
                   "nodeType": "IfStatement",
                   "src": "8444:86:4",
                   "trueBody": {
-                    "id": 999,
+                    "id": 1113,
                     "nodeType": "Block",
                     "src": "8476:54:4",
                     "statements": [
                       {
                         "expression": {
-                          "id": 997,
+                          "id": 1111,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -4763,11 +4763,11 @@
                           "prefix": true,
                           "src": "8491:27:4",
                           "subExpression": {
-                            "id": 996,
+                            "id": 1110,
                             "name": "_currentDefaultAdmin",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 646,
+                            "referencedDeclaration": 760,
                             "src": "8498:20:4",
                             "typeDescriptions": {
                               "typeIdentifier": "t_address",
@@ -4779,7 +4779,7 @@
                             "typeString": "tuple()"
                           }
                         },
-                        "id": 998,
+                        "id": 1112,
                         "nodeType": "ExpressionStatement",
                         "src": "8491:27:4"
                       }
@@ -4790,11 +4790,11 @@
                   "expression": {
                     "arguments": [
                       {
-                        "id": 1004,
+                        "id": 1118,
                         "name": "role",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 987,
+                        "referencedDeclaration": 1101,
                         "src": "8558:4:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
@@ -4802,11 +4802,11 @@
                         }
                       },
                       {
-                        "id": 1005,
+                        "id": 1119,
                         "name": "account",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 989,
+                        "referencedDeclaration": 1103,
                         "src": "8564:7:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -4826,18 +4826,18 @@
                         }
                       ],
                       "expression": {
-                        "id": 1001,
+                        "id": 1115,
                         "name": "super",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 4294967271,
                         "src": "8540:5:4",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_super$_AccessControlDefaultAdminRules_$1042_$",
+                          "typeIdentifier": "t_type$_t_super$_AccessControlDefaultAdminRules_$1156_$",
                           "typeString": "type(contract super AccessControlDefaultAdminRules)"
                         }
                       },
-                      "id": 1003,
+                      "id": 1117,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -4845,14 +4845,14 @@
                       "memberLocation": "8546:11:4",
                       "memberName": "_revokeRole",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 573,
+                      "referencedDeclaration": 687,
                       "src": "8540:17:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
                         "typeString": "function (bytes32,address)"
                       }
                     },
-                    "id": 1006,
+                    "id": 1120,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4868,19 +4868,19 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 1007,
+                  "id": 1121,
                   "nodeType": "ExpressionStatement",
                   "src": "8540:32:4"
                 }
               ]
             },
             "documentation": {
-              "id": 985,
+              "id": 1099,
               "nodeType": "StructuredDocumentation",
               "src": "8291:58:4",
               "text": " @dev See {AccessControl-_revokeRole}."
             },
-            "id": 1009,
+            "id": 1123,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -4888,23 +4888,23 @@
             "nameLocation": "8364:11:4",
             "nodeType": "FunctionDefinition",
             "overrides": {
-              "id": 991,
+              "id": 1105,
               "nodeType": "OverrideSpecifier",
               "overrides": [],
               "src": "8424:8:4"
             },
             "parameters": {
-              "id": 990,
+              "id": 1104,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 987,
+                  "id": 1101,
                   "mutability": "mutable",
                   "name": "role",
                   "nameLocation": "8384:4:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1009,
+                  "scope": 1123,
                   "src": "8376:12:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -4913,7 +4913,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 986,
+                    "id": 1100,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "8376:7:4",
@@ -4926,12 +4926,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 989,
+                  "id": 1103,
                   "mutability": "mutable",
                   "name": "account",
                   "nameLocation": "8398:7:4",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1009,
+                  "scope": 1123,
                   "src": "8390:15:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -4940,7 +4940,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 988,
+                    "id": 1102,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "8390:7:4",
@@ -4956,12 +4956,12 @@
               "src": "8375:31:4"
             },
             "returnParameters": {
-              "id": 992,
+              "id": 1106,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "8433:0:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "8355:225:4",
             "stateMutability": "nonpayable",
             "virtual": true,
@@ -4969,13 +4969,13 @@
           },
           {
             "body": {
-              "id": 1019,
+              "id": 1133,
               "nodeType": "Block",
               "src": "8717:97:4",
               "statements": [
                 {
                   "expression": {
-                    "id": 1014,
+                    "id": 1128,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4985,11 +4985,11 @@
                     "prefix": true,
                     "src": "8728:27:4",
                     "subExpression": {
-                      "id": 1013,
+                      "id": 1127,
                       "name": "_pendingDefaultAdmin",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 648,
+                      "referencedDeclaration": 762,
                       "src": "8735:20:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -5001,13 +5001,13 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 1015,
+                  "id": 1129,
                   "nodeType": "ExpressionStatement",
                   "src": "8728:27:4"
                 },
                 {
                   "expression": {
-                    "id": 1017,
+                    "id": 1131,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -5017,11 +5017,11 @@
                     "prefix": true,
                     "src": "8766:40:4",
                     "subExpression": {
-                      "id": 1016,
+                      "id": 1130,
                       "name": "_defaultAdminTransferDelayedUntil",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 650,
+                      "referencedDeclaration": 764,
                       "src": "8773:33:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint48",
@@ -5033,19 +5033,19 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 1018,
+                  "id": 1132,
                   "nodeType": "ExpressionStatement",
                   "src": "8766:40:4"
                 }
               ]
             },
             "documentation": {
-              "id": 1010,
+              "id": 1124,
               "nodeType": "StructuredDocumentation",
               "src": "8588:77:4",
               "text": " @dev Resets the pending default admin and delayed until."
             },
-            "id": 1020,
+            "id": 1134,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -5053,18 +5053,18 @@
             "nameLocation": "8680:26:4",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1011,
+              "id": 1125,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "8706:2:4"
             },
             "returnParameters": {
-              "id": 1012,
+              "id": 1126,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "8717:0:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "8671:143:4",
             "stateMutability": "nonpayable",
             "virtual": false,
@@ -5072,23 +5072,23 @@
           },
           {
             "body": {
-              "id": 1040,
+              "id": 1154,
               "nodeType": "Block",
               "src": "9000:143:4",
               "statements": [
                 {
                   "assignments": [
-                    1027
+                    1141
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 1027,
+                      "id": 1141,
                       "mutability": "mutable",
                       "name": "delayedUntil",
                       "nameLocation": "9018:12:4",
                       "nodeType": "VariableDeclaration",
-                      "scope": 1040,
+                      "scope": 1154,
                       "src": "9011:19:4",
                       "stateVariable": false,
                       "storageLocation": "default",
@@ -5097,7 +5097,7 @@
                         "typeString": "uint48"
                       },
                       "typeName": {
-                        "id": 1026,
+                        "id": 1140,
                         "name": "uint48",
                         "nodeType": "ElementaryTypeName",
                         "src": "9011:6:4",
@@ -5109,23 +5109,23 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 1030,
+                  "id": 1144,
                   "initialValue": {
                     "arguments": [],
                     "expression": {
                       "argumentTypes": [],
-                      "id": 1028,
+                      "id": 1142,
                       "name": "defaultAdminTransferDelayedUntil",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 714,
+                      "referencedDeclaration": 828,
                       "src": "9033:32:4",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_view$__$returns$_t_uint48_$",
                         "typeString": "function () view returns (uint48)"
                       }
                     },
-                    "id": 1029,
+                    "id": 1143,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -5150,7 +5150,7 @@
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
                     },
-                    "id": 1038,
+                    "id": 1152,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -5160,17 +5160,17 @@
                         "typeIdentifier": "t_uint48",
                         "typeString": "uint48"
                       },
-                      "id": 1033,
+                      "id": 1147,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "leftExpression": {
-                        "id": 1031,
+                        "id": 1145,
                         "name": "delayedUntil",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1027,
+                        "referencedDeclaration": 1141,
                         "src": "9085:12:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint48",
@@ -5181,7 +5181,7 @@
                       "operator": ">",
                       "rightExpression": {
                         "hexValue": "30",
-                        "id": 1032,
+                        "id": 1146,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -5208,17 +5208,17 @@
                         "typeIdentifier": "t_uint256",
                         "typeString": "uint256"
                       },
-                      "id": 1037,
+                      "id": 1151,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "leftExpression": {
-                        "id": 1034,
+                        "id": 1148,
                         "name": "delayedUntil",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1027,
+                        "referencedDeclaration": 1141,
                         "src": "9105:12:4",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint48",
@@ -5229,7 +5229,7 @@
                       "operator": "<",
                       "rightExpression": {
                         "expression": {
-                          "id": 1035,
+                          "id": 1149,
                           "name": "block",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
@@ -5240,7 +5240,7 @@
                             "typeString": "block"
                           }
                         },
-                        "id": 1036,
+                        "id": 1150,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -5266,20 +5266,20 @@
                       "typeString": "bool"
                     }
                   },
-                  "functionReturnParameters": 1025,
-                  "id": 1039,
+                  "functionReturnParameters": 1139,
+                  "id": 1153,
                   "nodeType": "Return",
                   "src": "9078:57:4"
                 }
               ]
             },
             "documentation": {
-              "id": 1021,
+              "id": 1135,
               "nodeType": "StructuredDocumentation",
               "src": "8822:97:4",
               "text": " @dev Checks if a {defaultAdminTransferDelayedUntil} has been set and passed."
             },
-            "id": 1041,
+            "id": 1155,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -5287,23 +5287,23 @@
             "nameLocation": "8934:35:4",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1022,
+              "id": 1136,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "8969:2:4"
             },
             "returnParameters": {
-              "id": 1025,
+              "id": 1139,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1024,
+                  "id": 1138,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1041,
+                  "scope": 1155,
                   "src": "8994:4:4",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -5312,7 +5312,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 1023,
+                    "id": 1137,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "8994:4:4",
@@ -5326,14 +5326,14 @@
               ],
               "src": "8993:6:4"
             },
-            "scope": 1042,
+            "scope": 1156,
             "src": "8925:218:4",
             "stateMutability": "view",
             "virtual": false,
             "visibility": "private"
           }
         ],
-        "scope": 1043,
+        "scope": 1157,
         "src": "1645:7501:4",
         "usedErrors": []
       }
@@ -5346,7 +5346,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.13",
-  "updatedAt": "2023-03-22T16:34:02.545Z",
+  "updatedAt": "2023-03-23T05:45:08.041Z",
   "devdoc": {
     "details": "Extension of {AccessControl} that allows specifying special rules to manage the `DEFAULT_ADMIN_ROLE` holder, which is a sensitive role with special permissions over other roles that may potentially have privileged rights in the system. If a specific role doesn't have an admin role assigned, the holder of the `DEFAULT_ADMIN_ROLE` will have the ability to grant it and revoke it. This contract implements the following risk mitigations on top of {AccessControl}: * Only one account holds the `DEFAULT_ADMIN_ROLE` since deployment until it's potentially renounced. * Enforce a 2-step process to transfer the `DEFAULT_ADMIN_ROLE` to another account. * Enforce a configurable delay between the two steps, with the ability to cancel in between.   - Even after the timer has passed to avoid locking it forever. * It is not possible to use another role to manage the `DEFAULT_ADMIN_ROLE`. Example usage: ```solidity contract MyToken is AccessControlDefaultAdminRules {   constructor() AccessControlDefaultAdminRules(     3 days,     msg.sender // Explicit initial `DEFAULT_ADMIN_ROLE` holder    ) {} } ``` NOTE: The `delay` can only be set in the constructor and is fixed thereafter. _Available since v4.9._",
     "events": {
