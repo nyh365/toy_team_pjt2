@@ -21,46 +21,52 @@ const Tab = styled.span`
   ${tw`text-h3 px-2 hover:text-secondary hover:underline hover:underline-offset-4 cursor-pointer`}
 `;
 function NavBar() {
-  const [currentUrl, setCurrentUrl] = useState('');
   const location = useLocation().pathname;
 
-  useEffect(() => {
-    setCurrentUrl(location);
-  }, [location]);
-  if (location.startsWith('/login') || location.startsWith('/commentform')) {
+  if (
+    location.startsWith('/login') ||
+    location.startsWith('/commentform') ||
+    location.startsWith('/admin')
+  ) {
     return null;
   }
   return (
     <Container>
       <TabWrapper>
         <img style={{ height: 80 }} src={LogoM} alt="navbar-logo" />
-        <Tab
-          className={`${
-            location === '/home'
-              ? 'text-secondary underline underline-offset-4'
-              : 'text-black'
-          }`}
-        >
-          홈
-        </Tab>
-        <Tab
-          className={`${
-            location === '/previous'
-              ? 'text-secondary underline underline-offset-4'
-              : 'text-black'
-          }`}
-        >
-          이전 챌린지
-        </Tab>
-        <Tab
-          className={`${
-            location === '/notice'
-              ? 'text-secondary underline underline-offset-4'
-              : 'text-black'
-          }`}
-        >
-          공지사항
-        </Tab>
+        <Link to="/home">
+          <Tab
+            className={`${
+              location === '/home'
+                ? 'text-secondary underline underline-offset-4'
+                : 'text-black'
+            }`}
+          >
+            홈
+          </Tab>
+        </Link>
+        <Link to="/prevchallenge">
+          <Tab
+            className={`${
+              location === '/prevchallenge'
+                ? 'text-secondary underline underline-offset-4'
+                : 'text-black'
+            }`}
+          >
+            이전 챌린지
+          </Tab>
+        </Link>
+        <Link to="/notice">
+          <Tab
+            className={`${
+              location === '/notice'
+                ? 'text-secondary underline underline-offset-4'
+                : 'text-black'
+            }`}
+          >
+            공지사항
+          </Tab>
+        </Link>
       </TabWrapper>
       <IconWrapper>
         <Link to="/login">

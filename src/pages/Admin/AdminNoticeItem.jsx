@@ -6,6 +6,9 @@ import upToggleBtn from '../../assets/icons/upToggle.svg';
 import downToggleBtn from '../../assets/icons/downToggle.svg';
 import Button from 'components/common/Button';
 
+const ButtonContainer = styled.div`
+  ${tw`flex justify-end items-center px-1 py-1`}
+`;
 const TitleContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -43,7 +46,7 @@ const Content = styled.section`
   align-items: center;
 `;
 
-function NoticeListItem({ title, content, createdTime }) {
+function AdminNoticeItem({ title, content, createdTime }) {
   const [isRead, setIsRead] = useState(true);
   const { year, month, day, hour, minute } = FormatDate(createdTime);
 
@@ -70,9 +73,18 @@ function NoticeListItem({ title, content, createdTime }) {
 
       <ContentContainer className={`${isRead === true ? 'hidden' : ''}`}>
         {isRead ? '' : <Content>{content}</Content>}
+
+        <ButtonContainer>
+          <div className="mx-1">
+            <Button title="수정" buttonType="black" className="" />
+          </div>
+          <div>
+            <Button title="삭제" buttonType="black" className="" />
+          </div>
+        </ButtonContainer>
       </ContentContainer>
     </div>
   );
 }
 
-export default NoticeListItem;
+export default AdminNoticeItem;
