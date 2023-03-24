@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 public class PaidBook extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int paidbook_id;
+    private int paidbookId;
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paidbook_user_id")

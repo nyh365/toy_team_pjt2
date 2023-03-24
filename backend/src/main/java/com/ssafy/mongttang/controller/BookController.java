@@ -311,4 +311,55 @@ public class BookController {
         return new ResponseEntity<Map<String, Object>>(resultMap, status);
     }
 
+    @ApiOperation(value = "동화 접근 가능 여부 조회", notes = "사용자의 해당 동화 접근 가능 여부를 조회한다.", response = Map.class)
+    @GetMapping("/check/{userId}")
+    public ResponseEntity<Map<String,Object>> getIsCanView(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId,
+                                                         @ApiParam(value = "동화 아이디", required = true, example = "0") @RequestParam int bookId,Principal principal){
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = null;
+
+        if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
+            status = HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        }
+
+        boolean isCanView = bookService.getIsCanView(userId,bookId);
+
+        if(isCanView){
+            resultMap.put(MESSAGE,SUCCESS);
+            resultMap.put("isCanView",true);
+            status = HttpStatus.OK;
+        }else{
+            resultMap.put(MESSAGE, FAIL);
+            resultMap.put("isCanView",false);
+            status = HttpStatus.BAD_REQUEST;
+        }
+
+        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+    }
+
+    @ApiOperation(value = "동화 구매내역 저장", notes = "동화 구매 내역을 저장한다.", response = Map.class)
+    @GetMapping("/pay/{userId}")
+    public ResponseEntity<Map<String,Object>> savePaidBook(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId,
+                                                           @ApiParam(value = "동화 아이디", required = true, example = "0") @RequestParam int bookId,Principal principal){
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = null;
+
+        if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
+            status = HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        }
+
+        PaidBook paidBook = bookService.savePaidBook(userId,bookId);
+
+        if(paidBook == null){
+            resultMap.put(MESSAGE, FAIL);
+            status = HttpStatus.BAD_REQUEST;
+        }else{
+            resultMap.put(MESSAGE,SUCCESS);
+            status = HttpStatus.OK;
+        }
+
+        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+    }
 }

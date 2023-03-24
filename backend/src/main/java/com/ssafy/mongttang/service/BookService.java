@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 @Service
@@ -22,6 +24,7 @@ public class BookService {
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
     private final CommentReportRepository commentReportRepository;
+    private final PaidBookRepositoy paidBookRepositoy;
     private final S3Service s3Service;
 
     public int createBook(int userId, ReqCreateBookDto reqCreateBookDto, ArrayList<MultipartFile> imgList) throws IOException {
@@ -236,5 +239,27 @@ public class BookService {
         if(commentLike == null)  return 0;
         commentLikeRepository.delete(commentLike);
         return 1;
+    }
+
+    public boolean getIsCanView(int userId, int bookId) {
+        User user = userRepository.findByUserId(userId);
+        Book book = bookRepository.findByBookId(bookId);
+        if( book.getBookChallengeId().getChallengeEndDate().isAfter(LocalDateTime.now())) return true;
+
+        if(paidBookRepositoy.findByPaidbookUserIdAndBookId(user,bookId) == null){
+            return false;
+        }
+        return true;
+    }
+
+    public PaidBook savePaidBook(int userId, int bookId) {
+        User user = userRepository.findByUserId(userId);
+
+        PaidBook paidBook = new PaidBook(user, bookId);
+
+        if(paidBookRepositoy.findByPaidbookUserIdAndBookId(user,bookId) == null){
+            return paidBookRepositoy.save(paidBook);
+        }
+        return null;
     }
 }

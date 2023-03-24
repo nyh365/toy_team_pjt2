@@ -8,4 +8,6 @@ import java.util.ArrayList;
 
 public interface PaidBookRepositoy extends JpaRepository<PaidBook, Integer> {
     ArrayList<PaidBook> findByPaidbookUserId(User user);
+
+    PaidBook findByPaidbookUserIdAndBookId(User user, int bookId);
 }
