@@ -41,7 +41,7 @@ function Home() {
                   width="w-40"
                   height="h-48"
                   challenge={challenge}
-                  size="b-12"
+                  size="b-5"
                 />
               </div>
             );

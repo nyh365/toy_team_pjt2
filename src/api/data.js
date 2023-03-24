@@ -1,6 +1,12 @@
 /**
  * API 받기 전 사용할 더미데이터 모음
  */
+import igu from '../assets/images/iguanadon.png';
+import par from '../assets/images/para.png';
+import rap from '../assets/images/raptor.png';
+import tri from '../assets/images/triceratops.png';
+import tyr from '../assets/images/tyrano.png';
+
 export const comments = {
   comments: [
     {
@@ -361,6 +367,32 @@ export const challengeDetails = {
       isLiked: true,
       latesLikeDate: '2023-02-01T10:27:14.153045',
       numOfComment: 14,
+    },
+  ],
+};
+
+//동화 일러스트
+export const bookImg = {
+  illustes: [
+    {
+      pageNo: 0,
+      illustePath: igu,
+    },
+    {
+      pageNo: 1,
+      illustePath: par,
+    },
+    {
+      pageNo: 2,
+      illustePath: rap,
+    },
+    {
+      pageNo: 3,
+      illustePath: tri,
+    },
+    {
+      pageNo: 4,
+      illustePath: tyr,
     },
   ],
 };
