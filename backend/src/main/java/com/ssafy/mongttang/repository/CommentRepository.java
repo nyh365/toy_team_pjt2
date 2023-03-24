@@ -10,4 +10,6 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
     Comment findCommentByCommentId(int commentId);
 
     ArrayList<Comment> findByCommentBookId(Book book);
+
+    int countByCommentBookId_BookId(int bookId);
 }

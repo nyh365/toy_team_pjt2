@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -310,11 +311,36 @@ public class BookController {
 
         return new ResponseEntity<Map<String, Object>>(resultMap, status);
     }
+    @ApiOperation(value = "동화 검색", notes = "제목으로 동화를 검색한다.", response = Map.class)
+    @GetMapping("/search")
+    public ResponseEntity<Map<String,Object>> searchBookByTitle(@ApiParam(value = "검색 내용", required = true) @RequestParam String bookTitle, Principal principal){
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = null;
+
+        int userId = -1;
+
+        if(principal != null){
+            userId = Integer.valueOf(principal.getName());
+        }
+
+        List<ResponseChallengeBookInfoDto> searchList = bookService.searchBookByTitle(bookTitle, userId);
+        if(searchList != null){
+            resultMap.put(MESSAGE,SUCCESS);
+            resultMap.put("searchList", searchList);
+            status = HttpStatus.OK;
+        }else{
+            resultMap.put(MESSAGE, FAIL);
+            status = HttpStatus.BAD_REQUEST;
+        }
+
+        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+    }
 
     @ApiOperation(value = "동화 접근 가능 여부 조회", notes = "사용자의 해당 동화 접근 가능 여부를 조회한다.", response = Map.class)
     @GetMapping("/check/{userId}")
     public ResponseEntity<Map<String,Object>> getIsCanView(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId,
-                                                         @ApiParam(value = "동화 아이디", required = true, example = "0") @RequestParam int bookId,Principal principal){
+                                                           @ApiParam(value = "동화 아이디", required = true, example = "0") @RequestParam int bookId,Principal principal){
+
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = null;
 
