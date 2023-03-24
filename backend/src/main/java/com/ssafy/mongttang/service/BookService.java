@@ -4,14 +4,23 @@ import com.ssafy.mongttang.dto.*;
 import com.ssafy.mongttang.entity.*;
 import com.ssafy.mongttang.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.Charsets;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,22 +35,23 @@ public class BookService {
     private final CommentReportRepository commentReportRepository;
     private final PaidBookRepositoy paidBookRepositoy;
     private final S3Service s3Service;
+    private final RedisTemplate redisTemplate;
 
     public int createBook(int userId, ReqCreateBookDto reqCreateBookDto, ArrayList<MultipartFile> imgList) throws IOException {
         User user = userRepository.findByUserId(userId);
         Challenge challenge = challengeRepository.findByChallengeId(reqCreateBookDto.getChallengeId());
-        if(user == null || challenge == null) return 0;
+        if (user == null || challenge == null) return 0;
 
-        Book book = bookRepository.save(new Book(challenge,user,reqCreateBookDto));
+        Book book = bookRepository.save(new Book(challenge, user, reqCreateBookDto));
 
-        if(book == null) return 0;
-        else{
+        if (book == null) return 0;
+        else {
             ArrayList<String> imgPathList = s3Service.uploadBook(imgList, book.getBookChallengeId().getChallengeId(), book.getBookId());
-            if(imgPathList == null || imgPathList.isEmpty()) return 0;
+            if (imgPathList == null || imgPathList.isEmpty()) return 0;
 
             ArrayList<Illust> illustList = savePhoto(book, imgList, imgPathList);
-            if(illustList.size() == imgList.size()) return book.getBookId();
-            else{
+            if (illustList.size() == imgList.size()) return book.getBookId();
+            else {
                 bookRepository.delete(book);
                 s3Service.deleteFolder("books/" + reqCreateBookDto.getChallengeId() + "/" + book.getBookId());
 
@@ -54,28 +64,28 @@ public class BookService {
         User user = userRepository.findByUserId(userId);
         Challenge challenge = challengeRepository.findByChallengeId(reqUpdateBookDto.getChallengeId());
         Book book = bookRepository.findByBookId(reqUpdateBookDto.getBookId());
-        if(user == null || challenge == null || book == null || book.getBookStatus().equals("complete")
-            || user.getUserId() != book.getBookUserId().getUserId()) return 0;
+        if (user == null || challenge == null || book == null || book.getBookStatus().equals("complete")
+                || user.getUserId() != book.getBookUserId().getUserId()) return 0;
 
         book.changeContent(reqUpdateBookDto);
 
         bookRepository.save(book);
-            ArrayList<String> imgPathList = s3Service.uploadBook(imgList, book.getBookChallengeId().getChallengeId(), book.getBookId());
-            if(imgPathList == null || imgPathList.isEmpty()) return 0;
+        ArrayList<String> imgPathList = s3Service.uploadBook(imgList, book.getBookChallengeId().getChallengeId(), book.getBookId());
+        if (imgPathList == null || imgPathList.isEmpty()) return 0;
 
-            ArrayList<Illust> illustList = updatePhoto(book, imgList, imgPathList);
-            if(illustList.size() == imgList.size()) return book.getBookId();
-            else{
-                bookRepository.delete(book);
-                s3Service.deleteFolder("books/" + reqUpdateBookDto.getChallengeId() + "/" + book.getBookId());
+        ArrayList<Illust> illustList = updatePhoto(book, imgList, imgPathList);
+        if (illustList.size() == imgList.size()) return book.getBookId();
+        else {
+            bookRepository.delete(book);
+            s3Service.deleteFolder("books/" + reqUpdateBookDto.getChallengeId() + "/" + book.getBookId());
 
-                return 0;
-            }
+            return 0;
+        }
     }
 
     public int deleteBook(int userId, int bookId) {
         Book book = bookRepository.findByBookId(bookId);
-        if(book != null && book.getBookStatus().equals("temporary") && userId == book.getBookUserId().getUserId()){
+        if (book != null && book.getBookStatus().equals("temporary") && userId == book.getBookUserId().getUserId()) {
             s3Service.deleteFolder("books/" + book.getBookChallengeId().getChallengeId() + "/" + book.getBookId());
             bookRepository.delete(book);
             return 1;
@@ -83,7 +93,7 @@ public class BookService {
         return 0;
     }
 
-    public ArrayList<Illust> savePhoto(Book book, ArrayList<MultipartFile> imgList, ArrayList<String> imgPathList){
+    public ArrayList<Illust> savePhoto(Book book, ArrayList<MultipartFile> imgList, ArrayList<String> imgPathList) {
 
         ArrayList<Illust> illustList = new ArrayList<>();
 
@@ -95,7 +105,7 @@ public class BookService {
         return illustList;
     }
 
-    public ArrayList<Illust> updatePhoto(Book book, ArrayList<MultipartFile> imgList, ArrayList<String> imgPathList){
+    public ArrayList<Illust> updatePhoto(Book book, ArrayList<MultipartFile> imgList, ArrayList<String> imgPathList) {
         illustRepository.deleteByIllustBookId(book);
 
         ArrayList<Illust> illustList = new ArrayList<>();
@@ -112,11 +122,11 @@ public class BookService {
         User user = userRepository.findByUserId(userId);
         Book book = bookRepository.findByBookId(bookId);
 
-        if(user == null || book == null) return null;
-        else{
-            BookLike bookLike = bookLikeRepository.findByBooklikeBookIdAndBooklikeUserId(book,userId);
-            if(bookLike == null) {
-                return bookLikeRepository.save(new BookLike(book, userId,book.getBookChallengeId().getChallengeId()));
+        if (user == null || book == null) return null;
+        else {
+            BookLike bookLike = bookLikeRepository.findByBooklikeBookIdAndBooklikeUserId(book, userId);
+            if (bookLike == null) {
+                return bookLikeRepository.save(new BookLike(book, userId, book.getBookChallengeId().getChallengeId()));
             }
             return bookLike;
         }
@@ -126,11 +136,11 @@ public class BookService {
         User user = userRepository.findByUserId(userId);
         Book book = bookRepository.findByBookId(bookId);
 
-        if(user == null || book == null) return 0;
-        else{
+        if (user == null || book == null) return 0;
+        else {
             BookLike bookLike = bookLikeRepository.findByBooklikeBookIdAndBooklikeUserId(book, userId);
-            if(bookLike == null) return 0;
-            else{
+            if (bookLike == null) return 0;
+            else {
                 bookLikeRepository.delete(bookLike);
                 return 1;
             }
@@ -145,17 +155,17 @@ public class BookService {
         ArrayList<Comment> commentList = commentRepository.findByCommentBookId(book);
         ArrayList<ResponseCommentDto> comments = new ArrayList<>();
 
-        for(Comment comment : commentList){
+        for (Comment comment : commentList) {
             int numOfLike = commentLikeRepository.countByCommentlikeCommentId(comment);
-            CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(comment,reqCreateCommentDto.getCommentUserId());
+            CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(comment, reqCreateCommentDto.getCommentUserId());
             boolean isLiked = true;
-            if(commentLike == null) isLiked = false;
+            if (commentLike == null) isLiked = false;
 
-            CommentReport commentReport = commentReportRepository.findCommentReportByCommentreportCommentId_CommentIdAndCommentreportReportUserId(comment.getCommentId(),reqCreateCommentDto.getCommentUserId());
+            CommentReport commentReport = commentReportRepository.findCommentReportByCommentreportCommentId_CommentIdAndCommentreportReportUserId(comment.getCommentId(), reqCreateCommentDto.getCommentUserId());
             boolean isReported = true;
-            if(commentReport == null) isReported = false;
+            if (commentReport == null) isReported = false;
 
-            comments.add(new ResponseCommentDto(comment,numOfLike,isLiked,isReported));
+            comments.add(new ResponseCommentDto(comment, numOfLike, isLiked, isReported));
         }
 
         return comments;
@@ -166,24 +176,24 @@ public class BookService {
         Book book = bookRepository.findByBookId(reqUpdateCommentDto.getCommentBookId());
         Comment comment = commentRepository.findCommentByCommentId(reqUpdateCommentDto.getCommentId());
 
-        if(comment != null && comment.getCommentUserId() == user && comment.getCommentBookId() == book){
+        if (comment != null && comment.getCommentUserId() == user && comment.getCommentBookId() == book) {
             comment.changeContent(reqUpdateCommentDto.getCommentContent());
             commentRepository.save(comment);
 
             ArrayList<Comment> commentList = commentRepository.findByCommentBookId(book);
             ArrayList<ResponseCommentDto> comments = new ArrayList<>();
 
-            for(Comment ment : commentList){
+            for (Comment ment : commentList) {
                 int numOfLike = commentLikeRepository.countByCommentlikeCommentId(ment);
-                CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(ment,reqUpdateCommentDto.getCommentUserId());
+                CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(ment, reqUpdateCommentDto.getCommentUserId());
                 boolean isLiked = true;
-                if(commentLike == null) isLiked = false;
+                if (commentLike == null) isLiked = false;
 
-                CommentReport commentReport = commentReportRepository.findCommentReportByCommentreportCommentId_CommentIdAndCommentreportReportUserId(ment.getCommentId(),reqUpdateCommentDto.getCommentUserId());
+                CommentReport commentReport = commentReportRepository.findCommentReportByCommentreportCommentId_CommentIdAndCommentreportReportUserId(ment.getCommentId(), reqUpdateCommentDto.getCommentUserId());
                 boolean isReported = true;
-                if(commentReport == null) isReported = false;
+                if (commentReport == null) isReported = false;
 
-                comments.add(new ResponseCommentDto(ment,numOfLike,isLiked,isReported));
+                comments.add(new ResponseCommentDto(ment, numOfLike, isLiked, isReported));
             }
             return comments;
         }
@@ -194,23 +204,23 @@ public class BookService {
         User user = userRepository.findByUserId(commentUserId);
         Comment comment = commentRepository.findCommentByCommentId(commentId);
 
-        if(comment != null && comment.getCommentUserId() == user){
+        if (comment != null && comment.getCommentUserId() == user) {
             commentRepository.delete(comment);
 
             ArrayList<Comment> commentList = commentRepository.findByCommentBookId(comment.getCommentBookId());
             ArrayList<ResponseCommentDto> comments = new ArrayList<>();
 
-            for(Comment ment : commentList){
+            for (Comment ment : commentList) {
                 int numOfLike = commentLikeRepository.countByCommentlikeCommentId(ment);
-                CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(ment,commentUserId);
+                CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(ment, commentUserId);
                 boolean isLiked = true;
-                if(commentLike == null) isLiked = false;
+                if (commentLike == null) isLiked = false;
 
-                CommentReport commentReport = commentReportRepository.findCommentReportByCommentreportCommentId_CommentIdAndCommentreportReportUserId(ment.getCommentId(),commentUserId);
+                CommentReport commentReport = commentReportRepository.findCommentReportByCommentreportCommentId_CommentIdAndCommentreportReportUserId(ment.getCommentId(), commentUserId);
                 boolean isReported = true;
-                if(commentReport == null) isReported = false;
+                if (commentReport == null) isReported = false;
 
-                comments.add(new ResponseCommentDto(ment,numOfLike,isLiked,isReported));
+                comments.add(new ResponseCommentDto(ment, numOfLike, isLiked, isReported));
             }
             return comments;
         }
@@ -222,10 +232,10 @@ public class BookService {
         User user = userRepository.findByUserId(userId);
         Comment comment = commentRepository.findCommentByCommentId(commentId);
 
-        if(user == null || comment == null) return null;
-        else{
-            CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(comment,userId);
-            if(commentLike == null) {
+        if (user == null || comment == null) return null;
+        else {
+            CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(comment, userId);
+            if (commentLike == null) {
                 return commentLikeRepository.save(new CommentLike(comment, userId));
             }
             return commentLike;
@@ -235,18 +245,62 @@ public class BookService {
     public int deleteCommentLike(int userId, int commentId) {
         Comment comment = commentRepository.findCommentByCommentId(commentId);
 
-        CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(comment,userId);
-        if(commentLike == null)  return 0;
+        CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(comment, userId);
+        if (commentLike == null) return 0;
         commentLikeRepository.delete(commentLike);
         return 1;
+    }
+
+
+    public List<ResponseDiscountBookDto> getDiscountBooks() {
+        RedisConnectionFactory connectionFactory = redisTemplate.getConnectionFactory();
+        RedisConnection connection = connectionFactory.getConnection();
+        ScanOptions options = ScanOptions.scanOptions().match("DC*").build();
+
+        Cursor<byte[]> cursor = connection.scan(options);
+        ArrayList<Integer> bookIdList = new ArrayList<>();
+        while (cursor.hasNext()) {
+            byte[] next = cursor.next();
+            String matchedKey = (new String(next, Charsets.UTF_8)).substring(3);
+            bookIdList.add(Integer.parseInt(matchedKey));
+        }
+
+        return bookRepository.findDiscountBooks(bookIdList).stream()
+                .map(book ->
+                        new ResponseDiscountBookDto(book, (new Timestamp(Long.valueOf((String) redisTemplate.opsForValue().get("DC:" + book.getBookId())))).toLocalDateTime(), illustRepository.findCoverIllust(book.getBookId())))
+                .collect(Collectors.toList());
+    }
+
+    public List<ResponseChallengeBookInfoDto> searchBookByTitle(String bookTitle, int userId) {
+        List<Book> bookList = bookRepository.searchBooks(bookTitle);
+        if (bookList == null) return null;
+
+        List<ResponseChallengeBookInfoDto> bookResult = new ArrayList<>();
+        toChallengeBookInfoList(userId, bookList, bookResult);
+
+        return bookResult;
+    }
+
+    private void toChallengeBookInfoList(int userId, List<Book> bookList, List<ResponseChallengeBookInfoDto> bookResult) {
+        for (Book book : bookList) {
+            //동화 표지 가져요기
+            String coverImgPath = illustRepository.findCoverIllust(book.getBookId());
+            //댓글 개수 가져오기
+            int numOfComment = commentRepository.countByCommentBookId_BookId(book.getBookId());
+            //좋아요 개수 가져오기
+            int numOfLike = bookLikeRepository.countByBooklikeBookId_BookId(book.getBookId()) - 1;
+            //좋아요 여부 가져오기
+            BookLike bookLike = bookLikeRepository.findByBooklikeBookIdAndBooklikeUserId(book, userId);
+            bookResult.add(new ResponseChallengeBookInfoDto(book, coverImgPath, numOfComment, numOfLike, (bookLike == null) ? false : true));
+        }
     }
 
     public boolean getIsCanView(int userId, int bookId) {
         User user = userRepository.findByUserId(userId);
         Book book = bookRepository.findByBookId(bookId);
-        if( book.getBookChallengeId().getChallengeEndDate().isAfter(LocalDateTime.now())) return true;
+        if (book.getBookChallengeId().getChallengeEndDate().isAfter(LocalDateTime.now())) return true;
 
-        if(paidBookRepositoy.findByPaidbookUserIdAndBookId(user,bookId) == null){
+        if (paidBookRepositoy.findByPaidbookUserIdAndBookId(user, bookId) == null) {
             return false;
         }
         return true;
@@ -257,9 +311,10 @@ public class BookService {
 
         PaidBook paidBook = new PaidBook(user, bookId);
 
-        if(paidBookRepositoy.findByPaidbookUserIdAndBookId(user,bookId) == null){
+        if (paidBookRepositoy.findByPaidbookUserIdAndBookId(user, bookId) == null) {
             return paidBookRepositoy.save(paidBook);
         }
         return null;
+
     }
 }
