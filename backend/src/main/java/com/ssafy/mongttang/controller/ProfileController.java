@@ -2,6 +2,7 @@ package com.ssafy.mongttang.controller;
 
 import com.ssafy.mongttang.dto.ResponseFollowerDto;
 import com.ssafy.mongttang.dto.ResponseFollowingDto;
+import com.ssafy.mongttang.dto.ResponseProfileDto;
 import com.ssafy.mongttang.entity.Follow;
 import com.ssafy.mongttang.entity.InterestBook;
 import com.ssafy.mongttang.service.ProfileService;
@@ -171,6 +172,27 @@ public class ProfileController{
             resultMap.put(MESSAGE, FAIL);
             resultMap.put("isInterest",false);
             status = HttpStatus.BAD_REQUEST;
+        }
+
+        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+    }
+
+    @ApiOperation(value = "프로필 조회", notes = "사용자의 프로필을 조회한다.", response = Map.class)
+    @GetMapping("/{userId}")
+    public ResponseEntity<Map<String,Object>> getProfile(@ApiParam(value = "해당 프로필 회원 아이디", required = true, example = "0") @PathVariable int userId, Principal principal){
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = null;
+
+        int lookUserId = Integer.parseInt(principal.getName());
+        ResponseProfileDto profile = profileService.getProfile(userId,lookUserId);
+
+        if(profile == null){
+            resultMap.put(MESSAGE, FAIL);
+            status = HttpStatus.BAD_REQUEST;
+        }else{
+            resultMap.put(MESSAGE,SUCCESS);
+            resultMap.put("profile",profile);
+            status = HttpStatus.OK;
         }
 
         return new ResponseEntity<Map<String, Object>>(resultMap, status);
