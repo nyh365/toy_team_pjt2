@@ -122,12 +122,39 @@ export const prevChallenges = {
 export const books = [
   {
     bookId: 13,
-    bookImgUrl:
-      'https://bagguimgbucket.s3.ap-northeast-2.amazonaws.com/item/e57fdfa1-804e-43c4-98c5-9d98b91f090d.png',
+    bookImgUrl: 'https://tecdn.b-cdn.net/img/new/fluid/city/113.webp',
     artistId: 12,
-    artistNickname: 'string type value',
-    bookTitle: 'string type value',
-    bookSummary: 'string type value',
+    artistNickname: 'Charlie Puth',
+    bookTitle: `I don't think that I like her`,
+    bookSummary: `Get her name and get her number
+    Find out all of the things that we have in common
+    Never all the differences, oh, yeah
+    Meet her parents, meet her brother
+    Then she starts sleeping over the crib on weekends
+    Like a real relationship, oh, no
+    
+    For me, the stars are aligning
+    But for her, it's bad timing
+    So she just can't be mine
+    
+    I don't think that I like her anymore
+    Girls are all the same
+    All they wanna do is break my heart, my heart, oh-oh
+    I don't think that I like her anymore
+    Girls are all the same
+    They just wanna see me fall apart, apart, oh-oh
+    
+    So I woke up on a rebound
+    And I say that I'm gonna be single for life
+    But she's so pretty and nice (pretty and nice)
+    So I make just one exception
+    But I find out eventually I'm not her type
+    Baby, that's the reason why, that
+    
+    For me, the stars are aligning
+    But for her, it's bad timing
+    So she just can't be mine
+    `,
     numOfLike: 13,
     latesLikeDate: '2023-02-01T10:27:14.153045',
     numOfComment: 14,

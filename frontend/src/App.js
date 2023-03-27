@@ -30,19 +30,21 @@ import { CookiesProvider } from 'react-cookie';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import UserLogin from 'pages/Login/UserLogin';
 import Notice from 'pages/Notice/Notice';
-import Test from 'pages/Home/Test';
 import BookViewer from 'components/viewer/BookViewer';
+import BookDetail from 'pages/Book/BookDetail';
+import { userStore } from 'store/userStore';
 const queryClient = new QueryClient();
 function App() {
+  const userId = userStore((state) => state.userId);
+
   return (
     <CookiesProvider>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter className="App">
           <NavBar />
           <AdminNavBar />
-
           <Routes>
-            <Route path="/" element={<BookViewer />} />
+            <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
             <Route path="/login" element={<UserLogin />} />
             <Route path="/notice" element={<Notice />} />
@@ -66,6 +68,11 @@ function App() {
               element={<ChallengeCreaete />}
             />
             <Route path="/admin/notice/create" element={<NoticeCreate />} />
+            <Route path="/books/viewer" element={<BookViewer />} />
+            <Route
+              path="/books/:bookId"
+              element={<BookDetail userId={userId} />}
+            />
           </Routes>
         </BrowserRouter>
       </QueryClientProvider>

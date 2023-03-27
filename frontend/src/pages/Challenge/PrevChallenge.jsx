@@ -30,7 +30,7 @@ function PrevChallenge() {
                 width="w-40"
                 height="h-48"
                 challenge={ch}
-                size="b-12"
+                size="b-5"
               />
             </div>
           );
