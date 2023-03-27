@@ -15,5 +15,13 @@ export const userStore = create(
     setUserImg: (userImg) => set({ userImg }),
     setUserRole: (userRole) => set({ userRole }),
     setToken: (accessToken) => set({ accessToken }),
+    resetUser: () =>
+      set({
+        userId: 0,
+        userNickname: '',
+        userImg: '',
+        userRole: 'reader',
+        accessToken: '',
+      }),
   })),
 );

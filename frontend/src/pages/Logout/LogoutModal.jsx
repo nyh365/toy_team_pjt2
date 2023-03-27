@@ -6,6 +6,7 @@ import { authApi } from 'api/axios';
 import requests from 'api/config';
 
 import tw, { styled, css } from 'twin.macro';
+import { userStore } from 'store/userStore';
 
 const ContentContainer = styled.div`
   ${tw`m-4 font-bold`}
@@ -16,16 +17,18 @@ const ButtonWrapper = styled.div`
 `;
 
 function LogoutModal({ onClose }) {
+  const { resetUser } = userStore((state) => state);
   const navigate = useNavigate();
+  const userId =
+    userStore((state) => state.userId) || localStorage.getItem('userId');
 
   const logout = () => {
-    const userId = localStorage.getItem('userId');
-
     authApi(requests.GET_LOGOUT(userId)).then((response) => {
       // console.log(response);
       if (response.status === 200) {
         localStorage.clear();
         removeCookie('refreshToken');
+        resetUser();
 
         navigate('/home');
       }
