@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/book")
+@RequestMapping("/book")
 @RequiredArgsConstructor
 public class BookController {
     private static final String MESSAGE = "message";
@@ -365,7 +366,7 @@ public class BookController {
     }
 
     @ApiOperation(value = "동화 구매내역 저장", notes = "동화 구매 내역을 저장한다.", response = Map.class)
-    @GetMapping("/pay/{userId}")
+    @PostMapping("/pay/{userId}")
     public ResponseEntity<Map<String,Object>> savePaidBook(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId,
                                                            @ApiParam(value = "동화 아이디", required = true, example = "0") @RequestParam int bookId,Principal principal){
         Map<String, Object> resultMap = new HashMap<>();
@@ -388,4 +389,51 @@ public class BookController {
 
         return new ResponseEntity<Map<String, Object>>(resultMap, status);
     }
+
+    @ApiOperation(value = "동화 뷰어 조회", notes = "동화 그림을 조회한다.", response = Map.class)
+    @GetMapping("/{bookId}")
+    public ResponseEntity<Map<String,Object>> getBookIllust(@ApiParam(value = "동화 아이디", required = true, example = "0") @PathVariable int bookId){
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = null;
+
+        ArrayList<IllustInfo> illustes = bookService.getBookIllust(bookId);
+
+        if(illustes == null){
+            resultMap.put(MESSAGE, FAIL);
+            status = HttpStatus.BAD_REQUEST;
+        }else{
+            resultMap.put(MESSAGE,SUCCESS);
+            resultMap.put("illustes",illustes);
+            status = HttpStatus.OK;
+        }
+
+        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+    }
+
+    @ApiOperation(value = "동화 상세 정보 조회", notes = "동화 상세정보를 조회한다.", response = Map.class)
+    @GetMapping("/{userId}/{bookId}")
+    public ResponseEntity<Map<String,Object>> getBookDetail(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId,
+                                                            @ApiParam(value = "동화 아이디", required = true, example = "0") @PathVariable int bookId,Principal principal){
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = null;
+
+        if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
+            status = HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        }
+
+        ResponseBookDetailDto responseBookDetailDto = bookService.getBookDetail(userId, bookId);
+
+        if(responseBookDetailDto == null){
+            resultMap.put(MESSAGE, FAIL);
+            status = HttpStatus.BAD_REQUEST;
+        }else{
+            resultMap.put(MESSAGE,SUCCESS);
+            resultMap.put("bookDetail",responseBookDetailDto);
+            status = HttpStatus.OK;
+        }
+
+        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+    }
+
 }

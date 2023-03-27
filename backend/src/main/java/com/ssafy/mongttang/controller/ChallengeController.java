@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/challenge")
+@RequestMapping("/challenge")
 @RequiredArgsConstructor
 public class ChallengeController {
     private static final String MESSAGE = "message";
