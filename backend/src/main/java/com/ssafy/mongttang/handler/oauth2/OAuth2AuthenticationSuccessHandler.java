@@ -74,7 +74,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         try {
             String nickName = userPrincipalDto.getUser().getUserNickname();
-            if(nickName == null){
+            if(nickName.equals(" ")){
                 return UriComponentsBuilder.fromUriString(targetUrl)
                         .queryParam("userId", userPrincipalDto.getUser().getUserId())
                         .queryParam("userNickname", nickName)

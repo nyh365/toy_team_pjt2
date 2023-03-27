@@ -1,5 +1,7 @@
 package com.ssafy.mongttang.controller;
 
+import com.ssafy.mongttang.dto.ReqUserInfoDto;
+import com.ssafy.mongttang.dto.ReqWalletInfoDto;
 import com.ssafy.mongttang.dto.UserPrincipalDto;
 import com.ssafy.mongttang.entity.User;
 import com.ssafy.mongttang.service.TokenProviderService;
@@ -24,7 +26,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
     private static final String MESSAGE = "message";
@@ -58,18 +60,48 @@ public class UserController {
     @ApiOperation(value = "닉네임 수정", notes = "회원의 닉네임을 수정한다.", response = Map.class)
     @PatchMapping("/{userId}")
     public ResponseEntity<Map<String,Object>> nicknameModify(@ApiParam(value = "수정할 회원정보(아이디)", required = true, example = "1") @PathVariable int userId,
-                                                             @ApiParam(value = "수정할 회원정보(변경할 닉네임)", required = true, example  = "홍동길") @RequestParam String userNickname){
+                                                             @ApiParam(value = "수정할 회원정보(변경할 닉네임)", required = true, example  = "홍동길") @RequestParam String userNickname, Principal principal){
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = null;
 
-        User user = userService.nicknameModify(userId, userNickname);
+        if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
+            status = HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        }
 
-        if(user == null){
+        String nickname = userService.nicknameModify(userId, userNickname);
+
+        if(userNickname == null){
             resultMap.put(MESSAGE, FAIL);
             status = HttpStatus.BAD_REQUEST;
         } else {
             resultMap.put(MESSAGE, SUCCESS);
-            resultMap.put("userNickname", user.getUserNickname());
+            resultMap.put("userNickname", nickname);
+            status = HttpStatus.OK;
+        }
+        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+    }
+
+    @ApiOperation(value = "회원 소개 수정", notes = "회원의 소개를 수정한다.", response = Map.class)
+    @PatchMapping("/info/{userId}")
+    public ResponseEntity<Map<String,Object>> infoModify(@ApiParam(value = "수정할 회원정보(아이디)", required = true, example = "1") @PathVariable int userId,
+                                                         @ApiParam(value = "수정할 회원 소개", required = true) @RequestBody ReqUserInfoDto reqUserInfoDto, Principal principal){
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = null;
+
+        if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
+            status = HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        }
+
+        String userInfo = userService.infoModify(userId, reqUserInfoDto);
+
+        if(userInfo == null){
+            resultMap.put(MESSAGE, FAIL);
+            status = HttpStatus.BAD_REQUEST;
+        } else {
+            resultMap.put(MESSAGE, SUCCESS);
+            resultMap.put("userInfo", userInfo);
             status = HttpStatus.OK;
         }
         return new ResponseEntity<Map<String, Object>>(resultMap, status);
@@ -152,6 +184,32 @@ public class UserController {
         resultMap.put(MESSAGE, SUCCESS);
         status = HttpStatus.OK;
 
+        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+    }
+
+    @ApiOperation(value = "지갑 키 저장", notes = "지갑의 키를 저장한다.", response = Map.class)
+    @PostMapping("/wallet/{userId}")
+    public ResponseEntity<Map<String,Object>> storeWalletAddress(@ApiParam(value = "지갑 생성을 할 회원 아이디", required = true, example = "1") @PathVariable int userId, @RequestBody ReqWalletInfoDto reqWalletInfoDto, Principal principal) {
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = null;
+
+        if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
+            status = HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        }
+        try {
+            User user = userService.storeWalletAddress(userId, reqWalletInfoDto);
+            if(user == null){
+                resultMap.put(MESSAGE, FAIL);
+                status = HttpStatus.BAD_REQUEST;
+            } else {
+                resultMap.put(MESSAGE, SUCCESS);
+                status = HttpStatus.OK;
+            }
+        } catch (Exception e) {
+            resultMap.put(MESSAGE, FAIL);
+            status = HttpStatus.BAD_REQUEST;
+        }
         return new ResponseEntity<Map<String, Object>>(resultMap, status);
     }
 }
