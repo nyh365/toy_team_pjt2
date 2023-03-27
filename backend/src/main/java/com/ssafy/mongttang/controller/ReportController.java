@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/report")
+@RequestMapping("/report")
 @RequiredArgsConstructor
 public class ReportController {
     private final ReportService reportService;

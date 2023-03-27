@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminController {
 

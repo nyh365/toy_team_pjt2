@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/profile")
+@RequestMapping("/profile")
 @RequiredArgsConstructor
 public class ProfileController{
     private static final String MESSAGE = "message";

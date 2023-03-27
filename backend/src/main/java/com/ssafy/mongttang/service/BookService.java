@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.sql.Array;
 import java.sql.Timestamp;
 
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ public class BookService {
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
     private final CommentReportRepository commentReportRepository;
+    private final BookReportRepository bookReportRepository;
     private final PaidBookRepositoy paidBookRepositoy;
     private final S3Service s3Service;
     private final RedisTemplate redisTemplate;
@@ -316,5 +318,57 @@ public class BookService {
         }
         return null;
 
+    }
+
+    public ArrayList<IllustInfo> getBookIllust(int bookId) {
+        Book book = bookRepository.findByBookId(bookId);
+
+        if(book == null) return null;
+
+        ArrayList<IllustInfo> illustInfos = new ArrayList<>();
+        ArrayList<Illust> illusts = illustRepository.findByIllustBookId(book);
+
+        for (Illust illust : illusts) {
+            illustInfos.add(new IllustInfo(illust));
+        }
+
+        return illustInfos;
+    }
+
+    public ResponseBookDetailDto getBookDetail(int userId, int bookId) {
+        Book book = bookRepository.findByBookId(bookId);
+        if(book == null) return null;
+        String illustPath = illustRepository.findCoverIllust(bookId);
+        if(illustPath == null) return null;
+
+        ArrayList<BookReport> bookReports = bookReportRepository.findByBookreportBookId(book);
+        boolean isReportedMany = false;
+        boolean isReported = false;
+        boolean isLiked = false;
+        if(bookReports.size() > 5) isReportedMany = true;
+        for (BookReport bookReport : bookReports) {
+            if(bookReport.getBookreportReportUserId() == userId) isReported = true;
+        }
+        if(bookLikeRepository.findByBooklikeBookIdAndBooklikeUserId(book, userId) != null) isLiked = true;
+
+        ArrayList<Comment> commentList = commentRepository.findByCommentBookId(book);
+        ArrayList<ResponseCommentDto> comments = new ArrayList<>();
+
+        for (Comment comment : commentList) {
+            int numOfLike = commentLikeRepository.countByCommentlikeCommentId(comment);
+            CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(comment, userId);
+            boolean isCommentLiked = true;
+            if (commentLike == null) isCommentLiked = false;
+
+            CommentReport commentReport = commentReportRepository.findCommentReportByCommentreportCommentId_CommentIdAndCommentreportReportUserId(comment.getCommentId(), userId);
+            boolean isCommentReported = true;
+            if (commentReport == null) isCommentReported = false;
+
+            comments.add(new ResponseCommentDto(comment, numOfLike, isCommentLiked, isCommentReported));
+        }
+
+        ResponseBookDetailDto responseBookDetailDto = new ResponseBookDetailDto(book, illustPath, isReported, isReportedMany, comments);
+
+        return responseBookDetailDto;
     }
 }

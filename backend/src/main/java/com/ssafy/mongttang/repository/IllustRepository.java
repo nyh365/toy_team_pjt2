@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+
 public interface IllustRepository extends JpaRepository<Illust, Integer> {
 
     // JPQL 일반 파라미터 쿼리, @Param 사용 X
@@ -23,4 +25,5 @@ public interface IllustRepository extends JpaRepository<Illust, Integer> {
 
     Illust findByIllustBookId_BookIdAndIllustPageNumber(int bookId, int illustPageNumber);
 
+    ArrayList<Illust> findByIllustBookId(Book book);
 }
