@@ -1,9 +1,11 @@
 import React from 'react';
 import tw, { styled, css } from 'twin.macro';
 
-import BookShelf from 'components/common/BookShelf';
+import { authApi } from 'api/axios';
 import { challengeDetails } from 'api/data';
-import { Link } from 'react-router-dom';
+import requests from 'api/config';
+import BookShelf from 'components/common/BookShelf';
+import { Link, useParams } from 'react-router-dom';
 import Button from 'components/common/Button';
 
 const BodyContainer = styled.div`
@@ -35,10 +37,13 @@ const LinkWrapper = styled.div`
   ${tw`flex justify-end text-base m-0`}
 `;
 
-function ChallengeDetail({ challenge }) {
+function ChallengeDetail() {
+  // const params = useParams();
+  // const id = params.challengeId;
+  // const challengeDetails = authApi(requests.GET_CHALLENGE(id));
+
   const title = challengeDetails.challenge.challengeTitle;
   const content = challengeDetails.challenge.challengeSummary;
-  const id = challengeDetails.challenge.challengeId;
 
   return (
     <BodyContainer>
@@ -58,7 +63,7 @@ function ChallengeDetail({ challenge }) {
             books={challengeDetails.best}
             width="w-40"
             height="h-48"
-            size="b-12"
+            size="b-5"
           />
         </BestBookContainer>
         <LikedBookContainer>
@@ -67,7 +72,7 @@ function ChallengeDetail({ challenge }) {
             books={challengeDetails.liked}
             width="w-40"
             height="h-48"
-            size="b-12"
+            size="b-5"
           />
         </LikedBookContainer>
         <RecentBookContainer>
@@ -76,7 +81,7 @@ function ChallengeDetail({ challenge }) {
             books={challengeDetails.recent}
             width="w-40"
             height="h-48"
-            size="b-12"
+            size="b-5"
           />
         </RecentBookContainer>
       </BookContainer>

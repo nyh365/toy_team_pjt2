@@ -34,6 +34,7 @@ import BookViewer from 'components/viewer/BookViewer';
 import BookDetail from 'pages/Book/BookDetail';
 import { userStore } from 'store/userStore';
 import SocialLogin from 'pages/Login/SocialLogin';
+import ChallengeDetail from 'pages/Challenge/ChallengeDetail';
 const queryClient = new QueryClient();
 function App() {
   const userId = userStore((state) => state.userId);
@@ -54,6 +55,10 @@ function App() {
             <Route path="/myprofile/edit" element={<MyProfileEdit />} />
             <Route path="/myprofile/edit/nickname" element={<NicknameEdit />} />
             <Route path="/prevchallenge" element={<PrevChallenge />} />
+            <Route
+              path="/challenge/:challengeId"
+              element={<ChallengeDetail />}
+            />
             <Route
               path="/myprofile/edit/introduction"
               element={<IntroductionEdit />}

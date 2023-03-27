@@ -11,6 +11,8 @@ import BookShelf from 'components/common/BookShelf';
 
 import thisChallenge from '../../assets/images/thisChallenge.png';
 import { books, challenges } from 'api/data';
+import requests from 'api/config';
+import { authApi } from 'api/axios';
 
 const CTWrapper = styled.div`
   ${tw`flex justify-center m-0 mt-[2%]`}
@@ -25,19 +27,25 @@ const ChallengeContainer = styled.div`
 `;
 
 function Home() {
+  const challenges = authApi(requests.GET_CHALLENGES()).then((response) => {
+    return response.data;
+  });
+
   return (
     <div>
       <BodyContainer>
         <CTWrapper>
-          <img src={thisChallenge} alt="" />
+          <img src={thisChallenge} alt="thisChallenge" />
         </CTWrapper>
-        <ChallengeTimer endDate={challenges.endDate} />
+        <ChallengeTimer
+          endDate={challenges.thisWeekChallenge.challengeEndDate}
+        />
         <ChallengeContainer>
-          {challenges.challenges.map((challenge, index) => {
+          {challenges.thisWeekChallenge.map((challenge, index) => {
             return (
               <div key={index}>
                 <BookShelf
-                  books={books}
+                  books={challenge.bookList}
                   width="w-40"
                   height="h-48"
                   challenge={challenge}

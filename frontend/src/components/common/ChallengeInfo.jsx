@@ -31,23 +31,20 @@ const LinkWrapper = styled.div`
 
 function ChallengeInfo({ challenge }) {
   const title = challenge.challengeTitle;
-
-  const content = challenge.challengeSummary;
-
-  //참가자수
-  const participant = challenge.challengeParticipants;
+  const content = challenge.challengeContent;
+  const summary = challenge.challengeSummary;
 
   //챌린지 번호
-  const id = challenge.challengeId;
+  const challengeId = challenge.challengeId;
   return (
     <Challenge>
       <TextContainer>
         <TextWrapper>
           <TitleWrapper>{title}</TitleWrapper>
-          <ContentWrapper>{content}</ContentWrapper>
+          <ContentWrapper>{summary}</ContentWrapper>
         </TextWrapper>
         <LinkWrapper>
-          <Link to={`/challenge/${id}`}>더 많은 동화 보러가기 →</Link>
+          <Link to={`/challenge/${challengeId}`}>더 많은 동화 보러가기 →</Link>
         </LinkWrapper>
       </TextContainer>
       <ImageWrapper>

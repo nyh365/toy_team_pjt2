@@ -61,7 +61,6 @@ function MyProfileEdit() {
     get_user();
   }, []);
 
-
   const onClose = () => {
     setIsModalOpen(false);
   };
