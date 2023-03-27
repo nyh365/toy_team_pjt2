@@ -7,7 +7,10 @@ import '../../components/common/Leaves.css';
 
 import tw, { styled, css } from 'twin.macro';
 
-import { bookImg } from 'api/data';
+import { bookImg } from 'api/data'; //더미, API 완성되면 삭제
+import { useParams } from 'react-router-dom';
+import { authApi } from 'api/axios';
+import requests from 'api/config';
 
 const PageContainer = styled.div`
   ${tw`flex justify-center`}
@@ -90,6 +93,12 @@ const PrevArrow = (props) => {
 };
 
 function BookViewer() {
+  const params = useParams(); //url에서 bookId 받아오기
+  const bookId = params.bookId;
+  const bookImg = authApi(requests.GET_BOOK_IMAGES(bookId)).then(
+    (response) => response,
+  );
+
   const [slidesToShow, setSlidesToShow] = useState(1);
   const [modeStatus, setModeStatus] = useState(false); //페이지 모드
   const [rtl, setRtl] = useState(false); //rtl 모드

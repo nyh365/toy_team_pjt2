@@ -49,6 +49,13 @@ authApi.interceptors.response.use(
       response: { status },
     } = error; //비구조화 할당
 
+    // 400 Bad Request
+    if (status === 400) {
+      console.log('잘못된 요청입니다');
+      return;
+    }
+
+    // 401 Unauthorized
     if (status === 401) {
       // const accessToken = localStorage.getItem('accessToken');
       //accessToken 재발급 요청
@@ -70,6 +77,12 @@ authApi.interceptors.response.use(
           //새로 받은 토큰으로 로그인 재요청
           return authApi(config);
         });
+    }
+
+    // 409 Conflict
+    if (status === 409) {
+      console.log('충돌 오류입니다');
+      return;
     }
   },
 );

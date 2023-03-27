@@ -161,7 +161,7 @@ function BookDetail({ userId }) {
               {bookPrice}
             </PriceWrapper>
             <LinkWrapper>
-              <Link>
+              <Link to={`/books/viewer/${bookId}`}>
                 <Button title="동화 보러가기 →" buttonType="mint" />
               </Link>
             </LinkWrapper>

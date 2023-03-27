@@ -30,7 +30,7 @@ import { CookiesProvider } from 'react-cookie';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import UserLogin from 'pages/Login/UserLogin';
 import Notice from 'pages/Notice/Notice';
-import BookViewer from 'components/viewer/BookViewer';
+import BookViewer from 'pages/Book/BookViewer';
 import BookDetail from 'pages/Book/BookDetail';
 import { userStore } from 'store/userStore';
 import SocialLogin from 'pages/Login/SocialLogin';
@@ -75,7 +75,7 @@ function App() {
               element={<ChallengeCreaete />}
             />
             <Route path="/admin/notice/create" element={<NoticeCreate />} />
-            <Route path="/books/viewer" element={<BookViewer />} />
+            <Route path="/books/viewer/:bookId" element={<BookViewer />} />
             <Route
               path="/books/:bookId"
               element={<BookDetail userId={userId} />}
