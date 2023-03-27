@@ -49,7 +49,7 @@ authApi.interceptors.response.use(
       response: { status },
     } = error; //비구조화 할당
 
-    if (status == 401) {
+    if (status === 401) {
       // const accessToken = localStorage.getItem('accessToken');
       //accessToken 재발급 요청
       const userId = localStorage.getItem('userId');

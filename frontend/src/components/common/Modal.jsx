@@ -7,7 +7,7 @@ import useOutsideClick from 'hooks/useOutsideClick';
 import tw, { styled, css } from 'twin.macro';
 
 const ModalOverlay = styled.div`
-  ${tw`flex items-center justify-center z-50 bg-neutral-400 h-full w-full fixed`}
+  ${tw`flex items-center justify-center z-50 bg-neutral-400/80 h-full w-full fixed`}
 `;
 
 const ModalWrapper = styled.div`

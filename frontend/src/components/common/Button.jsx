@@ -12,7 +12,7 @@ const ButtonContainer = styled.div`
       : tw`bg-btnBlack text-whiteText`}
 `;
 
-function Button({ title, buttonType }) {
+function Button({ title, buttonType, onClick }) {
   const [type, setType] = useState('');
   useEffect(() => {
     setType(buttonType);
@@ -21,12 +21,12 @@ function Button({ title, buttonType }) {
     <>
       <div className={`${type === 'mint' ? '' : 'hidden'}`}>
         <ButtonContainer buttonType={type}>
-          <span>{title}</span>
+          <button onClick={onClick}>{title}</button>
         </ButtonContainer>
       </div>
       <div className={`${type === 'black' ? '' : 'hidden'}`}>
         <ButtonContainer buttonType={type}>
-          <span>{title}</span>
+          <button onClick={onClick}>{title}</button>
         </ButtonContainer>
       </div>
     </>

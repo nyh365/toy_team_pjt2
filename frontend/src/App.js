@@ -33,6 +33,7 @@ import Notice from 'pages/Notice/Notice';
 import BookViewer from 'components/viewer/BookViewer';
 import BookDetail from 'pages/Book/BookDetail';
 import { userStore } from 'store/userStore';
+import SocialLogin from 'pages/Login/SocialLogin';
 const queryClient = new QueryClient();
 function App() {
   const userId = userStore((state) => state.userId);
@@ -47,6 +48,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/home" element={<Home />} />
             <Route path="/login" element={<UserLogin />} />
+            <Route path="/oauth" element={<SocialLogin />} />
             <Route path="/notice" element={<Notice />} />
             <Route path="/myprofile" element={<MyProfile />} />
             <Route path="/myprofile/edit" element={<MyProfileEdit />} />
