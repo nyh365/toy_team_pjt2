@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
+
+import requests from 'api/config';
+import { defaultApi, authApi } from 'api/axios';
+
 import ProfileImg2 from 'components/common/ProfileImg2';
 import BookList from 'components/common/BookList';
 import EditProfileIcon from 'assets/icons/pencil03.svg';
-import CommentForm from 'components/common/CommentForm';
+
 const ProfileContainer = styled.div`
   ${tw`flex flex-col items-center justify-center w-full z-10 pt-[80px]`}
 `;
@@ -41,6 +45,7 @@ const PurchasedBookList = styled.div`
 `;
 
 function MyProfile() {
+  const userId = Number(localStorage.getItem('userId'));
   const books = [
     {
       bookId: 13,
@@ -80,6 +85,20 @@ function MyProfile() {
     },
   ];
   //프로필 조회 api사용
+  useEffect(() => {
+    const get_user = async () => {
+      try {
+        const { data } = await authApi.get(requests.GET_PROFILE(userId));
+        // console.log(data);
+        return console.log(data);
+      } catch (error) {
+        throw error;
+      }
+    };
+
+    get_user();
+  }, []);
+
   return (
     <div>
       <ProfileContainer>

@@ -22,7 +22,9 @@ const requests = {
   PATCH_PROFILE_IMAGE(userId) {
     return `/api/user/image/${userId}`;
   },
-
+  PATCH_USER_INFO(userId) {
+    return `/api/user/info/${userId}`;
+  },
   //로그아웃
   GET_LOGOUT(userId) {
     return `/api/user/logout/${userId}`;

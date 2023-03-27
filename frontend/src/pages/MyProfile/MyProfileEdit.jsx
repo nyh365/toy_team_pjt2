@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
+
+import requests from 'api/config';
+import { defaultApi, authApi } from 'api/axios';
+
 import ProfileImg2 from 'components/common/ProfileImg2';
 import Button from 'components/common/Button';
 import moveToEdit from 'assets/icons/moveToEdit.svg';
@@ -38,12 +42,30 @@ const ImgAddBtn = styled.div`
 function MyProfileEdit() {
   //프로필 조회 API 추가
   const navigate = useNavigate();
+  const userId = Number(localStorage.getItem('userId'));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userImage, setUserImage] = useState();
   const [newImage, setNewImage] = useState();
+
+  useEffect(() => {
+    const get_user = async () => {
+      try {
+        const { data } = await authApi.get(requests.GET_PROFILE(userId));
+        // console.log(data);
+        return console.log(data);
+      } catch (error) {
+        throw error;
+      }
+    };
+
+    get_user();
+  }, []);
+
+
   const onClose = () => {
     setIsModalOpen(false);
   };
+
   const handleClickAddImage = () => {
     document.getElementById('imageInput').click();
   };
@@ -59,10 +81,29 @@ function MyProfileEdit() {
     console.log('asdad');
     const formData = new FormData();
     if (newImage === 0) {
-      formData.append('profileImg', userImage);
+      formData.append('userImg', userImage);
     } else {
-      formData.append('profileImg', newImage);
+      formData.append('userImg', newImage);
     }
+    const patch_profile_image = async () => {
+      try {
+        const response = await authApi.patch(
+          requests.PATCH_PROFILE_IMAGE(userId),
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          },
+        );
+        // console.log(response);
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    };
+    patch_profile_image();
+
     navigate('/myprofile');
   };
   return (

@@ -1,6 +1,11 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import tw, { styled } from 'twin.macro';
+
+import requests from 'api/config';
+import { defaultApi, authApi } from 'api/axios';
+
 import AdminChallengeItem from './AdminChallengeItem';
 import Button from 'components/common/Button';
 
@@ -17,11 +22,25 @@ const ChallengeList = styled.div`
 `;
 function AdminChallenge() {
   const pageLimit = 3; //현재 등록된 공지수 / 10?
+  const [challenges, setChallenges] = useState();
   // const notice = authApi
   //   .get(requests.GET_NOTICE(pageId, pageLimit))
   //   .then((response) => response.notices.content);
+  useEffect(() => {
+    const get_challenge_admin = async () => {
+      try {
+        const { data } = await authApi.get(requests.GET_CHALLENGE_ADMIN());
+        // console.log(data);
+        setChallenges(data.notices);
+        return console.log(data);
+      } catch (error) {
+        throw error;
+      }
+    };
 
-  const challenges = [
+    get_challenge_admin();
+  }, []);
+  const testChallenges = [
     {
       challengeId: 1,
       challengeTitle: '챌린지 제목',
@@ -69,7 +88,7 @@ function AdminChallenge() {
               <Button title="작성" buttonType="black" />
             </Link>
           </div>
-          {[...challenges].map((article) => (
+          {[...testChallenges].map((article) => (
             <AdminChallengeItem
               key={article.challengeId}
               title={article.challengeTitle}

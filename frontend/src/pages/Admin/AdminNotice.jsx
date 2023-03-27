@@ -1,6 +1,11 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import tw, { styled } from 'twin.macro';
+
+import requests from 'api/config';
+import { defaultApi, authApi } from 'api/axios';
+
 import AdminNoticeItem from './AdminNoticeItem';
 import Button from 'components/common/Button';
 
@@ -16,11 +21,25 @@ const NoticeList = styled.div`
   width: 50vw;
 `;
 function AdminNotice() {
+  const [notices, setNotices] = useState();
   const pageLimit = 3; //현재 등록된 공지수 / 10?
   // const notice = authApi
   //   .get(requests.GET_NOTICE(pageId, pageLimit))
   //   .then((response) => response.notices.content);
+  useEffect(() => {
+    const get_notice = async () => {
+      try {
+        const { data } = await authApi.get(requests.GET_NOTICE());
+        // console.log(data);
+        setNotices(data.notices);
+        return console.log(data);
+      } catch (error) {
+        throw error;
+      }
+    };
 
+    get_notice();
+  }, []);
   const notice = [
     {
       noticeId: 7,

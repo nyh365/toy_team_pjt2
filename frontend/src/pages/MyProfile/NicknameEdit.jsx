@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
+
+import requests from 'api/config';
+import { defaultApi, authApi } from 'api/axios';
+
 import ProfileImg2 from 'components/common/ProfileImg2';
 import moveToEdit from 'assets/icons/moveToEdit.svg';
 
@@ -33,6 +37,7 @@ const ButtonContainer = styled.div`
 `;
 
 function NicknameEdit() {
+  const userNickname = localStorage.getItem('userNickname');
   const navigate = useNavigate();
   const [nickname, setNickname] = useState('');
   const [verify, setVerify] = useState('');
@@ -61,7 +66,23 @@ function NicknameEdit() {
     }
   }, []);
   const onClickVerifyingHandler = () => {
-    setVerify('success');
+    const get_nickname_available = async () => {
+      try {
+        const response = await authApi.get(
+          requests.GET_NICKNAME_AVAILABLE(userNickname),
+        );
+        if (response.message === 'success') {
+          setVerify('success');
+        } else {
+          setVerify('fail');
+        }
+
+        return console.log(response.data);
+      } catch (error) {
+        throw error;
+      }
+    };
+    get_nickname_available();
   };
   useEffect(() => {
     if (verify === 'success') {
@@ -73,6 +94,24 @@ function NicknameEdit() {
   const submitHandler = () => {
     //닉네임 변경 API 추가
     if (verify === 'success') {
+      const patch_user_nickname = async () => {
+        try {
+          const response = await defaultApi.patch(
+            requests.PATCH_USER_NICKNAME(userNickname),
+
+            {
+              headers: {
+                Authorization: localStorage.getItem('accessToken'),
+              },
+            },
+          );
+
+          return console.log(response.data);
+        } catch (error) {
+          throw error;
+        }
+      };
+      patch_user_nickname();
       navigate('/myprofile/edit');
     }
   };

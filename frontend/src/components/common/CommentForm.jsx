@@ -5,6 +5,8 @@ import ProfileImg from './ProfileImg';
 import tw, { styled, css } from 'twin.macro';
 import Button from './Button';
 import CommentItem from './CommentItem';
+import requests from 'api/config';
+import { defaultApi, authApi } from 'api/axios';
 
 const CommentContainer = styled.div`
   ${tw`flex`}
@@ -70,10 +72,26 @@ function CommentForm() {
   ];
 
   const navigate = useNavigate();
+  const userId = Number(localStorage.getItem('userId'));
   const [comments, setComments] = useState(testComments);
   const [commentContent, setCommentContent] = useState('');
   const submitHandler = () => {
     //댓글 등록 API 호출
+
+    const post_comment_submit = async () => {
+      try {
+        const response = await authApi.post(requests.POST_COMMENT(userId), {
+          commentUserId: userId,
+          commentBookId: 1,
+          commentContent: commentContent,
+        });
+
+        return console.log(response.data);
+      } catch (error) {
+        throw error;
+      }
+    };
+    post_comment_submit();
     setCommentContent('');
     //댓글목록 받은거 setComments로 넣어주기
   };

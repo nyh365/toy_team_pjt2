@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
+
+import requests from 'api/config';
+import { defaultApi, authApi } from 'api/axios';
+
 import ProfileImg2 from 'components/common/ProfileImg2';
 
 const ProfileContainer = styled.div`
@@ -31,6 +35,7 @@ const ButtonContainer = styled.div`
   ${tw`w-full h-[40px] my-[12px] bg-btnBlack text-whiteText rounded-lg flex justify-center items-center`}
 `;
 function IntroductionEdit() {
+  const userId = Number(localStorage.getItem('userId'));
   const navigate = useNavigate();
   const [introduction, setIntroduction] = useState('');
   const [introductionMessage, setIntroductionMessage] = useState('');
@@ -53,6 +58,22 @@ function IntroductionEdit() {
   const submitHandler = () => {
     //자기소개 변경 API 추가
     if (isValidIntroduction) {
+      const patch_user_info = async () => {
+        try {
+          const { data } = await authApi.patch(
+            requests.PATCH_USER_INFO(userId),
+            {
+              userInfo: introduction,
+            },
+          );
+          // console.log(data);
+          return console.log(data);
+        } catch (error) {
+          throw error;
+        }
+      };
+
+      patch_user_info();
       navigate('/myprofile/edit');
     }
   };
