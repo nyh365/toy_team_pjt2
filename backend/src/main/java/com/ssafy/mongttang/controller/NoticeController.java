@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/notice")
+@RequestMapping("/notice")
 public class NoticeController {
     private NoticeService noticeService;
 
@@ -55,7 +55,7 @@ public class NoticeController {
     public ResponseEntity<Map<String, Object>> getNotices() {
         Map<String, Object> map = new HashMap<>();
 
-        List<ResponseNoticeInfoDto> noticeList = noticeService.getNotices();
+        List<ResponseNoticeDetailDto> noticeList = noticeService.getNotices();
         if (noticeList != null) {
             map.put(MESSAGE, SUCCESS);
             map.put("notices", noticeList);

@@ -22,8 +22,8 @@ public class ResponseReportBookInfoDto {
     public ResponseReportBookInfoDto(BookReport bookReport, User user) {
         this.bookId = bookReport.getBookreportBookId().getBookId();
         this.bookTitle = bookReport.getBookreportBookId().getBookTitle();
-        this.artistId = bookReport.getBookreportUserId().getUserId();
-        this.artistNickname = bookReport.getBookreportUserId().getUserNickname();
+        this.artistId = bookReport.getBookreportUserId();
+        this.artistNickname = bookReport.getBookreportBookId().getBookUserId().getUserNickname();
         this.reportCategory = bookReport.getBookreportCategory();
         this.reportContent = bookReport.getBookreportContent();
         this.reporterNickname = user.getUserNickname();

@@ -27,7 +27,7 @@ public class ReqReportBookDto {
         return BookReport.builder()
                 .bookreportBookId(book)
                 .bookreportBookTitle(book.getBookTitle())
-                .bootreportUserId(book.getBookUserId())
+                .bootreportUserId(book.getBookUserId().getUserId())
                 .bookreportContent(reportContent)
                 .bookreportCategory(reportCategory)
                 .bookreportReportUserId(userId)

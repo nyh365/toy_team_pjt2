@@ -64,8 +64,8 @@ public class NoticeService {
         }
     }
 
-    public List<ResponseNoticeInfoDto> getNotices() {
-        List<ResponseNoticeInfoDto> responseNoticeDetailDtoList = noticeRepository.findAll().stream().map(notice -> new ResponseNoticeInfoDto(notice)).collect(Collectors.toList());
+    public List<ResponseNoticeDetailDto> getNotices() {
+        List<ResponseNoticeDetailDto> responseNoticeDetailDtoList = noticeRepository.findAll().stream().map(notice -> new ResponseNoticeDetailDto(notice)).collect(Collectors.toList());
         return responseNoticeDetailDtoList;
     }
 }
