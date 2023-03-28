@@ -18,6 +18,6 @@ public class ResponseDiscountBookDto {
         this.bookId = book.getBookId();
         this.bookTitle = book.getBookTitle();
         this.endDate = endDate;
-        this.coverImg = coverImg;
+        this.coverImg = "http://dd93ub3tw0bvd.cloudfront.net/" + coverImg;
     }
 }
