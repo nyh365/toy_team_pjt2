@@ -45,7 +45,6 @@ public class ChallengeService {
         if(bookList == null) return null;
         List<ResponseChallengeBookInfoDto> bookResult = new ArrayList<>();
         toChallengeBookInfoList(userId, bookList, bookResult);
-        bookList = bookRepository.findLatesBooks(challengeId);
 
         return bookResult;
     }
@@ -55,7 +54,6 @@ public class ChallengeService {
         if(bookList == null) return null;
         List<ResponseChallengeBookInfoDto> bookResult = new ArrayList<>();
         toChallengeBookInfoList(userId, bookList, bookResult);
-        bookList = bookRepository.findLatesBooks(challengeId);
 
         return bookResult;
     }
@@ -72,7 +70,6 @@ public class ChallengeService {
             if(bookList == null) return null;
             toChallengeBookInfoList(userId, bookList, bookResult);
         }
-        bookList = bookRepository.findLatesBooks(challengeId);
 
         return bookResult;
     }

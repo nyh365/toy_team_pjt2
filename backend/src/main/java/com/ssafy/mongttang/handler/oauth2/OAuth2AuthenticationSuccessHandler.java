@@ -73,23 +73,13 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         CookieUtils.addCookie(response, "refreshToken", newRefreshToken,180);
 
         try {
-            String nickName = userPrincipalDto.getUser().getUserNickname();
-            if(nickName.equals(" ")){
-                return UriComponentsBuilder.fromUriString(targetUrl)
-                        .queryParam("userId", userPrincipalDto.getUser().getUserId())
-                        .queryParam("userNickname", nickName)
-                        .queryParam("profileImgURL", userPrincipalDto.getUser().getUserProfileImg())
-                        .queryParam("accessToken", token)
-                        .build().toUriString();
-            } else {
-                return UriComponentsBuilder.fromUriString(targetUrl)
-                        .queryParam("userId", userPrincipalDto.getUser().getUserId())
-                        .queryParam("userNickname", URLEncoder.encode(nickName, "UTF-8"))
-                        .queryParam("profileImgURL", userPrincipalDto.getUser().getUserProfileImg())
-                        .queryParam("accessToken", token)
-                        .build().toUriString();
-            }
-
+            String userNickname = URLEncoder.encode(userPrincipalDto.getUser().getUserNickname(), "UTF-8");
+            return UriComponentsBuilder.fromUriString(targetUrl)
+                    .queryParam("userId", userPrincipalDto.getUser().getUserId())
+                    .queryParam("userNickname", userNickname)
+                    .queryParam("profileImgURL", userPrincipalDto.getUser().getUserProfileImg())
+                    .queryParam("accessToken", token)
+                    .build().toUriString();
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
