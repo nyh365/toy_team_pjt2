@@ -25,8 +25,11 @@ public class ResponseChallengeBookInfoDto {
         this.bookSummary = book.getBookSummary();
         this.artistId = book.getBookUserId().getUserId();
         this.artistNickname = book.getBookUserId().getUserNickname();
-        this.bookImgUrl = coverImgURL;
+        this.bookImgUrl = "http://dd93ub3tw0bvd.cloudfront.net/" + coverImgURL;
         this.profileImgURL = book.getBookUserId().getUserProfileImg();
+        if(!book.getBookUserId().getUserProfileImg().equals("defaultImg")){
+            this.profileImgURL = "http://dd93ub3tw0bvd.cloudfront.net/" + book.getBookUserId().getUserProfileImg();
+        }
         this.numOfComment = numOfComment;
         this.numOfLike = numOfLike;
         this.isLiked = isLiked;

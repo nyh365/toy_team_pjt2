@@ -14,4 +14,6 @@ public interface BookLikeRepository extends JpaRepository<BookLike,Integer>, Boo
 
     @Query("select distinct blike.booklikeBookId from BookLike blike where blike.booklikeChallengId = :challengeId order by blike.createdTime desc")
     List<Book> findLatesLikedBook(int challengeId);
+
+    BookLike findByBooklikeBookId_BookIdAndBooklikeUserId(int bookId, int userId);
 }

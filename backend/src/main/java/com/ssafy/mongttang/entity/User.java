@@ -12,6 +12,7 @@ import org.springframework.data.annotation.CreatedDate;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Getter
 @Entity
@@ -57,7 +58,7 @@ public class User extends BaseEntity {
     @Builder
     public User(String userEmail, AuthProvider userProvider, String userProviderId ){
         this.userEmail = userEmail;
-        this.userNickname = " ";
+        this.userNickname = new StringBuilder().append(userProvider).append("_").append(System.nanoTime()).toString();
         this.userRole = "ROLE_READER";
         this.userProvider = userProvider;
         this.userProviderId = userProviderId;

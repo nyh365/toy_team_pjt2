@@ -17,5 +17,8 @@ public class ResponseFollowerDto {
         this.userId = user.getUserId();
         this.userNickname = user.getUserNickname();
         this.profileImgURL = user.getUserProfileImg();
+        if(!user.getUserProfileImg().equals("defaultImg")){
+            this.profileImgURL = "http://dd93ub3tw0bvd.cloudfront.net/" + user.getUserProfileImg();
+        }
     }
 }

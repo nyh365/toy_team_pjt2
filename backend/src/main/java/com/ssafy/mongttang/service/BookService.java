@@ -367,7 +367,7 @@ public class BookService {
             comments.add(new ResponseCommentDto(comment, numOfLike, isCommentLiked, isCommentReported));
         }
 
-        ResponseBookDetailDto responseBookDetailDto = new ResponseBookDetailDto(book, illustPath, isReported, isReportedMany, comments);
+        ResponseBookDetailDto responseBookDetailDto = new ResponseBookDetailDto(book, illustPath,isLiked, isReported, isReportedMany, comments);
 
         return responseBookDetailDto;
     }

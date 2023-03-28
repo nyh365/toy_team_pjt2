@@ -1,9 +1,6 @@
 package com.ssafy.mongttang.service;
 
-import com.ssafy.mongttang.dto.BookInfo;
-import com.ssafy.mongttang.dto.ResponseFollowerDto;
-import com.ssafy.mongttang.dto.ResponseFollowingDto;
-import com.ssafy.mongttang.dto.ResponseProfileDto;
+import com.ssafy.mongttang.dto.*;
 import com.ssafy.mongttang.entity.*;
 import com.ssafy.mongttang.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +20,8 @@ public class ProfileService {
     private final BookRepository bookRepository;
     private final IllustRepository illustRepository;
     private final PaidBookRepositoy paidBookRepositoy;
+    private final BookLikeRepository bookLikeRepository;
+    private final CommentRepository commentRepository;
 
     public Follow createFollow(int followFromId, int followToId) {
         User followFrom = userRepository.findByUserId(followFromId);
@@ -119,18 +118,14 @@ public class ProfileService {
         //내 프로필일 경우
         if(userId == lookUserId){
             //완료된 책목록
-            ArrayList<BookInfo> inCompleteBookInfos = new ArrayList<>();
+            ArrayList<ResponseChallengeBookInfoDto> inCompleteBookInfos = new ArrayList<>();
             ArrayList<Book> inCompleteBooks = bookRepository.findByBookUserIdAndBookStatus(user,"temporary");
-            for (Book book : inCompleteBooks) {
-                inCompleteBookInfos.add(new BookInfo(illustRepository.findByIllustBookIdAndIllustPageNumber(book,0).getIllustFilePath(),book.getBookId()));
-            }
+            toBookInfoList(lookUserId, inCompleteBooks, inCompleteBookInfos);
 
             //구매한 책목록
-            ArrayList<BookInfo> paidBookInfos = new ArrayList<>();
+            ArrayList<ResponseChallengeBookInfoDto> paidBookInfos = new ArrayList<>();
             ArrayList<PaidBook> paidBooks = paidBookRepositoy.findByPaidbookUserId(user);
-            for (PaidBook paidBook: paidBooks) {
-                paidBookInfos.add(new BookInfo(illustRepository.findByIllustBookId_BookIdAndIllustPageNumber(paidBook.getBookId(),0).getIllustFilePath(),paidBook.getBookId()));
-            }
+            toPaidBookInfoList(lookUserId, paidBooks, paidBookInfos);
 
             responseProfileDto.addMyprofileInfo(inCompleteBookInfos,paidBookInfos);
         }
@@ -146,21 +141,60 @@ public class ProfileService {
         }
 
         //해당 프로필 회원의 동화
-        ArrayList<BookInfo> myBookInfos = new ArrayList<>();
+        ArrayList<ResponseChallengeBookInfoDto> myBookInfos = new ArrayList<>();
         ArrayList<Book> myBooks = bookRepository.findByBookUserIdAndBookStatus(user,"complete");
-        for (Book book : myBooks) {
-            myBookInfos.add(new BookInfo(illustRepository.findByIllustBookIdAndIllustPageNumber(book,0).getIllustFilePath(),book.getBookId()));
-        }
+        toBookInfoList(lookUserId, myBooks, myBookInfos);
 
         //해당 프로필 회원의 관심 동화
-        ArrayList<BookInfo> interestBookInfos = new ArrayList<>();
+        ArrayList<ResponseChallengeBookInfoDto> interestBookInfos = new ArrayList<>();
         ArrayList<InterestBook> interestBooks = interestBookRepository.findByInterestbookUserId(user);
-        for (InterestBook interestBook : interestBooks) {
-            interestBookInfos.add(new BookInfo(illustRepository.findByIllustBookIdAndIllustPageNumber(interestBook.getInterestbookBookId(),0).getIllustFilePath(),interestBook.getInterestbookBookId().getBookId()));
-        }
+        toInterestBookInfoList(lookUserId, interestBooks, interestBookInfos);
 
         responseProfileDto.addMyBooksAndInterestBooks(myBookInfos,interestBookInfos);
 
         return responseProfileDto;
+    }
+
+
+
+    private void toBookInfoList(int userId, ArrayList<Book> bookList, List<ResponseChallengeBookInfoDto> bookResult) {
+        for(Book book: bookList) {
+            //동화 표지 가져요기
+            String coverImgPath = illustRepository.findCoverIllust(book.getBookId());
+            //댓글 개수 가져오기
+            int numOfComment = commentRepository.countByCommentBookId_BookId(book.getBookId());
+            //좋아요 개수 가져오기
+            int numOfLike = bookLikeRepository.countByBooklikeBookId_BookId(book.getBookId()) - 1;
+            //좋아요 여부 가져오기
+            BookLike bookLike = bookLikeRepository.findByBooklikeBookIdAndBooklikeUserId(book, userId);
+            bookResult.add(new ResponseChallengeBookInfoDto(book, coverImgPath, numOfComment, numOfLike, (bookLike == null) ? false : true));
+        }
+    }
+    private void toPaidBookInfoList(int userId, ArrayList<PaidBook> paidBookList, List<ResponseChallengeBookInfoDto> bookResult) {
+        for(PaidBook paidBook: paidBookList) {
+            Book book = bookRepository.findByBookId(paidBook.getBookId());
+            //동화 표지 가져요기
+            String coverImgPath = illustRepository.findCoverIllust(book.getBookId());
+            //댓글 개수 가져오기
+            int numOfComment = commentRepository.countByCommentBookId_BookId(book.getBookId());
+            //좋아요 개수 가져오기
+            int numOfLike = bookLikeRepository.countByBooklikeBookId_BookId(book.getBookId()) - 1;
+            //좋아요 여부 가져오기
+            BookLike bookLike = bookLikeRepository.findByBooklikeBookId_BookIdAndBooklikeUserId(book.getBookId(), userId);
+            bookResult.add(new ResponseChallengeBookInfoDto(book, coverImgPath, numOfComment, numOfLike, (bookLike == null) ? false : true));
+        }
+    }
+    private void toInterestBookInfoList(int userId, ArrayList<InterestBook> interestBookList, ArrayList<ResponseChallengeBookInfoDto> bookResult) {
+        for(InterestBook interestBook: interestBookList) {
+            //동화 표지 가져요기
+            String coverImgPath = illustRepository.findCoverIllust(interestBook.getInterestbookBookId().getBookId());
+            //댓글 개수 가져오기
+            int numOfComment = commentRepository.countByCommentBookId_BookId(interestBook.getInterestbookBookId().getBookId());
+            //좋아요 개수 가져오기
+            int numOfLike = bookLikeRepository.countByBooklikeBookId_BookId(interestBook.getInterestbookBookId().getBookId()) - 1;
+            //좋아요 여부 가져오기
+            BookLike bookLike = bookLikeRepository.findByBooklikeBookIdAndBooklikeUserId(interestBook.getInterestbookBookId(), userId);
+            bookResult.add(new ResponseChallengeBookInfoDto(interestBook.getInterestbookBookId(), coverImgPath, numOfComment, numOfLike, (bookLike == null) ? false : true));
+        }
     }
 }
