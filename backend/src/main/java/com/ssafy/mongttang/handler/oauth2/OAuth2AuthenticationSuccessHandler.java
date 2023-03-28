@@ -77,6 +77,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             return UriComponentsBuilder.fromUriString(targetUrl)
                     .queryParam("userId", userPrincipalDto.getUser().getUserId())
                     .queryParam("userNickname", userNickname)
+                    .queryParam("refreshToken", newRefreshToken)
                     .queryParam("profileImgURL", userPrincipalDto.getUser().getUserProfileImg())
                     .queryParam("accessToken", token)
                     .build().toUriString();
