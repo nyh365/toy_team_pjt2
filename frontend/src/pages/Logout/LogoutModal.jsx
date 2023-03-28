@@ -2,11 +2,13 @@ import React from 'react';
 import Modal from 'components/common/Modal';
 import { useNavigate } from 'react-router-dom';
 import { removeCookie } from 'utils/Cookie';
-import { authApi } from 'api/axios';
+import { authApi, defaultApi } from 'api/axios';
 import requests from 'api/config';
 
 import tw, { styled, css } from 'twin.macro';
 import { userStore } from 'store/userStore';
+import { useState } from 'react';
+import { useEffect } from 'react';
 
 const ContentContainer = styled.div`
   ${tw`m-4 font-bold`}
@@ -17,22 +19,29 @@ const ButtonWrapper = styled.div`
 `;
 
 function LogoutModal({ onClose }) {
-  const { resetUser } = userStore((state) => state);
   const navigate = useNavigate();
-  const userId =
-    userStore((state) => state.userId) || localStorage.getItem('userId');
+  const { setUserId, resetUser } = userStore((state) => state);
+
+  const [id, setId] = useState(localStorage.getItem('userId'));
+
+  useEffect(() => {
+    // setUserId(id);
+  }, [resetUser]);
+  // console.log(userStore((state) => state.userId));
+  console.log(id);
 
   const logout = () => {
-    authApi(requests.GET_LOGOUT(userId)).then((response) => {
-      // console.log(response);
-      if (response.status === 200) {
+    authApi(requests.GET_LOGOUT(id))
+      .then((response) => {
+        console.log(response);
+        // if (response.status === 200) {
+        // }
         localStorage.clear();
         removeCookie('refreshToken');
         resetUser();
-
-        navigate('/home');
-      }
-    });
+      })
+      .finally(() => onClose());
+    navigate('/home');
   };
 
   return (

@@ -37,7 +37,12 @@ import SocialLogin from 'pages/Login/SocialLogin';
 import ChallengeDetail from 'pages/Challenge/ChallengeDetail';
 const queryClient = new QueryClient();
 function App() {
-  const userId = userStore((state) => state.userId);
+  const [userId, setUserId] = useState();
+  const id = userStore((state) => state.userId);
+  useEffect(() => {
+    if (id === '') setUserId(localStorage.getItem('userId'));
+    else setUserId(id);
+  }, [userId]);
 
   return (
     <CookiesProvider>
@@ -75,7 +80,7 @@ function App() {
               element={<ChallengeCreaete />}
             />
             <Route path="/admin/notice/create" element={<NoticeCreate />} />
-            <Route path="/books/viewer" element={<BookViewer />} />
+            <Route path="/books/viewer/:bookId" element={<BookViewer />} />
             <Route
               path="/books/:bookId"
               element={<BookDetail userId={userId} />}

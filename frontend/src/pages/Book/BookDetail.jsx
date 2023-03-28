@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import tw, { styled, css } from 'twin.macro';
 
 import { books } from 'api/data';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Button from 'components/common/Button';
 import Coin from '../../assets/icons/Coin.svg';
 import { QueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import { authApi } from 'api/axios';
 import requests from 'api/config';
 import CommentForm from 'components/common/CommentForm';
+import { userStore } from 'store/userStore';
 
 const queryClient = new QueryClient();
 const book = books[0]; //책 1개 더미데이터
@@ -78,6 +79,8 @@ function BookDetail({ userId }) {
    */
   const params = useParams(); //{ bookId: 27 }
   const bookId = params.bookId;
+  const navigate = useNavigate();
+
   /////////////////react-query////////////////////////
   //좋아요 수 가져오기
   const { status, data, error } = useQuery(
@@ -130,6 +133,16 @@ function BookDetail({ userId }) {
     //관심목록 제거 API 호출
     dislikesMutation.mutate({ userId, bookId });
   };
+
+  const gotoViewer = async () => {
+    try {
+      // console.log('userID: ', userId, 'bookId; ', bookId);
+      await authApi(requests.GET_BOOK_AUTH(userId, bookId)).then((res) => {
+        // console.log('API호출');
+        // console.log(res);
+      });
+    } catch (error) {}
+  };
   return (
     <BodyContainer>
       <BookInfoContainer>
@@ -161,9 +174,11 @@ function BookDetail({ userId }) {
               {bookPrice}
             </PriceWrapper>
             <LinkWrapper>
-              <Link>
-                <Button title="동화 보러가기 →" buttonType="mint" />
-              </Link>
+              <Button
+                title="동화 보러가기 →"
+                buttonType="mint"
+                onClick={gotoViewer}
+              />
             </LinkWrapper>
           </ServiceContainer>
         </MainInfoContainer>

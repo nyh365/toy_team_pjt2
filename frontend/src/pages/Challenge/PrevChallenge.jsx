@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import tw, { styled, css } from 'twin.macro';
 import BookShelf from 'components/common/BookShelf';
 import prevChallenge from '../../assets/images/prevChallenge.png';
 
-import { books, prevChallenges } from 'api/data';
+// import { books, prevChallenges } from 'api/data';
 import { authApi } from 'api/axios';
 import requests from 'api/config';
 
@@ -17,9 +17,19 @@ const CTWrapper = styled.div`
 `;
 
 function PrevChallenge() {
-  const prevChallenges = authApi(requests.GET_LAST_CHALLENGES()).then(
-    (response) => response.data,
-  );
+  const [prevChallenges, setPrevChallenges] = useState();
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        await authApi(requests.GET_LAST_CHALLENGES()).then((response) => {
+          setPrevChallenges(response.data);
+        });
+      } catch (error) {}
+    };
+
+    getData();
+  }, []);
 
   return (
     <BodyContainer>
@@ -27,21 +37,23 @@ function PrevChallenge() {
         <img src={prevChallenge} alt="prevChallenge" />
       </CTWrapper>
 
-      {prevChallenges.totalChallenges.map((challenge) => {
-        return challenge.bookList.map((book, idx) => {
-          return (
-            <div key={idx}>
-              <BookShelf
-                books={book}
-                width="w-40"
-                height="h-48"
-                challenge={challenge}
-                size="b-5"
-              />
-            </div>
-          );
-        });
-      })}
+      {prevChallenges
+        ? prevChallenges.totalChallenges.map((challenge) => {
+            return challenge.bookList.map((book, idx) => {
+              return (
+                <div key={idx}>
+                  <BookShelf
+                    books={book}
+                    width="w-40"
+                    height="h-48"
+                    challenge={challenge}
+                    size="b-5"
+                  />
+                </div>
+              );
+            });
+          })
+        : null}
     </BodyContainer>
   );
 }

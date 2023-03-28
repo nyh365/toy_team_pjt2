@@ -22,11 +22,15 @@ const Tab = styled.span`
   ${tw`text-h3 px-2 hover:text-secondary hover:underline hover:underline-offset-4 cursor-pointer`}
 `;
 function NavBar() {
-  const userId = localStorage.getItem('userId');
+  const [userId, setUserId] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const onClose = () => {
     setIsModalOpen(false);
   };
+
+  useEffect(() => {
+    setUserId(localStorage.getItem('userId'));
+  });
 
   const location = useLocation().pathname;
 
