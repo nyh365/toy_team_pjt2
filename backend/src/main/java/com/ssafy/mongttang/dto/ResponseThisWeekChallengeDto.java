@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class ResponseThisWeekChallengeDto {
+    private int challengeId;
     private String challengeTitle;
     private String challengeContent;
     private String challengeSummary;
@@ -18,6 +19,7 @@ public class ResponseThisWeekChallengeDto {
     private List<ResponseChallengeBookInfoDto> bookList;
 
     public ResponseThisWeekChallengeDto(Challenge challenge, List<ResponseChallengeBookInfoDto> bookList) {
+        this.challengeId = challenge.getChallengeId();
         this.challengeTitle = challenge.getChallengeTitle();
         this.challengeContent = challenge.getChallengeContent();
         this.challengeSummary = challenge.getChallengeSummary();
