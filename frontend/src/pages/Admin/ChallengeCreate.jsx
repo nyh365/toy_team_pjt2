@@ -3,7 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
 import Button from 'components/common/Button';
-
+import { DatePicker, DateTimePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
 const ChallengeWrapper = styled.div`
   ${tw`flex justify-center w-full mt-10`}
 `;
@@ -56,8 +57,19 @@ function ChallengeCreaete() {
   const [challengeTitle, setChallengeTitle] = useState('');
   const [challengeSummary, setChallengeSummary] = useState('');
   const [challengeContent, setChallengeContent] = useState('');
+  const [challengeStartDate, setChallengeStartDate] = useState(null);
+  const [challengeEndDate, setChallengeEndDate] = useState(null);
   const canclehandler = () => {
     navigate('/admin/challenge');
+  };
+  const checking = () => {
+    const formattedStartDate = dayjs(challengeStartDate).format(
+      'YYYY-MM-DDTHH:mm:ss',
+    );
+    const formattedEndDate = dayjs(challengeEndDate).format(
+      'YYYY-MM-DDTHH:mm:ss',
+    );
+    console.log(formattedStartDate, formattedEndDate);
   };
   const submithandler = () => {
     // 챌린지 등록 api 호출
@@ -106,6 +118,19 @@ function ChallengeCreaete() {
               <Button title="취소" buttonType="black" className="" />
             </div>
           </ButtonContainer>
+          <DateTimePicker
+            label="챌린지 시작 일자 선택"
+            value={challengeStartDate || dayjs()}
+            className="w-full"
+            onChange={(newValue) => setChallengeStartDate(newValue)}
+          />
+          <DateTimePicker
+            label="챌린지 종료 일자 선택"
+            value={challengeEndDate || dayjs()}
+            className="w-full"
+            onChange={(newValue) => setChallengeEndDate(newValue)}
+          />
+          <div onClick={checking}>check</div>
         </CreateForm>
       </ChallengeWrapper>
     </div>

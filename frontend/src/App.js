@@ -7,7 +7,8 @@ import {
   Navigate,
   useNavigate,
 } from 'react-router-dom';
-
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import NavBar from 'components/common/NavBar';
 
 // component
@@ -45,6 +46,8 @@ function App() {
   }, [userId]);
 
   return (
+
+<LocalizationProvider dateAdapter={AdapterDayjs}>
     <CookiesProvider>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter className="App">
@@ -89,6 +92,7 @@ function App() {
         </BrowserRouter>
       </QueryClientProvider>
     </CookiesProvider>
+    </LocalizationProvider>
   );
 }
 
