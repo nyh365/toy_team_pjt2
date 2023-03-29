@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import tw, { styled, css } from 'twin.macro';
 
 import { books } from 'api/data';
@@ -72,77 +72,57 @@ const LikesWrapper = styled.div``;
 const CommentContainer = styled.div``;
 
 function BookDetail({ userId }) {
-  /**
-   * 만약 react-query를 쓴 방법이 잘 안먹힌다면???
-   * 관심목록 추가하면 자체 state로 좋아요수 +1 제거하면 -1해서 표기하자
-   * 어차피 새로고침해서 다시 받아오면 백엔드에 실제로 적용된 값을 받아올 테니까
-   */
   const params = useParams(); //{ bookId: 27 }
   const bookId = params.bookId;
   const navigate = useNavigate();
+  const [book, setBook] = useState();
 
-  /////////////////react-query////////////////////////
-  //좋아요 수 가져오기
-  const { status, data, error } = useQuery(
-    'getlikes',
-    authApi(requests.GET_BOOK_DETAIL(userId, bookId)),
-  );
+  useEffect(() => {
+    authApi(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
+      setBook(res.data.bookDetail);
+      console.log(res.data.bookDetail);
+    });
+  }, []);
 
-  console.log(data);
-
-  //좋아요 누르면 실행
-  const likesMutation = useMutation(
-    authApi.post(requests.POST_BOOKLIKE(userId, bookId)),
-    {
-      onSuccess: () => {
-        queryClient.setQueryData('getlikes');
-      },
-    },
-  );
-
-  const dislikesMutation = useMutation(
-    authApi.delete(requests.DELETE_BOOKLIKE(userId, bookId)),
-    {
-      onSuccess: () => {
-        queryClient.setQueryData('getlikes');
-      },
-    },
-  );
-  //////////////////////////////////////////////////////////
-  //userId는 props로, bookId는 url에서?
-
-  //bookId로 Book Detail 정보를 API로 요청
-  //요청받은 정보로 화면 렌더링
   const [isLiked, setIsLiked] = useState(false);
-
   const title = book.bookTitle;
+  const artistId = book.artistId;
   const artistNickname = book.artistNickname;
   const bookContent = book.bookSummary;
   const bookImgUrl = book.bookImgUrl;
-
-  //react-query로 실시간 동기화가 필요 ?
   const bookPrice = '무료';
-  const bookLikes = book.numOfLike;
+  // const bookLikes = book.numOfLike;
 
   const likeBook = () => {
     setIsLiked(true);
     //관심목록 추가 API 호출
-    likesMutation.mutate({ userId, bookId });
+    authApi.post(requests.POST_BOOKLIKE(userId, bookId)).then((res) => {
+      if (res.data.message === 'success') {
+        authApi(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
+          setBook(res.data.bookDetail);
+          console.log(res.data.bookDetail);
+        });
+      }
+    });
   };
 
   const dislikeBook = () => {
     setIsLiked(false);
     //관심목록 제거 API 호출
-    dislikesMutation.mutate({ userId, bookId });
+    authApi.delete(requests.DELETE_BOOKLIKE(userId, bookId)).then((res) => {
+      if (res.data.message === 'success') {
+        authApi(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
+          setBook(res.data.bookDetail);
+          console.log(res.data.bookDetail);
+        });
+      }
+    });
   };
 
   const gotoViewer = async () => {
     try {
       // console.log('userID: ', userId, 'bookId; ', bookId);
-      await authApi(requests.GET_BOOK_AUTH(userId, bookId)).then((res) => {
-        // console.log('API호출');
-        // console.log(res);
-      });
+      await authApi(requests.GET_BOOK_AUTH(userId, bookId)).then((res) => {});
     } catch (error) {}
   };
   return (
@@ -166,7 +146,7 @@ function BookDetail({ userId }) {
                 <button onClick={dislikeBook}>관심 취소</button>
               )}
             </LikeBtnWrapper>
-            <LikesWrapper>{data}</LikesWrapper>
+            <LikesWrapper>{}</LikesWrapper>
           </SubInfoContainer>
           <ServiceContainer>
             <PriceWrapper>

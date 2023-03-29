@@ -23,6 +23,7 @@ const Tab = styled.span`
 `;
 function NavBar() {
   const [userId, setUserId] = useState();
+  const [userNickname, setUserNickname] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const onClose = () => {
     setIsModalOpen(false);
@@ -30,6 +31,7 @@ function NavBar() {
 
   useEffect(() => {
     setUserId(localStorage.getItem('userId'));
+    setUserNickname(localStorage.getItem('userNickname'));
   });
 
   const location = useLocation().pathname;
@@ -83,6 +85,8 @@ function NavBar() {
           </Link>
         </TabWrapper>
         <IconWrapper>
+          {/* 웰컴 메시지 */}
+          {userNickname ? `${userNickname} 님 안녕하세요!` : null}
           {userId ? (
             <Button
               title="로그아웃"

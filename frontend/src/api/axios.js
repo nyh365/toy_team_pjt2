@@ -48,13 +48,13 @@ authApi.interceptors.response.use(
       config,
       response: { status },
     } = error; //비구조화 할당
+    const userId = localStorage.getItem('userId');
+    const refreshToken = getCookie('refreshToken');
 
+    //Unauthorized
     if (status === 401) {
-      // const accessToken = localStorage.getItem('accessToken');
       //accessToken 재발급 요청
-      const userId = localStorage.getItem('userId');
-      const refreshToken = getCookie('refreshToken');
-
+      console.log(userId, refreshToken);
       //Api 주소를 받아오기
       return refreshTokenApi
         .post('/api/auth/reissue', {
@@ -62,10 +62,10 @@ authApi.interceptors.response.use(
           refreshToken: refreshToken,
         })
         .then((response) => {
-          const { data } = response;
+          const { accessToken } = response.data;
           // console.log(data);
-          localStorage.setItem('accessToken', data);
-          config.headers.Authorization = data;
+          localStorage.setItem('accessToken', accessToken);
+          config.headers.Authorization = `Bearer ${accessToken}`;
 
           //새로 받은 토큰으로 로그인 재요청
           return authApi(config);

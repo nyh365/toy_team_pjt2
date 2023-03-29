@@ -11,7 +11,7 @@ import BookShelf from 'components/common/BookShelf';
 
 import thisChallenge from '../../assets/images/thisChallenge.png';
 import requests from 'api/config';
-import { authApi } from 'api/axios';
+import { authApi, defaultApi } from 'api/axios';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import axios from 'axios';
