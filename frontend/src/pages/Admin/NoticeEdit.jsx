@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Link, useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
@@ -45,18 +46,37 @@ const ContentInputContainer = styled.textarea`
 const ButtonContainer = styled.div`
   ${tw`flex justify-end items-center px-1 py-1`}
 `;
-function NoticeCreate() {
+function NoticeEdit() {
   const navigate = useNavigate();
+  const params = useParams();
+  const noticeId = params.noticeId;
   const [noticeTitle, setNoticeTitle] = useState('');
   const [noticeContent, setNoticeContent] = useState('');
+
+  useEffect(() => {
+    const get_notice_detail = async () => {
+      try {
+        const response = await authApi.get(
+          requests.GET_NOTICE_DETAIL(noticeId),
+        );
+        setNoticeTitle(response.data.notice.noticeTitle);
+        setNoticeContent(response.data.notice.noticeContent);
+
+        return console.log(response.data.notice);
+      } catch (error) {
+        throw error;
+      }
+    };
+    get_notice_detail();
+  }, []);
   const canclehandler = () => {
     navigate('/admin/notice');
   };
   const submithandler = () => {
     // 공지사항 등록 api 호출
-    const post_notice = async () => {
+    const patch_notice = async () => {
       try {
-        const response = await authApi.post(requests.POST_NOTICE(), {
+        const response = await authApi.patch(requests.PATCH_NOTICE(noticeId), {
           noticeTitle: noticeTitle,
           noticeContent: noticeContent,
         });
@@ -66,7 +86,7 @@ function NoticeCreate() {
         throw error;
       }
     };
-    post_notice();
+    patch_notice();
     navigate('/admin/notice');
   };
   return (
@@ -74,7 +94,7 @@ function NoticeCreate() {
       <CreateFormWrapper>
         <ChallengeList>
           <div className="flex justify-between items-center">
-            <PageTitle>공지사항 등록</PageTitle>
+            <PageTitle>공지사항 수정</PageTitle>
           </div>
           <Title>제목</Title>
           <form action="submit">
@@ -109,4 +129,4 @@ function NoticeCreate() {
   );
 }
 
-export default NoticeCreate;
+export default NoticeEdit;

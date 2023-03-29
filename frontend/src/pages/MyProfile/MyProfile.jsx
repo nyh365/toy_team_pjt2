@@ -52,44 +52,11 @@ function MyProfile() {
   const [userEmail, setUserEmail] = useState('');
   const [userFollower, setUserFollower] = useState('');
   const [userFollowing, setUserFollowing] = useState('');
-  const books = [
-    {
-      bookId: 13,
-      bookImgUrl:
-        'https://bagguimgbucket.s3.ap-northeast-2.amazonaws.com/item/e57fdfa1-804e-43c4-98c5-9d98b91f090d.png',
-      artistId: 12,
-      artistNickname: 'string type value',
-      bookTitle: 'string type value',
-      bookSummary: 'string type value',
-      numOfLike: 13,
-      latesLikeDate: '2023-02-01T10:27:14.153045',
-      numOfComment: 14,
-    },
-    {
-      bookId: 12,
-      bookImgUrl:
-        'https://bagguimgbucket.s3.ap-northeast-2.amazonaws.com/item/e57fdfa1-804e-43c4-98c5-9d98b91f090d.png',
-      artistId: 12,
-      artistNickname: 'string type value',
-      bookTitle: 'string type value',
-      bookSummary: 'string type value',
-      numOfLike: 13,
-      latesLikeDate: '2023-02-01T10:27:14.153045',
-      numOfComment: 14,
-    },
-    {
-      bookId: 11,
-      bookImgUrl:
-        'https://bagguimgbucket.s3.ap-northeast-2.amazonaws.com/item/e57fdfa1-804e-43c4-98c5-9d98b91f090d.png',
-      artistId: 12,
-      artistNickname: 'string type value',
-      bookTitle: 'string type value',
-      bookSummary: 'string type value',
-      numOfLike: 13,
-      latesLikeDate: '2023-02-01T10:27:14.153045',
-      numOfComment: 14,
-    },
-  ];
+  const [myBooks, setMyBooks] = useState('');
+  const [inCompleteBooks, setInCompleteBooks] = useState('');
+  const [interestBooks, setInterestBooks] = useState('');
+  const [paidBooks, setPaidBooks] = useState('');
+
   //프로필 조회 api사용
   useEffect(() => {
     const get_user = async () => {
@@ -101,7 +68,11 @@ function MyProfile() {
         setUserFollowing(data.profile.numOfFollowing);
         setUserInfo(data.profile.userInfo);
         setUserImg(data.profile.profileImgURL);
-        return console.log(data);
+        setMyBooks(data.profile.myBooks);
+        setInCompleteBooks(data.profile.inCompleteBooks);
+        setInterestBooks(data.profile.interestBooks);
+        setPaidBooks(data.profile.paidBooks);
+        return console.log('여긴가');
       } catch (error) {
         throw error;
       }
@@ -136,19 +107,23 @@ function MyProfile() {
       </ProfileContainer>
       <CompletedBookList>
         <span className="text-[40px]">완성한 동화</span>
-        <BookList width="w-[180px]" height="h-[250px]" books={books} />
+        <BookList width="w-[180px]" height="h-[250px]" books={myBooks} />
       </CompletedBookList>
       <InCompleteBookList>
         <span className="text-[40px]">작업중인 동화</span>
-        <BookList width="w-[180px]" height="h-[250px]" books={books} />
+        <BookList
+          width="w-[180px]"
+          height="h-[250px]"
+          books={inCompleteBooks}
+        />
       </InCompleteBookList>
       <LikedBookList>
         <span className="text-[40px]">관심목록</span>
-        <BookList width="w-[180px]" height="h-[250px]" books={books} />
+        <BookList width="w-[180px]" height="h-[250px]" books={interestBooks} />
       </LikedBookList>
       <PurchasedBookList>
         <span className="text-[40px]">구매목록</span>
-        <BookList width="w-[180px]" height="h-[250px]" books={books} />
+        <BookList width="w-[180px]" height="h-[250px]" books={paidBooks} />
       </PurchasedBookList>
     </div>
   );

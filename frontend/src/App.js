@@ -24,6 +24,7 @@ import AdminCommentReport from 'pages/Admin/AdminCommentReport';
 import AdminBookReport from 'pages/Admin/AdminBookReport';
 import ChallengeCreaete from 'pages/Admin/ChallengeCreate';
 import NoticeCreate from 'pages/Admin/NoticeCreate';
+import NoticeEdit from 'pages/Admin/NoticeEdit';
 import PrevChallenge from 'pages/Challenge/PrevChallenge';
 // react-cookie
 import { CookiesProvider } from 'react-cookie';
@@ -85,6 +86,10 @@ function App() {
                 element={<ChallengeCreaete />}
               />
               <Route path="/admin/notice/create" element={<NoticeCreate />} />
+              <Route
+                path="/admin/notice/edit/:noticeId"
+                element={<NoticeEdit />}
+              />
               <Route path="/books/viewer/:bookId" element={<BookViewer />} />
               <Route
                 path="/books/:bookId"

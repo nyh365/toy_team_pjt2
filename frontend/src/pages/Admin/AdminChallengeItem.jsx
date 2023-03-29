@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import FormatDate from 'utils/FormatDate';
 
 import tw, { styled, css } from 'twin.macro';
+
+import requests from 'api/config';
+import { defaultApi, authApi } from 'api/axios';
+
 import upToggleBtn from '../../assets/icons/upToggle.svg';
 import downToggleBtn from '../../assets/icons/downToggle.svg';
 import Button from 'components/common/Button';
@@ -46,12 +50,25 @@ const Content = styled.section`
   align-items: center;
 `;
 
-function AdminChallengeItem({ title, content, createdTime }) {
+function AdminChallengeItem({ challengeId, title, content, createdTime }) {
   const [isRead, setIsRead] = useState(true);
   const { year, month, day, hour, minute } = FormatDate(createdTime);
 
   const readContent = () => {
     setIsRead(!isRead);
+  };
+  const deleteHandler = () => {
+    const delete_challenge_admin = async () => {
+      try {
+        const { data } = await authApi.delete(
+          requests.DELETE_CHALLENGE_ADMIN(challengeId),
+        );
+        return console.log(data);
+      } catch (error) {
+        throw error;
+      }
+    };
+    delete_challenge_admin();
   };
 
   return (
@@ -75,11 +92,16 @@ function AdminChallengeItem({ title, content, createdTime }) {
         {isRead ? '' : <Content>{content}</Content>}
 
         <ButtonContainer>
-          <div className="mx-1">
+          {/* <div className="mx-1">
             <Button title="수정" buttonType="black" className="" />
-          </div>
+          </div> */}
           <div>
-            <Button title="삭제" buttonType="black" className="" />
+            <Button
+              title="삭제"
+              buttonType="black"
+              className=""
+              onClick={deleteHandler}
+            />
           </div>
         </ButtonContainer>
       </ContentContainer>
