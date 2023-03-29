@@ -1,7 +1,7 @@
 import React from 'react';
 import tw, { styled, css } from 'twin.macro';
 
-import { authApi } from 'api/axios';
+import { authApi, defaultApi } from 'api/axios';
 // import { challengeDetails } from 'api/data';
 import requests from 'api/config';
 import BookShelf from 'components/common/BookShelf';
@@ -49,12 +49,12 @@ function ChallengeDetail() {
   useEffect(() => {
     const getData = async () => {
       try {
-        authApi(requests.GET_CHALLENGE(id)).then((response) => {
+        defaultApi(requests.GET_CHALLENGE(id)).then((response) => {
           setChallengeDetails(response.data);
         });
 
         //url의 challengeId를 바탕으로 해당 challege에 대한 정보를 가져온다
-        authApi(requests.GET_CHALLENGES()).then((response) =>
+        defaultApi(requests.GET_CHALLENGES()).then((response) =>
           response.data.thisWeekChallenge.map((challenge) => {
             if (challenge.challengeId === Number.parseInt(id)) {
               setChallengeInfo(challenge);

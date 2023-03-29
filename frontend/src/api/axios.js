@@ -29,8 +29,10 @@ authApi.interceptors.request.use(
   //요청 성공 시
   (config) => {
     const accessToken = localStorage.getItem('accessToken'); //로컬스토리지에서 accessToken 가져오기
+    console.log(config);
+    console.log('토큰: ', accessToken);
     if (accessToken) {
-      config.headers.Authorization = accessToken;
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
