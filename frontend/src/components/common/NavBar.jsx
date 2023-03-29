@@ -6,6 +6,7 @@ import Button from './Button';
 import ProfileImg from './ProfileImg';
 import UserIcon from 'assets/images/UserIcon.svg';
 import LogoutModal from 'pages/Logout/LogoutModal';
+import { userStore } from 'store/userStore';
 // Styled Component
 
 const Container = styled.div`
@@ -25,14 +26,16 @@ function NavBar() {
   const [userId, setUserId] = useState();
   const [userNickname, setUserNickname] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const onClose = () => {
     setIsModalOpen(false);
   };
 
   useEffect(() => {
+    userStore.subscribe((state) => setUserNickname(state.userNickname));
     setUserId(localStorage.getItem('userId'));
     setUserNickname(localStorage.getItem('userNickname'));
-  });
+  }, [userId, userNickname, isModalOpen]);
 
   const location = useLocation().pathname;
 

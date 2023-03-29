@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useCallback } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import ProfileImg from './ProfileImg';
 import tw, { styled, css } from 'twin.macro';
 import Button from './Button';
@@ -9,7 +9,7 @@ import requests from 'api/config';
 import { defaultApi, authApi } from 'api/axios';
 
 const CommentContainer = styled.div`
-  ${tw`flex`}
+  ${tw`flex flex-col-reverse`}
 `;
 const UserInfoContainer = styled.div`
   ${tw`flex flex-col mx-2`}
@@ -37,56 +37,27 @@ const Username = styled.span`
 const Comment = styled.span`
   ${tw`text-[50px]`}
 `;
-function CommentForm() {
-  const testComments = [
-    {
-      commentId: 1,
-      userId: 13,
-      userNickname: '홍길동',
-      numOfLike: 13,
-      isLiked: true,
-      isReported: false,
-      commentContent: '동화가 너무 재미있네요1',
-      commentCreateDate: '2023-02-01T10:27:14.153045',
-    },
-    {
-      commentId: 2,
-      userId: 12,
-      userNickname: '홍길동',
-      numOfLike: 13,
-      isLiked: true,
-      isReported: false,
-      commentContent: '동화가 너무 재미있네요2',
-      commentCreateDate: '2023-02-01T10:27:14.153045',
-    },
-    {
-      commentId: 3,
-      userId: 12,
-      userNickname: '홍길동',
-      numOfLike: 13,
-      isLiked: false,
-      isReported: false,
-      commentContent: '동화가 너무 재미있네요3',
-      commentCreateDate: '2023-02-01T10:27:14.153045',
-    },
-  ];
-
+function CommentForm({ bookComments }) {
   const navigate = useNavigate();
+  const params = useParams();
   const userId = Number(localStorage.getItem('userId'));
-  const [comments, setComments] = useState(testComments);
+  const [comments, setComments] = useState(bookComments);
   const [commentContent, setCommentContent] = useState('');
+  // console.log(params);
   const submitHandler = () => {
     //댓글 등록 API 호출
-
     const post_comment_submit = async () => {
       try {
-        const response = await authApi.post(requests.POST_COMMENT(userId), {
-          commentUserId: userId,
-          commentBookId: 1,
-          commentContent: commentContent,
-        });
-
-        return console.log(response.data);
+        await authApi
+          .post(requests.POST_COMMENT(userId), {
+            commentUserId: params.userId,
+            commentBookId: params.bookId,
+            commentContent: commentContent,
+          })
+          .then((response) => {
+            setComments(response.data.comments);
+            console.log(response);
+          });
       } catch (error) {
         throw error;
       }
@@ -105,32 +76,36 @@ function CommentForm() {
 
             <Username>닉네임</Username>
           </UserInfoContainer>
-          <form action="submit">
-            <InputContainer
-              type="text"
-              value={commentContent}
-              onChange={(e) => setCommentContent(e.target.value)}
-              placeholder="감상을 적어주세요"
-              name="Comment Content"
-            />
+          <div>
+            <form action="submit">
+              <InputContainer
+                type="text"
+                value={commentContent}
+                onChange={(e) => setCommentContent(e.target.value)}
+                placeholder="감상을 적어주세요"
+                name="Comment Content"
+              />
+            </form>
             <ButtonContainer>
               <div onClick={submitHandler}>
                 <Button title="등록" buttonType="black" className="" />
               </div>
             </ButtonContainer>
-          </form>
+          </div>
         </CommentFormcontainer>
-        {comments
-          ? comments.map((comment) => (
-              <div key={comment.commentId}>
-                <CommentItem
-                  comment={comment}
-                  comments={comments}
-                  setComments={setComments}
-                />
-              </div>
-            ))
-          : ''}
+        <CommentContainer>
+          {comments
+            ? comments.map((comment) => (
+                <div key={comment.commentId}>
+                  <CommentItem
+                    comment={comment}
+                    comments={comments}
+                    setComments={setComments}
+                  />
+                </div>
+              ))
+            : null}
+        </CommentContainer>
       </Comment>
     </div>
   );

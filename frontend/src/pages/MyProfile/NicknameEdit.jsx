@@ -5,6 +5,7 @@ import tw, { styled, css } from 'twin.macro';
 
 import requests from 'api/config';
 import { defaultApi, authApi } from 'api/axios';
+import { userStore } from 'store/userStore';
 
 import ProfileImg2 from 'components/common/ProfileImg2';
 import moveToEdit from 'assets/icons/moveToEdit.svg';
@@ -47,6 +48,7 @@ function NicknameEdit() {
   const [isNicknameTouched, setIsNicknameTouched] = useState(false);
   const [isNicknameValid, setIsNicknameValid] = useState(false);
   const [verifyMessage, setVerifyMessage] = useState('');
+  const { setUserNickname } = userStore((state) => state);
   const onChangeNicknameInput = useCallback((e) => {
     setNickname(e.target.value);
     setIsNicknameTouched(true);
@@ -102,7 +104,8 @@ function NicknameEdit() {
             requests.PATCH_USER_NICKNAME(userId, nickname),
           );
 
-          return console.log(response);
+          setUserNickname(response.data.userNickname);
+          localStorage.setItem('userNickname', response.data.userNickname);
         } catch (error) {
           throw error;
         }

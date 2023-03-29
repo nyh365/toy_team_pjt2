@@ -42,6 +42,7 @@ function App() {
   const [userId, setUserId] = useState();
   const id = userStore((state) => state.userId);
   useEffect(() => {
+    userStore.subscribe((state) => setUserId(state.userId));
     if (id === '') setUserId(localStorage.getItem('userId'));
     else setUserId(id);
   }, [userId]);
@@ -91,10 +92,7 @@ function App() {
                 element={<NoticeEdit />}
               />
               <Route path="/books/viewer/:bookId" element={<BookViewer />} />
-              <Route
-                path="/books/:bookId"
-                element={<BookDetail userId={userId} />}
-              />
+              <Route path="/books/:userId/:bookId" element={<BookDetail />} />
             </Routes>
           </BrowserRouter>
         </QueryClientProvider>

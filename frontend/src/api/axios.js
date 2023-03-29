@@ -54,7 +54,7 @@ authApi.interceptors.response.use(
     //Unauthorized
     if (status === 401) {
       //accessToken 재발급 요청
-      console.log(userId, refreshToken);
+      // console.log(userId, refreshToken);
       //Api 주소를 받아오기
       return refreshTokenApi
         .post('/api/auth/reissue', {
@@ -68,6 +68,7 @@ authApi.interceptors.response.use(
           config.headers.Authorization = `Bearer ${accessToken}`;
 
           //새로 받은 토큰으로 로그인 재요청
+          // console.log(config);
           return authApi(config);
         });
     }

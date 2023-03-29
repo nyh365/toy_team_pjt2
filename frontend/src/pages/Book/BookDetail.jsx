@@ -1,18 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import tw, { styled, css } from 'twin.macro';
 
-import { books } from 'api/data';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Button from 'components/common/Button';
 import Coin from '../../assets/icons/Coin.svg';
-import { QueryClient, useMutation, useQuery } from '@tanstack/react-query';
 import { authApi } from 'api/axios';
 import requests from 'api/config';
 import CommentForm from 'components/common/CommentForm';
 import { userStore } from 'store/userStore';
-
-const queryClient = new QueryClient();
-const book = books[0]; //책 1개 더미데이터
 
 const BodyContainer = styled.div`
   ${tw`flex flex-col items-center pt-[5%]`}
@@ -71,27 +66,21 @@ const PriceImgWrapper = styled.div`
 const LikesWrapper = styled.div``;
 const CommentContainer = styled.div``;
 
-function BookDetail({ userId }) {
+function BookDetail() {
   const params = useParams(); //{ bookId: 27 }
   const bookId = params.bookId;
   const navigate = useNavigate();
   const [book, setBook] = useState();
+  const userId = localStorage.getItem('userId');
 
   useEffect(() => {
     authApi(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
       setBook(res.data.bookDetail);
-      console.log(res.data.bookDetail);
     });
   }, []);
+  // console.log(book);
 
   const [isLiked, setIsLiked] = useState(false);
-  const title = book.bookTitle;
-  const artistId = book.artistId;
-  const artistNickname = book.artistNickname;
-  const bookContent = book.bookSummary;
-  const bookImgUrl = book.bookImgUrl;
-  const bookPrice = '무료';
-  // const bookLikes = book.numOfLike;
 
   const likeBook = () => {
     setIsLiked(true);
@@ -100,7 +89,7 @@ function BookDetail({ userId }) {
       if (res.data.message === 'success') {
         authApi(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
           setBook(res.data.bookDetail);
-          console.log(res.data.bookDetail);
+          // console.log(res.data.bookDetail);
         });
       }
     });
@@ -127,48 +116,51 @@ function BookDetail({ userId }) {
   };
   return (
     <BodyContainer>
-      <BookInfoContainer>
-        <BookImgWrapper imgSrc={bookImgUrl} />
-        <MainInfoContainer>
-          <TitleContainer>
-            <TitleWrapper>{title}</TitleWrapper>
-            <ArtistWrapper>
-              <ArtistImgWrapper />
-              {artistNickname}
-            </ArtistWrapper>
-          </TitleContainer>
-          <ContentWrapper>{bookContent}</ContentWrapper>
-          <SubInfoContainer>
-            <LikeBtnWrapper>
-              {!isLiked ? (
-                <button onClick={likeBook}>관심목록 추가</button>
-              ) : (
-                <button onClick={dislikeBook}>관심 취소</button>
-              )}
-            </LikeBtnWrapper>
-            <LikesWrapper>{}</LikesWrapper>
-          </SubInfoContainer>
-          <ServiceContainer>
-            <PriceWrapper>
-              <PriceImgWrapper>
-                <img src={Coin} alt="coin" />
-              </PriceImgWrapper>
-              {bookPrice}
-            </PriceWrapper>
-            <LinkWrapper>
-              <Button
-                title="동화 보러가기 →"
-                buttonType="mint"
-                onClick={gotoViewer}
-              />
-            </LinkWrapper>
-          </ServiceContainer>
-        </MainInfoContainer>
-      </BookInfoContainer>
-
-      <CommentContainer>
-        <CommentForm />
-      </CommentContainer>
+      {book ? (
+        <BookInfoContainer>
+          <BookImgWrapper imgSrc={book.bookImgUrl} />
+          <MainInfoContainer>
+            <TitleContainer>
+              <TitleWrapper>{book.bookTitle}</TitleWrapper>
+              <ArtistWrapper>
+                <ArtistImgWrapper />
+                {book.artistNickname}
+              </ArtistWrapper>
+            </TitleContainer>
+            <ContentWrapper>{book.bookSummary}</ContentWrapper>
+            <SubInfoContainer>
+              <LikeBtnWrapper>
+                {!isLiked ? (
+                  <button onClick={likeBook}>관심목록 추가</button>
+                ) : (
+                  <button onClick={dislikeBook}>관심 취소</button>
+                )}
+              </LikeBtnWrapper>
+              <LikesWrapper>{}</LikesWrapper>
+            </SubInfoContainer>
+            <ServiceContainer>
+              <PriceWrapper>
+                <PriceImgWrapper>
+                  <img src={Coin} alt="coin" />
+                </PriceImgWrapper>
+                {/* {book.bookPrice} */}
+              </PriceWrapper>
+              <LinkWrapper>
+                <Button
+                  title="동화 보러가기 →"
+                  buttonType="mint"
+                  onClick={gotoViewer}
+                />
+              </LinkWrapper>
+            </ServiceContainer>
+          </MainInfoContainer>
+        </BookInfoContainer>
+      ) : null}
+      {book ? (
+        <CommentContainer>
+          <CommentForm bookComments={book.comments} />
+        </CommentContainer>
+      ) : null}
     </BodyContainer>
   );
 }
