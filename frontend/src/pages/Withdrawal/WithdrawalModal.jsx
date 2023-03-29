@@ -41,20 +41,25 @@ function WithdrawalModal({ onClose }) {
   const userId =
     userStore((state) => state.userId) || localStorage.getItem('userId');
 
-  const withdrawalUser = () => {
+  const withdrawalUser = async () => {
     // const userId = localStorage.getItem('userId');
+    try {
+      await authApi.delete(requests.DELETE_USER(userId)).then((response) => {
+        console.log('탈퇴 유저 아이디 ', userId);
+        console.log(response);
+        if (response.data.message === 'success') {
+          localStorage.clear();
+          removeCookie('refreshToken');
+          resetUser();
 
-    authApi(requests.DELETE_USER(userId)).then((response) => {
-      if (response.status === 200) {
-        localStorage.clear();
-        removeCookie('refreshToken');
-        resetUser();
-
-        alert('그동안 이용해주셔서 감사합니다.');
-        navigate('/home');
-      }
-    });
-    onClose();
+          alert('그동안 이용해주셔서 감사합니다.');
+          navigate('/home');
+        }
+      });
+    } catch (error) {
+    } finally {
+      onClose();
+    }
   };
 
   return (

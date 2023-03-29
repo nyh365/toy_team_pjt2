@@ -49,12 +49,12 @@ function ChallengeDetail() {
   useEffect(() => {
     const getData = async () => {
       try {
-        defaultApi(requests.GET_CHALLENGE(id)).then((response) => {
+        authApi(requests.GET_CHALLENGE(id)).then((response) => {
           setChallengeDetails(response.data);
         });
 
         //url의 challengeId를 바탕으로 해당 challege에 대한 정보를 가져온다
-        defaultApi(requests.GET_CHALLENGES()).then((response) =>
+        authApi(requests.GET_CHALLENGES()).then((response) =>
           response.data.thisWeekChallenge.map((challenge) => {
             if (challenge.challengeId === Number.parseInt(id)) {
               setChallengeInfo(challenge);

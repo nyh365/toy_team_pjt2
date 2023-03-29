@@ -88,9 +88,11 @@ function BookDetail({ userId }) {
     authApi(requests.GET_BOOK_DETAIL(userId, bookId)),
   );
 
+  console.log(data);
+
   //좋아요 누르면 실행
   const likesMutation = useMutation(
-    authApi(requests.POST_BOOKLIKE(userId, bookId)),
+    authApi.post(requests.POST_BOOKLIKE(userId, bookId)),
     {
       onSuccess: () => {
         queryClient.setQueryData('getlikes');
@@ -99,7 +101,7 @@ function BookDetail({ userId }) {
   );
 
   const dislikesMutation = useMutation(
-    authApi(requests.DELETE_BOOKLIKE(userId, bookId)),
+    authApi.delete(requests.DELETE_BOOKLIKE(userId, bookId)),
     {
       onSuccess: () => {
         queryClient.setQueryData('getlikes');
