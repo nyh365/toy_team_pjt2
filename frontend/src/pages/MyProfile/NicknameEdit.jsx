@@ -38,6 +38,8 @@ const ButtonContainer = styled.div`
 
 function NicknameEdit() {
   const userNickname = localStorage.getItem('userNickname');
+  const userId = localStorage.getItem('userId');
+  const userInfo = localStorage.getItem('userInfo');
   const navigate = useNavigate();
   const [nickname, setNickname] = useState('');
   const [verify, setVerify] = useState('');
@@ -69,15 +71,15 @@ function NicknameEdit() {
     const get_nickname_available = async () => {
       try {
         const response = await authApi.get(
-          requests.GET_NICKNAME_AVAILABLE(userNickname),
+          requests.GET_NICKNAME_AVAILABLE(nickname),
         );
-        if (response.message === 'success') {
+        if (response.data.message === 'success') {
           setVerify('success');
         } else {
           setVerify('fail');
         }
 
-        return console.log(response.data);
+        return console.log(response.data.message);
       } catch (error) {
         throw error;
       }
@@ -96,17 +98,11 @@ function NicknameEdit() {
     if (verify === 'success') {
       const patch_user_nickname = async () => {
         try {
-          const response = await defaultApi.patch(
-            requests.PATCH_USER_NICKNAME(userNickname),
-
-            {
-              headers: {
-                Authorization: localStorage.getItem('accessToken'),
-              },
-            },
+          const response = await authApi.patch(
+            requests.PATCH_USER_NICKNAME(userId, nickname),
           );
 
-          return console.log(response.data);
+          return console.log(response);
         } catch (error) {
           throw error;
         }

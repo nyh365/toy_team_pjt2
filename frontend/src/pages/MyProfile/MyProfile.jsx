@@ -46,6 +46,12 @@ const PurchasedBookList = styled.div`
 
 function MyProfile() {
   const userId = Number(localStorage.getItem('userId'));
+  const [userImg, setUserImg] = useState('');
+  const [userNickname, setUserNickname] = useState('');
+  const [userInfo, setUserInfo] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [userFollower, setUserFollower] = useState('');
+  const [userFollowing, setUserFollowing] = useState('');
   const books = [
     {
       bookId: 13,
@@ -90,6 +96,11 @@ function MyProfile() {
       try {
         const { data } = await authApi.get(requests.GET_PROFILE(userId));
         // console.log(data);
+        setUserNickname(data.profile.userNickname);
+        setUserFollower(data.profile.numOfFollower);
+        setUserFollowing(data.profile.numOfFollowing);
+        setUserInfo(data.profile.userInfo);
+        setUserImg(data.profile.profileImgURL);
         return console.log(data);
       } catch (error) {
         throw error;
@@ -102,9 +113,9 @@ function MyProfile() {
   return (
     <div>
       <ProfileContainer>
-        <ProfileImg2 />
+        <ProfileImg2 userImg={userImg} />
         <NickNameWrapper>
-          <NickName>닉네임</NickName>
+          <NickName>{userNickname}</NickName>
           <Link to="/myprofile/edit">
             <img
               src={EditProfileIcon}
@@ -114,10 +125,14 @@ function MyProfile() {
           </Link>
         </NickNameWrapper>
         <InfoWrapper>
-          <Following>팔로잉</Following>
-          <Follower>팔로워</Follower>
+          <Following>팔로잉 {userFollowing}</Following>
+          <Follower>팔로워 {userFollower}</Follower>
         </InfoWrapper>
-        <UserInfo>자기소개</UserInfo>
+        {userInfo ? (
+          <UserInfo>{userInfo}</UserInfo>
+        ) : (
+          <UserInfo>소개를 작성해 주세요</UserInfo>
+        )}
       </ProfileContainer>
       <CompletedBookList>
         <span className="text-[40px]">완성한 동화</span>

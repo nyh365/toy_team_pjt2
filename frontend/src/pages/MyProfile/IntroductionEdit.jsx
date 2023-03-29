@@ -41,7 +41,7 @@ function IntroductionEdit() {
   const [introductionMessage, setIntroductionMessage] = useState('');
   const [isIntroductionTouched, setIsIntroductionTouched] = useState(false);
   const [isIntroductionValid, setIsIntroductionValid] = useState(false);
-
+  const [isSuccess, setIsSuccess] = useState('');
   const onChangeIntroductionInput = useCallback((e) => {
     setIntroduction(e.target.value);
     setIsIntroductionTouched(true);
@@ -67,6 +67,7 @@ function IntroductionEdit() {
             },
           );
           // console.log(data);
+          setIsSuccess(data.message);
           return console.log(data);
         } catch (error) {
           throw error;
@@ -74,9 +75,13 @@ function IntroductionEdit() {
       };
 
       patch_user_info();
-      navigate('/myprofile/edit');
     }
   };
+  useEffect(() => {
+    if (isSuccess === 'success') {
+      navigate('/myprofile/edit');
+    }
+  }, [isSuccess]);
   const isValidIntroduction = isIntroductionTouched && isIntroductionValid;
 
   //프로필조회API사용

@@ -43,6 +43,8 @@ function MyProfileEdit() {
   //프로필 조회 API 추가
   const navigate = useNavigate();
   const userId = Number(localStorage.getItem('userId'));
+  const [userNickname, setUserNickname] = useState('');
+  const [userInfo, setUserInfo] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userImage, setUserImage] = useState();
   const [newImage, setNewImage] = useState();
@@ -51,7 +53,9 @@ function MyProfileEdit() {
     const get_user = async () => {
       try {
         const { data } = await authApi.get(requests.GET_PROFILE(userId));
-        // console.log(data);
+        setUserNickname(data.profile.userNickname);
+        setUserInfo(data.profile.userInfo);
+        setUserImage(data.profile.profileImgURL);
         return console.log(data);
       } catch (error) {
         throw error;
@@ -132,7 +136,7 @@ function MyProfileEdit() {
       />
       <ProfileContainer>
         <ButtonContainer>
-          <div className="mx-2">
+          <div className="mx-2" onClick={changeToDefaultImg}>
             <Button title="기본사진" buttonType="black" className="" />
           </div>
           <div className="mx-2" onClick={submitHandler}>
@@ -151,22 +155,26 @@ function MyProfileEdit() {
       <InfoContainer>
         <InfoWrapper>
           <InfoTitle>닉네임</InfoTitle>
-          <InfoContent>오성과 한음</InfoContent>
+          <InfoContent>{userNickname}</InfoContent>
         </InfoWrapper>
         <div onClick={() => navigate('/myprofile/edit/nickname')}>
           <img src={moveToEdit} alt="edit button" className="cursor-pointer" />
         </div>
       </InfoContainer>
-      <InfoContainer>
+      {/* <InfoContainer>
         <InfoWrapper>
           <InfoTitle>이메일</InfoTitle>
           <InfoContent>wkas1921@naver.com</InfoContent>
         </InfoWrapper>
-      </InfoContainer>
+      </InfoContainer> */}
       <InfoContainer>
         <InfoWrapper>
           <InfoTitle>자기소개</InfoTitle>
-          <InfoContent>안녕하세요~</InfoContent>
+          {userInfo ? (
+            <InfoContent>{userInfo}</InfoContent>
+          ) : (
+            <InfoContent>자기소개를 작성해주세요</InfoContent>
+          )}
         </InfoWrapper>
         <div onClick={() => navigate('/myprofile/edit/introduction')}>
           <img src={moveToEdit} alt="edit button" className="cursor-pointer" />
