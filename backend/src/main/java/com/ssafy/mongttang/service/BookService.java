@@ -21,6 +21,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,6 +37,7 @@ public class BookService {
     private final CommentReportRepository commentReportRepository;
     private final BookReportRepository bookReportRepository;
     private final PaidBookRepositoy paidBookRepositoy;
+    private final InterestBookRepository interestBookRepository;
     private final S3Service s3Service;
     private final RedisTemplate redisTemplate;
 
@@ -46,13 +48,21 @@ public class BookService {
 
         Book book = bookRepository.save(new Book(challenge, user, reqCreateBookDto));
 
+
         if (book == null) return 0;
         else {
             ArrayList<String> imgPathList = s3Service.uploadBook(imgList, book.getBookChallengeId().getChallengeId(), book.getBookId());
             if (imgPathList == null || imgPathList.isEmpty()) return 0;
 
             ArrayList<Illust> illustList = savePhoto(book, imgList, imgPathList);
-            if (illustList.size() == imgList.size()) return book.getBookId();
+            if (illustList.size() == imgList.size()){
+                if(book.getBookStatus().equals("complete")){
+                    registFree(book.getBookId(),book.getBookChallengeId().getChallengeEndDate());
+                    bookLikeRepository.save(new BookLike(book, 0, reqCreateBookDto.getChallengeId()));
+                }
+
+                return book.getBookId();
+            }
             else {
                 bookRepository.delete(book);
                 s3Service.deleteFolder("books/" + reqCreateBookDto.getChallengeId() + "/" + book.getBookId());
@@ -76,7 +86,14 @@ public class BookService {
         if (imgPathList == null || imgPathList.isEmpty()) return 0;
 
         ArrayList<Illust> illustList = updatePhoto(book, imgList, imgPathList);
-        if (illustList.size() == imgList.size()) return book.getBookId();
+        if (illustList.size() == imgList.size()){
+            if(book.getBookStatus().equals("complete")){
+                registFree(book.getBookId(),book.getBookChallengeId().getChallengeEndDate());
+                bookLikeRepository.save(new BookLike(book, 0, book.getBookChallengeId().getChallengeId()));
+            }
+
+            return book.getBookId();
+        }
         else {
             bookRepository.delete(book);
             s3Service.deleteFolder("books/" + reqUpdateBookDto.getChallengeId() + "/" + book.getBookId());
@@ -336,26 +353,40 @@ public class BookService {
     }
 
     public ResponseBookDetailDto getBookDetail(int userId, int bookId) {
+
+        //동화 기본 정보
         Book book = bookRepository.findByBookId(bookId);
         if(book == null) return null;
+        //동화 표지
         String illustPath = illustRepository.findCoverIllust(bookId);
         if(illustPath == null) return null;
 
-        ArrayList<BookReport> bookReports = bookReportRepository.findByBookreportBookId(book);
-        boolean isReportedMany = false;
+        //신고 여부
         boolean isReported = false;
+        if(bookReportRepository.findBookReportByBookreportBookIdAndAndBookreportReportUserId(book,userId) != null)isReported = true;
+
+        //좋아요 여부
         boolean isLiked = false;
-        if(bookReports.size() > 5) isReportedMany = true;
-        for (BookReport bookReport : bookReports) {
-            if(bookReport.getBookreportReportUserId() == userId) isReported = true;
-        }
         if(bookLikeRepository.findByBooklikeBookIdAndBooklikeUserId(book, userId) != null) isLiked = true;
 
+        //관심동화 여부
+        boolean isInterested = false;
+        if(interestBookRepository.findByInterestbookUserId_UserIdAndInterestbookBookId(userId, book) != null) isInterested = true;
+
+        //가격
+        int price = 200;
+        if(((String) redisTemplate.opsForValue().get("DC:" + book.getBookId())) != null) price = 100;
+        if(((String) redisTemplate.opsForValue().get("FREE:" + book.getBookId())) != null) price = 0;
+
+        //좋아요 개수
+        int numOfLike = bookLikeRepository.countByBooklikeBookId_BookId(book.getBookId()) - 1;
+
+        //댓글 목록
         ArrayList<Comment> commentList = commentRepository.findByCommentBookId(book);
         ArrayList<ResponseCommentDto> comments = new ArrayList<>();
 
         for (Comment comment : commentList) {
-            int numOfLike = commentLikeRepository.countByCommentlikeCommentId(comment);
+            int numOfCommentLike = commentLikeRepository.countByCommentlikeCommentId(comment);
             CommentLike commentLike = commentLikeRepository.findByCommentlikeCommentIdAndCommentlikeUserId(comment, userId);
             boolean isCommentLiked = true;
             if (commentLike == null) isCommentLiked = false;
@@ -364,11 +395,21 @@ public class BookService {
             boolean isCommentReported = true;
             if (commentReport == null) isCommentReported = false;
 
-            comments.add(new ResponseCommentDto(comment, numOfLike, isCommentLiked, isCommentReported));
+            comments.add(new ResponseCommentDto(comment, numOfCommentLike, isCommentLiked, isCommentReported));
         }
 
-        ResponseBookDetailDto responseBookDetailDto = new ResponseBookDetailDto(book, illustPath,isLiked, isReported, isReportedMany, comments);
+        ResponseBookDetailDto responseBookDetailDto = new ResponseBookDetailDto(book, illustPath,isLiked, isReported, isInterested, price,numOfLike, comments);
 
         return responseBookDetailDto;
+    }
+
+    public int registFree(int bookId, LocalDateTime endDate) {
+        Long curTime = Timestamp.valueOf(LocalDateTime.now()).getTime();
+        Long endTime = Timestamp.valueOf(endDate).getTime();
+
+        Long expiration = endTime - curTime;
+        redisTemplate.opsForValue()
+                .set("FREE:" + bookId, String.valueOf(endTime), expiration, TimeUnit.MILLISECONDS);
+        return 1;
     }
 }

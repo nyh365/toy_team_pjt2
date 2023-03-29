@@ -14,4 +14,6 @@ public interface InterestBookRepository extends JpaRepository<InterestBook, Inte
     InterestBook findByInterestbookUserIdAndInterestbookBookId(User user, Book book);
 
     ArrayList<InterestBook> findByInterestbookUserId(User user);
+
+    InterestBook findByInterestbookUserId_UserIdAndInterestbookBookId(int user, Book book);
 }

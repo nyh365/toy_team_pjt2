@@ -27,10 +27,14 @@ public class ResponseBookDetailDto {
     @NotNull
     private boolean isReported;
     @NotNull
-    private boolean isReportedMany;
+    private boolean isInterested;
+    @NotNull
+    private int numOfLike;
+    @NotNull
+    private int price;
     private ArrayList<ResponseCommentDto> comments;
 
-    public ResponseBookDetailDto(Book book, String illustPath,boolean isLiked, boolean isReported, boolean isReportedMany, ArrayList<ResponseCommentDto> comments) {
+    public ResponseBookDetailDto(Book book, String illustPath,boolean isLiked, boolean isReported,boolean isInterested,int price, int numOfLike, ArrayList<ResponseCommentDto> comments) {
         this.bookId = book.getBookId();
         this.bookTitle = book.getBookTitle();
         this.bookSummary = book.getBookSummary();
@@ -40,10 +44,12 @@ public class ResponseBookDetailDto {
         if(!book.getBookUserId().getUserProfileImg().equals("defaultImg")){
             this.artistProfileImg = "http://dd93ub3tw0bvd.cloudfront.net/" + book.getBookUserId().getUserProfileImg();
         }
-        this.illustPath = illustPath;
+        this.illustPath = "http://dd93ub3tw0bvd.cloudfront.net/" + illustPath;
         this.isLiked = isLiked;
         this.isReported = isReported;
-        this.isReportedMany = isReportedMany;
+        this.isInterested = isInterested;
+        this.price = price;
+        this.numOfLike = numOfLike;
         this.comments = comments;
     }
 }
