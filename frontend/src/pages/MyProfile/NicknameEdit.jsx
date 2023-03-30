@@ -2,6 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
+
+import requests from 'api/config';
+import { defaultApi, authApi } from 'api/axios';
+import { userStore } from 'store/userStore';
+
 import ProfileImg2 from 'components/common/ProfileImg2';
 import moveToEdit from 'assets/icons/moveToEdit.svg';
 
@@ -33,6 +38,9 @@ const ButtonContainer = styled.div`
 `;
 
 function NicknameEdit() {
+  const userNickname = localStorage.getItem('userNickname');
+  const userId = localStorage.getItem('userId');
+  const userInfo = localStorage.getItem('userInfo');
   const navigate = useNavigate();
   const [nickname, setNickname] = useState('');
   const [verify, setVerify] = useState('');
@@ -40,6 +48,7 @@ function NicknameEdit() {
   const [isNicknameTouched, setIsNicknameTouched] = useState(false);
   const [isNicknameValid, setIsNicknameValid] = useState(false);
   const [verifyMessage, setVerifyMessage] = useState('');
+  const { setUserNickname } = userStore((state) => state);
   const onChangeNicknameInput = useCallback((e) => {
     setNickname(e.target.value);
     setIsNicknameTouched(true);
@@ -61,7 +70,23 @@ function NicknameEdit() {
     }
   }, []);
   const onClickVerifyingHandler = () => {
-    setVerify('success');
+    const get_nickname_available = async () => {
+      try {
+        const response = await authApi.get(
+          requests.GET_NICKNAME_AVAILABLE(nickname),
+        );
+        if (response.data.message === 'success') {
+          setVerify('success');
+        } else {
+          setVerify('fail');
+        }
+
+        return console.log(response.data.message);
+      } catch (error) {
+        throw error;
+      }
+    };
+    get_nickname_available();
   };
   useEffect(() => {
     if (verify === 'success') {
@@ -73,6 +98,19 @@ function NicknameEdit() {
   const submitHandler = () => {
     //닉네임 변경 API 추가
     if (verify === 'success') {
+      const patch_user_nickname = async () => {
+        try {
+          const response = await authApi.patch(
+            requests.PATCH_USER_NICKNAME(userId, nickname),
+          );
+
+          setUserNickname(response.data.userNickname);
+          localStorage.setItem('userNickname', response.data.userNickname);
+        } catch (error) {
+          throw error;
+        }
+      };
+      patch_user_nickname();
       navigate('/myprofile/edit');
     }
   };

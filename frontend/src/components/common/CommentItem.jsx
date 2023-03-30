@@ -44,7 +44,7 @@ const NumOfLike = styled.span`
 `;
 
 function CommentItem({ comment, comments, setComments }) {
-  const formatDate = useFormatDate(comment.commentCreateDate);
+  const formatDate = useFormatDate(comment.updatedTime);
   const [numOfLike, setNumOfLike] = useState(comment.numOfLike);
   const [isLiked, setIsLiked] = useState(comment.isLiked);
   const [editComment, setEditComment] = useState(false);
@@ -103,7 +103,7 @@ function CommentItem({ comment, comments, setComments }) {
     <CommentFormcontainer>
       <UserInfoContainer>
         <ProfileImg />
-        <Username>{comment.userNickname}</Username>
+        <Username>{comment.commentUserNickname}</Username>
         <CreaetTime>{formatDate}</CreaetTime>
       </UserInfoContainer>
       {editComment ? (

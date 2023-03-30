@@ -3,26 +3,28 @@
 
 const requests = {
   //기본 URL 주소
-  base_url: 'http://localhost:3000',
+  base_url: 'https://j8a308.p.ssafy.io',
 
-  //카카오 소셜로그인 URL(최신화 필요)
+  //카카오 소셜로그인 URL
   KAKAO_LOGIN:
-    'http://localhost:8308/api/oauth2/authorize/kakao?redirect_uri=http://localhost:3000/main',
+    'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=http://localhost:3000/oauth',
 
-  //구글 소셜로그인 URL(최신화 필요)
+  //구글 소셜로그인 URL
   GOOGLE_LOGIN:
-    'http://localhost:8308/api/oauth2/authorize/google?redirect_uri=http://localhost:3000/main',
+    'https://j8a308.p.ssafy.io/api/oauth2/authorize/google?redirect_uri=http://localhost:3000/oauth',
 
-  //회원정보 수정(닉네임 변경)
+  //회원정보 수정
   PATCH_USER_NICKNAME(userId, code) {
     return `/api/user/${userId}?userNickname=${code}`;
   },
 
-  //회원정보 수정(프로필 사진 변경)
+  //회원 프로필사진 수정
   PATCH_PROFILE_IMAGE(userId) {
     return `/api/user/image/${userId}`;
   },
-
+  PATCH_USER_INFO(userId) {
+    return `/api/user/info/${userId}`;
+  },
   //로그아웃
   GET_LOGOUT(userId) {
     return `/api/user/logout/${userId}`;
@@ -58,6 +60,16 @@ const requests = {
     return `/api/challenge/before`;
   },
 
+  //동화 제목 검색
+  PUT_SEARCH_BOOKS(bookTitle) {
+    return `/api/book/search?bookTitle=${bookTitle}`;
+  },
+
+  //동화 접근권한 체크
+  GET_BOOK_AUTH(userId, bookId) {
+    return `/api/book/check/${userId}?bookId=${bookId}`;
+  },
+
   //동화 뷰어(동화 그림 조회)
   GET_BOOK_IMAGES(bookId) {
     return `/api/book/${bookId}`;
@@ -68,9 +80,9 @@ const requests = {
     return `/api/book/${userId}/${bookId}`;
   },
 
-  //댓글 작성
-  POST_COMMENT(userId) {
-    return `/api/book/comment/${userId}`;
+  //동화 구매내역 저장
+  POST_BOOK_PAYLIST(userId, bookId) {
+    return `/api/book/pay/${userId}?bookId=${bookId}`;
   },
 
   //동화 작성(그림 등록)
@@ -83,6 +95,11 @@ const requests = {
     return `/api/book/draw/${userId}`;
   },
 
+  //작가 동화 임시저장본 삭제
+  DELETE_BOOK_TEMP(userId) {
+    return `/api/book/draw/${userId}`;
+  },
+
   //동화 좋아요 등록
   POST_BOOKLIKE(userId, bookId) {
     return `/api/book/booklike?userId=${userId}&bookId=${bookId}`;
@@ -91,6 +108,21 @@ const requests = {
   //동화 좋아요 취소
   DELETE_BOOKLIKE(userId, bookId) {
     return `/api/book/booklike?userId=${userId}&bookId=${bookId}`;
+  },
+
+  //댓글 작성
+  POST_COMMENT(userId) {
+    return `/api/book/comment/`;
+  },
+
+  //댓글 수정
+  PATCH_COMMENT(userId) {
+    return `/api/book/comment/`;
+  },
+
+  //댓글 삭제
+  DELETE_COMMENT(userId, commentId) {
+    return `/api/book/comment/${commentId}?commentUserId=${userId}`;
   },
 
   //댓글 좋아요 등록
@@ -134,13 +166,13 @@ const requests = {
   },
 
   //작가 팔로우
-  POST_FOLLOW(userId, artistId) {
-    return `/api/profile/follow/${userId}?artistId=${artistId}`;
+  POST_FOLLOW(followFromId, followToId) {
+    return `/api/profile/follow/${followFromId}?followToId=${followToId}`;
   },
 
   //팔로잉 취소
-  DELETE_FOLLOW(userId, artistId) {
-    return `/api/profile/follow/${userId}?artistId=${artistId}`;
+  DELETE_FOLLOW(followFromId, followToId) {
+    return `/api/profile/follow/${followFromId}?followToId=${followToId}`;
   },
 
   //프로필 조회
@@ -188,9 +220,24 @@ const requests = {
     return `/api/admin/comment/${commentId}`;
   },
 
-  //공지사항 목록 조회
-  GET_NOTICE(pageNum, pageLimit) {
+  //할인 동화 추가
+  //endDate = 2023-03-22T17:21:14.153045
+  POST_BOOK_DISCOUNT(bookId, endDate) {
+    return `/api/admin/discount/${bookId}?endDate=${endDate}`;
+  },
+
+  //동화 목록 조회
+  GET_BOOK() {
+    return `/api/admin/book`;
+  },
+
+  //공지사항 목록 조회(페이징)
+  GET_NOTICE_PAGE(pageNum, pageLimit) {
     return `/api/notice?page=${pageNum}&limit=${pageLimit}`;
+  },
+
+  GET_NOTICE() {
+    return `/api/notice`;
   },
 
   //공지사항 상세 조회

@@ -1,10 +1,14 @@
 import React from 'react';
 import tw, { styled, css } from 'twin.macro';
 
+import { authApi, defaultApi } from 'api/axios';
+// import { challengeDetails } from 'api/data';
+import requests from 'api/config';
 import BookShelf from 'components/common/BookShelf';
-import { challengeDetails } from 'api/data';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Button from 'components/common/Button';
+import { useState } from 'react';
+import { useEffect } from 'react';
 
 const BodyContainer = styled.div`
   ${tw`flex flex-col items-center pt-[5%]`}
@@ -35,51 +39,78 @@ const LinkWrapper = styled.div`
   ${tw`flex justify-end text-base m-0`}
 `;
 
-function ChallengeDetail({ challenge }) {
-  const title = challengeDetails.challenge.challengeTitle;
-  const content = challengeDetails.challenge.challengeSummary;
-  const id = challengeDetails.challenge.challengeId;
+function ChallengeDetail() {
+  const [challengeDetails, setChallengeDetails] = useState();
+  const [challengeInfo, setChallengeInfo] = useState();
+
+  const params = useParams();
+  const id = params.challengeId;
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        authApi(requests.GET_CHALLENGE(id)).then((response) => {
+          setChallengeDetails(response.data);
+        });
+
+        //url의 challengeId를 바탕으로 해당 challege에 대한 정보를 가져온다
+        authApi(requests.GET_CHALLENGES()).then((response) =>
+          response.data.thisWeekChallenge.map((challenge) => {
+            if (challenge.challengeId === Number.parseInt(id)) {
+              setChallengeInfo(challenge);
+            }
+          }),
+        );
+      } catch (error) {}
+    };
+    getData();
+  }, []);
 
   return (
     <BodyContainer>
-      <ChallengeInfoContainer>
-        <TitleWrapper>{title}</TitleWrapper>
-        <ContentWrapper>{content}</ContentWrapper>
-        <LinkWrapper>
-          <Link>
-            <Button title="동화 만들기 →" buttonType="mint" />
-          </Link>
-        </LinkWrapper>
-      </ChallengeInfoContainer>
-      <BookContainer>
-        <BestBookContainer>
-          <BookTitleWrapper>베스트 동화</BookTitleWrapper>
-          <BookShelf
-            books={challengeDetails.best}
-            width="w-40"
-            height="h-48"
-            size="b-12"
-          />
-        </BestBookContainer>
-        <LikedBookContainer>
-          <BookTitleWrapper>최근 인기 동화</BookTitleWrapper>
-          <BookShelf
-            books={challengeDetails.liked}
-            width="w-40"
-            height="h-48"
-            size="b-12"
-          />
-        </LikedBookContainer>
-        <RecentBookContainer>
-          <BookTitleWrapper>최신 동화</BookTitleWrapper>
-          <BookShelf
-            books={challengeDetails.recent}
-            width="w-40"
-            height="h-48"
-            size="b-12"
-          />
-        </RecentBookContainer>
-      </BookContainer>
+      {challengeInfo ? (
+        <ChallengeInfoContainer>
+          <TitleWrapper>{challengeInfo.challengeTitle}</TitleWrapper>
+          <ContentWrapper>{challengeInfo.challengeContent}</ContentWrapper>
+          <LinkWrapper>
+            <Link>
+              <Button title="동화 만들기 →" buttonType="mint" />
+            </Link>
+          </LinkWrapper>
+        </ChallengeInfoContainer>
+      ) : null}
+
+      {challengeDetails ? (
+        <BookContainer>
+          <BestBookContainer>
+            <BookTitleWrapper>베스트 동화</BookTitleWrapper>
+            <BookShelf
+              books={challengeDetails.best}
+              width="w-40"
+              height="h-48"
+              size="b-5"
+            />
+          </BestBookContainer>
+          <LikedBookContainer>
+            <BookTitleWrapper>최근 인기 동화</BookTitleWrapper>
+            <BookShelf
+              books={challengeDetails.liked}
+              width="w-40"
+              height="h-48"
+              size="b-5"
+            />
+          </LikedBookContainer>
+          <RecentBookContainer>
+            <BookTitleWrapper>최신 동화</BookTitleWrapper>
+            <BookShelf
+              books={challengeDetails.recent}
+              width="w-40"
+              height="h-48"
+              size="b-5"
+            />
+          </RecentBookContainer>
+        </BookContainer>
+      ) : null}
     </BodyContainer>
   );
 }

@@ -1,6 +1,11 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import tw, { styled } from 'twin.macro';
+
+import requests from 'api/config';
+import { defaultApi, authApi } from 'api/axios';
+
 import AdminChallengeItem from './AdminChallengeItem';
 import Button from 'components/common/Button';
 
@@ -17,48 +22,25 @@ const ChallengeList = styled.div`
 `;
 function AdminChallenge() {
   const pageLimit = 3; //현재 등록된 공지수 / 10?
+  const [challenges, setChallenges] = useState('');
   // const notice = authApi
   //   .get(requests.GET_NOTICE(pageId, pageLimit))
   //   .then((response) => response.notices.content);
+  useEffect(() => {
+    const get_challenge_admin = async () => {
+      try {
+        const { data } = await authApi.get(requests.GET_CHALLENGE_ADMIN());
+        // console.log(data);
+        setChallenges(data.challenges);
+        return console.log(data);
+      } catch (error) {
+        throw error;
+      }
+    };
 
-  const challenges = [
-    {
-      challengeId: 1,
-      challengeTitle: '챌린지 제목',
-      challengeContent: '챌린지 내용',
-      challengeSummary: '챌린지 줄거리',
-      challengeStartDate: '2023-02-01T10:27:14',
-      challengeEndDate: '2023-02-01T10:27:14',
-      createdTime: '2023-03-17T09:11:59',
-    },
-    {
-      challengeId: 2,
-      challengeTitle: '챌린지 제목33',
-      challengeContent: '챌린지 내용33',
-      challengeSummary: '챌린지 줄거리입니다33.',
-      challengeStartDate: '2023-02-01T10:27:14',
-      challengeEndDate: '2023-02-06T10:27:14',
-      createdTime: '2023-03-17T09:14:52',
-    },
-    {
-      challengeId: 3,
-      challengeTitle: '챌린지 제목33',
-      challengeContent: '챌린지 내용33',
-      challengeSummary: '챌린지 줄거리입니다33.',
-      challengeStartDate: '2023-02-01T10:27:14',
-      challengeEndDate: '2023-02-06T10:27:14',
-      createdTime: '2023-03-17T09:16:01',
-    },
-    {
-      challengeId: 4,
-      challengeTitle: '챌린지 제목22',
-      challengeContent: '챌린지 내용22',
-      challengeSummary: '챌린지 줄거리입니다22.',
-      challengeStartDate: '2023-02-01T10:27:14',
-      challengeEndDate: '2023-02-04T10:27:14',
-      createdTime: '2023-03-17T09:42:21',
-    },
-  ];
+    get_challenge_admin();
+  }, []);
+
   return (
     <div className="ml-[279px] flex">
       <ChallengeWrapper>
@@ -72,9 +54,11 @@ function AdminChallenge() {
           {[...challenges].map((article) => (
             <AdminChallengeItem
               key={article.challengeId}
+              challengeId={article.challengeId}
               title={article.challengeTitle}
               content={article.challengeContent.replace(/\r\n/gi, '<br>')}
               createdTime={article.createdTime}
+              setChallenges={setChallenges}
             />
           ))}
         </ChallengeList>

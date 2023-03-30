@@ -4,16 +4,24 @@ import { devtools } from 'zustand/middleware';
 //회원 전역상태 관리
 export const userStore = create(
   devtools((set) => ({
-    userId: 0, //유저 id(번호)
+    userId: '', //유저 id(번호)
     userNickname: '', //유저 닉네임
-    userImg: '', //유저 프로필 사진
+    userImg: '', //유저 프로필 사진URL
     userRole: 'reader', //역할
     accessToken: '', //액세스 토큰
 
-    setUserId: (userId) => set({ userId }),
-    setUserNickname: (userNickname) => set({ userNickname }),
-    setUserImg: (userImg) => set({ userImg }),
-    setUserRole: (userRole) => set({ userRole }),
-    setToken: (accessToken) => set({ accessToken }),
+    setUserId: (userId) => set({ userId: userId }),
+    setUserNickname: (userNickname) => set({ userNickname: userNickname }),
+    setUserImg: (userImg) => set({ userImg: userImg }),
+    setUserRole: (userRole) => set({ userRole: userRole }),
+    setToken: (accessToken) => set({ accessToken: accessToken }),
+    resetUser: () =>
+      set({
+        userId: '',
+        userNickname: '',
+        userImg: '',
+        userRole: 'reader',
+        accessToken: '',
+      }),
   })),
 );

@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import FormatDate from 'utils/FormatDate';
+import { Link } from 'react-router-dom';
 
 import tw, { styled, css } from 'twin.macro';
+
+import requests from 'api/config';
+import { defaultApi, authApi } from 'api/axios';
+
 import upToggleBtn from '../../assets/icons/upToggle.svg';
 import downToggleBtn from '../../assets/icons/downToggle.svg';
 import Button from 'components/common/Button';
@@ -46,14 +51,24 @@ const Content = styled.section`
   align-items: center;
 `;
 
-function AdminNoticeItem({ title, content, createdTime }) {
+function AdminNoticeItem({ noticeId, title, content, createdTime }) {
   const [isRead, setIsRead] = useState(true);
   const { year, month, day, hour, minute } = FormatDate(createdTime);
 
   const readContent = () => {
     setIsRead(!isRead);
   };
-
+  const deleteHandler = () => {
+    const delete_notice = async () => {
+      try {
+        const { data } = await authApi.delete(requests.DELETE_NOTICE(noticeId));
+        return console.log(data);
+      } catch (error) {
+        throw error;
+      }
+    };
+    delete_notice();
+  };
   return (
     <div>
       <hr />
@@ -75,11 +90,18 @@ function AdminNoticeItem({ title, content, createdTime }) {
         {isRead ? '' : <Content>{content}</Content>}
 
         <ButtonContainer>
-          <div className="mx-1">
-            <Button title="수정" buttonType="black" className="" />
-          </div>
+          <Link to={`/admin/notice/edit/${noticeId}`}>
+            <div className="mx-1">
+              <Button title="수정" buttonType="black" className="" />
+            </div>
+          </Link>
           <div>
-            <Button title="삭제" buttonType="black" className="" />
+            <Button
+              title="삭제"
+              buttonType="black"
+              className=""
+              onClick={deleteHandler}
+            />
           </div>
         </ButtonContainer>
       </ContentContainer>

@@ -1,10 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
+
+import requests from 'api/config';
+import { defaultApi, authApi } from 'api/axios';
+import { userStore } from 'store/userStore';
+
 import ProfileImg2 from 'components/common/ProfileImg2';
 import Button from 'components/common/Button';
 import moveToEdit from 'assets/icons/moveToEdit.svg';
 import UserIcon from 'assets/images/UserIcon.svg';
+import WithdrawalModal from 'pages/Withdrawal/WithdrawalModal';
 
 const ProfileContainer = styled.div`
   ${tw`flex flex-col items-center justify-center w-full z-10`}
@@ -37,38 +43,87 @@ const ImgAddBtn = styled.div`
 function MyProfileEdit() {
   //프로필 조회 API 추가
   const navigate = useNavigate();
-  const [userImage, setUserImage] = useState();
-  const [newImage, setNewImage] = useState();
-  const handleClickAddImage = () => {
-    document.getElementById('imageInput').click();
+  const userId = Number(localStorage.getItem('userId'));
+  const [userNickname, setUserNickname] = useState('');
+  const [userInfo, setUserInfo] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userImage, setUserImage] = useState(UserIcon); //미리보기 이미지
+
+  const [formData, setFormData] = useState(new FormData());
+  const [file, setFile] = useState(null);
+  const fileInput = useRef(null);
+
+  useEffect(() => {
+    authApi.get(requests.GET_PROFILE(userId)).then((res) => {
+      setUserImage(res.data.profile.profileImgURL);
+    });
+  }, []);
+
+  useEffect(() => {
+    authApi.get(requests.GET_PROFILE(userId)).then((res) => {
+      setUserNickname(res.data.profile.userNickname);
+      setUserInfo(res.data.profile.userInfo);
+    });
+  });
+
+  const onClose = () => {
+    setIsModalOpen(false);
   };
-  const handleUserImage = (event) => {
-    const file = event.target.files[0];
-    setNewImage(file);
+
+  const handleClickAddImage = () => {
+    fileInput.current.click();
+  };
+  const handleUserImage = (e) => {
+    if (e.target.files[0]) {
+      setFile(e.target.files[0]);
+    } else {
+      setUserImage(UserIcon);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (reader.readyState === 2) {
+        setUserImage(reader.result);
+      }
+    };
+    reader.readAsDataURL(e.target.files[0]);
   };
   const changeToDefaultImg = () => {
-    console.log('12');
-    setNewImage(URL.createObjectURL(UserIcon));
+    setUserImage(UserIcon);
+    setFile(null);
   };
   const submitHandler = () => {
-    console.log('asdad');
-    const formData = new FormData();
-    if (newImage === 0) {
-      formData.append('profileImg', userImage);
+    if (file !== null) {
+      formData.append('userImg', file);
+      console.log(file);
     } else {
-      formData.append('profileImg', newImage);
+      formData.append('userImg', UserIcon, 'image.png');
+      console.log(UserIcon);
     }
-    navigate('/myprofile');
+
+    const patch_profile_image = async () => {
+      try {
+        await authApi
+          .patch(requests.PATCH_PROFILE_IMAGE(userId), formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+          .then((res) => console.log(res));
+      } catch (error) {
+        throw error;
+      }
+    };
+    patch_profile_image().then(() => navigate('/myprofile'));
   };
   return (
     <div>
+      {isModalOpen ? <WithdrawalModal onClose={onClose} /> : null}
       <ProfileImgContainer>
         <ImgWrapper>
-          {newImage ? (
-            <ProfileImg2 userImg={URL.createObjectURL(newImage)} />
-          ) : (
-            <ProfileImg2 userImg={userImage} />
-          )}
+          <ProfileImg2 userImg={userImage} />
+
           <ImgAddBtn onClick={handleClickAddImage}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
               <path d="M149.1 64.8L138.7 96H64C28.7 96 0 124.7 0 160V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H373.3L362.9 64.8C356.4 45.2 338.1 32 317.4 32H194.6c-20.7 0-39 13.2-45.5 32.8zM256 192a96 96 0 1 1 0 192 96 96 0 1 1 0-192z" />
@@ -83,10 +138,11 @@ function MyProfileEdit() {
         onChange={handleUserImage}
         className="display: hidden"
         multiple={false}
+        ref={fileInput}
       />
       <ProfileContainer>
         <ButtonContainer>
-          <div className="mx-2">
+          <div className="mx-2" onClick={changeToDefaultImg}>
             <Button title="기본사진" buttonType="black" className="" />
           </div>
           <div className="mx-2" onClick={submitHandler}>
@@ -105,22 +161,26 @@ function MyProfileEdit() {
       <InfoContainer>
         <InfoWrapper>
           <InfoTitle>닉네임</InfoTitle>
-          <InfoContent>오성과 한음</InfoContent>
+          <InfoContent>{userNickname}</InfoContent>
         </InfoWrapper>
         <div onClick={() => navigate('/myprofile/edit/nickname')}>
           <img src={moveToEdit} alt="edit button" className="cursor-pointer" />
         </div>
       </InfoContainer>
-      <InfoContainer>
+      {/* <InfoContainer>
         <InfoWrapper>
           <InfoTitle>이메일</InfoTitle>
           <InfoContent>wkas1921@naver.com</InfoContent>
         </InfoWrapper>
-      </InfoContainer>
+      </InfoContainer> */}
       <InfoContainer>
         <InfoWrapper>
           <InfoTitle>자기소개</InfoTitle>
-          <InfoContent>안녕하세요~</InfoContent>
+          {userInfo ? (
+            <InfoContent>{userInfo}</InfoContent>
+          ) : (
+            <InfoContent>자기소개를 작성해주세요</InfoContent>
+          )}
         </InfoWrapper>
         <div onClick={() => navigate('/myprofile/edit/introduction')}>
           <img src={moveToEdit} alt="edit button" className="cursor-pointer" />
@@ -128,8 +188,7 @@ function MyProfileEdit() {
       </InfoContainer>
       <InfoContainer>
         <InfoTitle>회원탈퇴</InfoTitle>
-        {/* 클릭 시 회원탈퇴 API 호출 */}
-        <div onClick={() => navigate('/myprofile')}>
+        <div onClick={() => setIsModalOpen(true)}>
           <img src={moveToEdit} alt="edit button" className="cursor-pointer" />
         </div>
       </InfoContainer>

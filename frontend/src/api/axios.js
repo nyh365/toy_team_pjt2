@@ -30,7 +30,7 @@ authApi.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem('accessToken'); //로컬스토리지에서 accessToken 가져오기
     if (accessToken) {
-      config.headers.Authorization = accessToken;
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
@@ -48,13 +48,13 @@ authApi.interceptors.response.use(
       config,
       response: { status },
     } = error; //비구조화 할당
+    const userId = localStorage.getItem('userId');
+    const refreshToken = getCookie('refreshToken');
 
-    if (status == 401) {
-      // const accessToken = localStorage.getItem('accessToken');
+    //Unauthorized
+    if (status === 401) {
       //accessToken 재발급 요청
-      const userId = localStorage.getItem('userId');
-      const refreshToken = getCookie('refreshToken');
-
+      // console.log(userId, refreshToken);
       //Api 주소를 받아오기
       return refreshTokenApi
         .post('/api/auth/reissue', {
@@ -62,12 +62,13 @@ authApi.interceptors.response.use(
           refreshToken: refreshToken,
         })
         .then((response) => {
-          const { data } = response;
-          console.log(data);
-          localStorage.setItem('accessToken', data);
-          config.headers.Authorization = data;
+          const { accessToken } = response.data;
+          // console.log(data);
+          localStorage.setItem('accessToken', accessToken);
+          config.headers.Authorization = `Bearer ${accessToken}`;
 
           //새로 받은 토큰으로 로그인 재요청
+          // console.log(config);
           return authApi(config);
         });
     }

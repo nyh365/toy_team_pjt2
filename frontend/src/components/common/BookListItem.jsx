@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
+import { userStore } from 'store/userStore';
 
 import BookInfo from './BookInfo';
 
@@ -12,7 +13,7 @@ const BookListItemWrapper = styled.div`
 `;
 
 const BookImage = styled.div`
-  ${tw`z-0 absolute transition rounded duration-300 ease-in-out shadow-lg hover:opacity-40 hover:scale-110`}
+  ${tw`z-0 absolute transition rounded duration-300 ease-in-out shadow-lg hover:opacity-20 hover:scale-110`}
   ${(props) =>
     css`
       background-image: url(${props.imgSrc});
@@ -25,19 +26,11 @@ const BookInfoWrapper = styled.div`
 `;
 
 //props로 가져와야하는 정보 : 책 아이디(경로지정용), 책 이미지, 책 정보들(책 제목, 작가명, 댓글 수, 좋아요 수), 책 링크
-function BookListItem({
-  width,
-  height,
-  bookId,
-  bookImgUrl,
-  artistNickname,
-  bookTitle,
-  numOfLike,
-  numOfComment,
-}) {
+function BookListItem({ width, height, book }) {
+  const userId = localStorage.getItem('userId');
+
   const [isHover, setIsHover] = useState(false); //마우스가 올라가있는지
-  const bookImg = 'https://tecdn.b-cdn.net/img/new/fluid/city/113.webp'; //더미데이터
-  // const bookImg = bookImgUrl;
+  // const bookImg = 'https://tecdn.b-cdn.net/img/new/fluid/city/113.webp'; //더미데이터
 
   const navigate = useNavigate();
 
@@ -45,7 +38,6 @@ function BookListItem({
     setTimeout(() => {
       setIsHover(props);
     }, 100);
-    // setIsHover(props);
   };
 
   return (
@@ -53,18 +45,16 @@ function BookListItem({
       <BookImage
         onMouseOver={() => handleHover(true)}
         onMouseOut={() => handleHover(false)}
-        onClick={() => navigate(`/books/${bookId}`)}
-        imgSrc={bookImg}
+        onClick={() => navigate(`/books/${userId}/${book.bookId}`)}
+        imgSrc={book.bookImgUrl}
         className={`${width} ${height}`}
-      >
-        {/* <img src={bookImg} alt="book" /> */}
-      </BookImage>
+      />
       <BookInfoWrapper>
         <BookInfo
-          title={bookTitle}
-          artist={artistNickname}
-          likes={numOfLike}
-          comments={numOfComment}
+          title={book.bookTitle}
+          artist={book.artistNickname}
+          likes={book.numOfLike}
+          comments={book.numOfComment}
           width={width}
           height={height}
         />

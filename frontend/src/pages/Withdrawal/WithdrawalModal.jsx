@@ -10,6 +10,7 @@ import tw, { styled } from 'twin.macro';
 import LogoS from '../../assets/images/LogoS.png';
 import { removeCookie } from 'utils/Cookie';
 import { useNavigate } from 'react-router-dom';
+import { userStore } from 'store/userStore';
 
 const Content = styled.div`
   ${tw`flex flex-col items-center p-1 text-gray-500`}
@@ -33,22 +34,32 @@ const CheckBoxContainer = styled.div`
 `;
 
 function WithdrawalModal({ onClose }) {
+  const { resetUser } = userStore((state) => state);
+
   const [isDisabled, setIsDisabled] = useState(true);
   const navigate = useNavigate();
+  const userId =
+    userStore((state) => state.userId) || localStorage.getItem('userId');
 
-  const withdrawalUser = () => {
-    const userId = localStorage.getItem('userId');
+  const withdrawalUser = async () => {
+    // const userId = localStorage.getItem('userId');
+    try {
+      await authApi.delete(requests.DELETE_USER(userId)).then((response) => {
+        console.log('탈퇴 유저 아이디 ', userId);
+        console.log(response);
+        if (response.data.message === 'success') {
+          localStorage.clear();
+          removeCookie('refreshToken');
+          resetUser();
 
-    authApi(requests.DELETE_USER(userId)).then((response) => {
-      if (response.status === 200) {
-        localStorage.clear();
-        removeCookie('refreshToken');
-
-        alert('그동안 이용해주셔서 감사합니다.');
-        navigate('/home');
-      }
-    });
-    onClose();
+          alert('그동안 이용해주셔서 감사합니다.');
+          navigate('/home');
+        }
+      });
+    } catch (error) {
+    } finally {
+      onClose();
+    }
   };
 
   return (

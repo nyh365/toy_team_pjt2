@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+
 import tw, { styled, css } from 'twin.macro';
 import Button from 'components/common/Button';
 
+import requests from 'api/config';
+import { defaultApi, authApi } from 'api/axios';
+
+import { DatePicker, DateTimePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
 const ChallengeWrapper = styled.div`
   ${tw`flex justify-center w-full mt-10`}
 `;
@@ -56,11 +62,35 @@ function ChallengeCreaete() {
   const [challengeTitle, setChallengeTitle] = useState('');
   const [challengeSummary, setChallengeSummary] = useState('');
   const [challengeContent, setChallengeContent] = useState('');
+  const [challengeStartDate, setChallengeStartDate] = useState('');
+  const [challengeEndDate, setChallengeEndDate] = useState('');
   const canclehandler = () => {
     navigate('/admin/challenge');
   };
   const submithandler = () => {
     // 챌린지 등록 api 호출
+    const formattedStartDate = dayjs(challengeStartDate).format(
+      'YYYY-MM-DDTHH:mm:ss',
+    );
+    const formattedEndDate = dayjs(challengeEndDate).format(
+      'YYYY-MM-DDTHH:mm:ss',
+    );
+    const post_challenge_admin = async () => {
+      try {
+        const response = await authApi.post(requests.POST_CHALLENGE_ADMIN(), {
+          challengeTitle: challengeTitle,
+          challengeContent: challengeContent,
+          challengeSummary: challengeSummary,
+          challengeStartDate: formattedStartDate,
+          challengeEndDate: formattedEndDate,
+        });
+
+        return console.log(response.data);
+      } catch (error) {
+        throw error;
+      }
+    };
+    post_challenge_admin();
     navigate('/admin/challenge');
   };
   return (
@@ -106,6 +136,18 @@ function ChallengeCreaete() {
               <Button title="취소" buttonType="black" className="" />
             </div>
           </ButtonContainer>
+          <DateTimePicker
+            label="챌린지 시작 일자 선택"
+            value={challengeStartDate || dayjs()}
+            className="w-full"
+            onChange={(newValue) => setChallengeStartDate(newValue)}
+          />
+          <DateTimePicker
+            label="챌린지 종료 일자 선택"
+            value={challengeEndDate || dayjs()}
+            className="w-full"
+            onChange={(newValue) => setChallengeEndDate(newValue)}
+          />
         </CreateForm>
       </ChallengeWrapper>
     </div>
