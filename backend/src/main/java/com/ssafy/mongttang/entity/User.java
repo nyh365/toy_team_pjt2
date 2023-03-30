@@ -56,6 +56,7 @@ public class User extends BaseEntity {
         this.userEmail = userEmail;
         this.userNickname = new StringBuilder().append(userProvider).append("_").append(System.nanoTime()).toString();
         this.userRole = "ROLE_READER";
+        this.userPrivateKey = " ";
         this.userProvider = userProvider;
         this.userProviderId = userProviderId;
         this.userProfileImg = "defaultImg";

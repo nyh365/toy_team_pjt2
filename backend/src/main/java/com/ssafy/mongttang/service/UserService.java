@@ -48,7 +48,7 @@ public class UserService {
     public String profileImgModify(int userId, MultipartFile userImg) throws IOException {
         User user = userRepository.findByUserId(userId);
         if(user != null){
-            String profilePath = s3Service.uploadProfile(userImg, userId);
+            String profilePath = "http://dd93ub3tw0bvd.cloudfront.net/" + s3Service.uploadProfile(userImg, userId);
             if(profilePath == null) return null;
             user.changeProfileImg(profilePath);
             return userRepository.save(user).getUserProfileImg();
