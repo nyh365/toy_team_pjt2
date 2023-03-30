@@ -37,6 +37,8 @@ const ButtonContainer = styled.div`
 function IntroductionEdit() {
   const userId = Number(localStorage.getItem('userId'));
   const navigate = useNavigate();
+  const [userImg, setUserImg] = useState();
+  const [userInfo, setUserInfo] = useState('');
   const [introduction, setIntroduction] = useState('');
   const [introductionMessage, setIntroductionMessage] = useState('');
   const [isIntroductionTouched, setIsIntroductionTouched] = useState(false);
@@ -66,9 +68,7 @@ function IntroductionEdit() {
               userInfo: introduction,
             },
           );
-          // console.log(data);
           setIsSuccess(data.message);
-          return console.log(data);
         } catch (error) {
           throw error;
         }
@@ -77,6 +77,21 @@ function IntroductionEdit() {
       patch_user_info();
     }
   };
+
+  useEffect(() => {
+    const get_user = async () => {
+      try {
+        const { data } = await authApi.get(requests.GET_PROFILE(userId));
+        setUserImg(data.profile.profileImgURL);
+        setUserInfo(data.profile.userInfo);
+      } catch (error) {
+        throw error;
+      }
+    };
+
+    get_user();
+  }, [userImg]);
+
   useEffect(() => {
     if (isSuccess === 'success') {
       navigate('/myprofile/edit');
@@ -88,7 +103,7 @@ function IntroductionEdit() {
   return (
     <div>
       <ProfileContainer>
-        <ProfileImg2 />
+        <ProfileImg2 userImg={userImg} />
       </ProfileContainer>
       <form action="submit">
         <InputContainer disabled={isValidIntroduction ? false : true}>
@@ -96,7 +111,7 @@ function IntroductionEdit() {
           <input
             type="text"
             onChange={onChangeIntroductionInput}
-            placeholder="안녕하세요~"
+            placeholder={userInfo}
             name="Introduction"
           />
           <p>{introductionMessage}</p>

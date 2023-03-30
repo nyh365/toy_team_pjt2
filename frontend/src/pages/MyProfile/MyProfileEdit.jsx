@@ -52,6 +52,7 @@ function MyProfileEdit() {
   const [formData, setFormData] = useState(new FormData());
   const [file, setFile] = useState(null);
   const fileInput = useRef(null);
+  const { setUserImg } = userStore();
 
   useEffect(() => {
     authApi.get(requests.GET_PROFILE(userId)).then((res) => {
@@ -96,10 +97,8 @@ function MyProfileEdit() {
   const submitHandler = () => {
     if (file !== null) {
       formData.append('userImg', file);
-      console.log(file);
     } else {
       formData.append('userImg', UserIcon, 'image.png');
-      console.log(UserIcon);
     }
 
     const patch_profile_image = async () => {
@@ -110,7 +109,7 @@ function MyProfileEdit() {
               'Content-Type': 'multipart/form-data',
             },
           })
-          .then((res) => console.log(res));
+          .then((res) => setUserImg(res.data.profileImgURL));
       } catch (error) {
         throw error;
       }

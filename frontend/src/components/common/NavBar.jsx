@@ -43,6 +43,7 @@ function NavBar() {
   }, [userId, userNickname, isModalOpen]);
 
   useEffect(() => {
+    userStore.subscribe((state) => setUserImg(state.userImg));
     const fetchData = async () => {
       try {
         await authApi
@@ -53,7 +54,7 @@ function NavBar() {
       } catch (error) {}
     };
     fetchData();
-  });
+  }, [userImg]);
 
   const location = useLocation().pathname;
 
