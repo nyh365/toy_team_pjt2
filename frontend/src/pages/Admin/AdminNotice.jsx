@@ -26,6 +26,7 @@ function AdminNotice() {
   // const notice = authApi
   //   .get(requests.GET_NOTICE(pageId, pageLimit))
   //   .then((response) => response.notices.content);
+
   useEffect(() => {
     const get_notice = async () => {
       try {

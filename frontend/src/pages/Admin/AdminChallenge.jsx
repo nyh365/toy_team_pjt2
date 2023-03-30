@@ -58,6 +58,7 @@ function AdminChallenge() {
               title={article.challengeTitle}
               content={article.challengeContent.replace(/\r\n/gi, '<br>')}
               createdTime={article.createdTime}
+              setChallenges={setChallenges}
             />
           ))}
         </ChallengeList>

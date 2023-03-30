@@ -50,7 +50,13 @@ const Content = styled.section`
   align-items: center;
 `;
 
-function AdminChallengeItem({ challengeId, title, content, createdTime }) {
+function AdminChallengeItem({
+  challengeId,
+  title,
+  content,
+  createdTime,
+  setChallenges,
+}) {
   const [isRead, setIsRead] = useState(true);
   const { year, month, day, hour, minute } = FormatDate(createdTime);
 
@@ -63,6 +69,7 @@ function AdminChallengeItem({ challengeId, title, content, createdTime }) {
         const { data } = await authApi.delete(
           requests.DELETE_CHALLENGE_ADMIN(challengeId),
         );
+
         return console.log(data);
       } catch (error) {
         throw error;
