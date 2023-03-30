@@ -46,11 +46,11 @@ function CommentForm({ bookComments }) {
   // console.log(params);
   const submitHandler = () => {
     //댓글 등록 API 호출
-    const post_comment_submit = async () => {
+    const post_comment = async () => {
       try {
         await authApi
           .post(requests.POST_COMMENT(userId), {
-            commentUserId: params.userId,
+            commentUserId: userId,
             commentBookId: params.bookId,
             commentContent: commentContent,
           })
@@ -62,7 +62,7 @@ function CommentForm({ bookComments }) {
         throw error;
       }
     };
-    post_comment_submit();
+    post_comment();
     setCommentContent('');
     //댓글목록 받은거 setComments로 넣어주기
   };
