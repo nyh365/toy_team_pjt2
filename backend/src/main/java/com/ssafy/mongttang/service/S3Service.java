@@ -30,7 +30,7 @@ public class S3Service {
     //이미지 업로딩. users/{userId}/profile 이름으로 파일이 생성된다. 반환값은 경로값이다.
     public String uploadProfile(MultipartFile multipartFile, int userId) throws IOException {
         log.info("[uploadProfile] 프로필 이미지 업로드 시작.");
-        String fileName = "users/" + userId + "/profile";
+        String fileName = "users/" + userId + "/profile" + System.nanoTime();
 
         deleteFile(fileName);
 
@@ -57,7 +57,7 @@ public class S3Service {
             objectMetaData.setContentType(page.getContentType());
             objectMetaData.setContentLength(page.getSize());
 
-            String fileName = folderName + "page"+ idx++;
+            String fileName = folderName + "page" + (idx++) + System.nanoTime();
             fileNames.add(fileName);
             amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, page.getInputStream(), objectMetaData));
         }
