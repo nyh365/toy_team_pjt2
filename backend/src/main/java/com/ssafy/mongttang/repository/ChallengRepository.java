@@ -1,7 +1,6 @@
 package com.ssafy.mongttang.repository;
 
 import com.ssafy.mongttang.entity.Challenge;
-import com.ssafy.mongttang.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

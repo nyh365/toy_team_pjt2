@@ -86,11 +86,11 @@ public class AdminService {
         List<Book> bookList = bookRepository.findAllBooks();
         List<ResponseBookInfoDto> resultBooks = new ArrayList<>();
         for(Book book: bookList){
-            if(((String) redisTemplate.opsForValue().get("DC:" + book.getBookId())) != null) {
+            if((redisTemplate.opsForValue().get("DC:" + book.getBookId())) != null) {
                 resultBooks.add(new ResponseBookInfoDto(book, "discount"));
                 continue;
             }
-            if(((String) redisTemplate.opsForValue().get("FREE:" + book.getBookId())) != null){
+            if((redisTemplate.opsForValue().get("FREE:" + book.getBookId())) != null){
                 resultBooks.add(new ResponseBookInfoDto(book, "free"));
                 continue;
             }

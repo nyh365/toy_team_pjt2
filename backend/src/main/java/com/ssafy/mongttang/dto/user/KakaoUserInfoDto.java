@@ -29,7 +29,7 @@ public class KakaoUserInfoDto implements OAuth2UserInfoDto {
 
     @Override
     public String getProviderId() {
-        return (String) attributes.get("id").toString();
+        return attributes.get("id").toString();
     }
 
     public User toEntity(OAuth2UserRequest oAuth2UserRequest){

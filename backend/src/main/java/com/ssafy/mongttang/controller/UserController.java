@@ -2,7 +2,6 @@ package com.ssafy.mongttang.controller;
 
 import com.ssafy.mongttang.dto.ReqUserInfoDto;
 import com.ssafy.mongttang.dto.ReqWalletInfoDto;
-import com.ssafy.mongttang.dto.UserPrincipalDto;
 import com.ssafy.mongttang.entity.User;
 import com.ssafy.mongttang.service.TokenProviderService;
 import com.ssafy.mongttang.service.UserService;
@@ -11,13 +10,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.Principal;
@@ -54,7 +50,7 @@ public class UserController {
             resultMap.put(MESSAGE, FAIL);
             status = HttpStatus.BAD_REQUEST;
         }
-        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        return new ResponseEntity<>(resultMap, status);
     }
 
     @ApiOperation(value = "닉네임 수정", notes = "회원의 닉네임을 수정한다.", response = Map.class)
@@ -66,7 +62,7 @@ public class UserController {
 
         if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
             status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+            return new ResponseEntity<>(resultMap, status);
         }
 
         String nickname = userService.nicknameModify(userId, userNickname);
@@ -79,7 +75,7 @@ public class UserController {
             resultMap.put("userNickname", nickname);
             status = HttpStatus.OK;
         }
-        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        return new ResponseEntity<>(resultMap, status);
     }
 
     @ApiOperation(value = "회원 소개 수정", notes = "회원의 소개를 수정한다.", response = Map.class)
@@ -91,7 +87,7 @@ public class UserController {
 
         if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
             status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+            return new ResponseEntity<>(resultMap, status);
         }
 
         String userInfo = userService.infoModify(userId, reqUserInfoDto);
@@ -104,7 +100,7 @@ public class UserController {
             resultMap.put("userInfo", userInfo);
             status = HttpStatus.OK;
         }
-        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        return new ResponseEntity<>(resultMap, status);
     }
 
     @ApiOperation(value = "프로필 사진 수정", notes = "회원의 프로필 사진을 수정한다.", response = Map.class)
@@ -116,7 +112,7 @@ public class UserController {
 
         if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
             status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+            return new ResponseEntity<>(resultMap, status);
         }
 
         try {
@@ -134,7 +130,7 @@ public class UserController {
             status = HttpStatus.BAD_REQUEST;
         }
 
-        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        return new ResponseEntity<>(resultMap, status);
     }
 
     @ApiOperation(value = "회원 탈퇴", notes = "회원을 탈퇴시킨다.", response = Map.class)
@@ -146,7 +142,7 @@ public class UserController {
 
         if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
             status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+            return new ResponseEntity<>(resultMap, status);
         }
 
         User user = userService.userDelete(userId);
@@ -157,7 +153,7 @@ public class UserController {
         } else {
             return logout(userId, principal, request);
         }
-        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        return new ResponseEntity<>(resultMap, status);
     }
 
     @ApiOperation(value = "로그아웃", notes = "로그아웃 시킨다.", response = Map.class)
@@ -168,7 +164,7 @@ public class UserController {
 
         if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
             status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+            return new ResponseEntity<>(resultMap, status);
         }
 
         if (redisTemplate.opsForValue().get("RT:" + principal.getName()) != null) {
@@ -184,7 +180,7 @@ public class UserController {
         resultMap.put(MESSAGE, SUCCESS);
         status = HttpStatus.OK;
 
-        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        return new ResponseEntity<>(resultMap, status);
     }
 
     @ApiOperation(value = "지갑 키 저장", notes = "지갑의 키를 저장한다.", response = Map.class)
@@ -195,7 +191,7 @@ public class UserController {
 
         if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
             status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+            return new ResponseEntity<>(resultMap, status);
         }
         try {
             User user = userService.storeWalletAddress(userId, reqWalletInfoDto);
@@ -210,6 +206,6 @@ public class UserController {
             resultMap.put(MESSAGE, FAIL);
             status = HttpStatus.BAD_REQUEST;
         }
-        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        return new ResponseEntity<>(resultMap, status);
     }
 }

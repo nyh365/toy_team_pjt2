@@ -4,7 +4,6 @@ import com.ssafy.mongttang.entity.Challenge;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter

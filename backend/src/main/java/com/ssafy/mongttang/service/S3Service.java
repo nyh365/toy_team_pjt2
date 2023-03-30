@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -43,7 +44,7 @@ public class S3Service {
     }
 
     //동화 이미지 리스트 업로드. books/{challengeId}/{storyId}/page{idx}이름으로 파일이 생성된다. 반환값은 모든 경로값이다.
-    public ArrayList<String> uploadBook(ArrayList<MultipartFile> book, int challengeId, int storyId) throws IOException {
+    public ArrayList<String> uploadBook(List<MultipartFile> book, int challengeId, int storyId) throws IOException {
         log.info("[uploadBook] 동화 업로드 시작." );
         String folderName = "books/" + challengeId + "/" + storyId + "/";
 

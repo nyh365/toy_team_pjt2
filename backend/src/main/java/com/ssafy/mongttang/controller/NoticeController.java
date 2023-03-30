@@ -43,10 +43,10 @@ public class NoticeController {
         if(noticeList != null){
             map.put(MESSAGE, SUCCESS);
             map.put("notices", noticeList);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
+            return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -59,10 +59,10 @@ public class NoticeController {
         if (noticeList != null) {
             map.put(MESSAGE, SUCCESS);
             map.put("notices", noticeList);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
+            return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -75,10 +75,10 @@ public class NoticeController {
         if( notice != null) {
             map.put(MESSAGE, SUCCESS);
             map.put("noticeId", notice.getNoticeId());
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
+            return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -91,10 +91,10 @@ public class NoticeController {
         if(notice != null) {
             map.put(MESSAGE, SUCCESS);
             map.put("notice", notice);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
+            return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -105,14 +105,14 @@ public class NoticeController {
                                                             @Valid @RequestBody @ApiParam(value = "수정 글 정보 담은 dto") ReqNoticeUpdateFormDto reqNoticeUpdateFormDto) {
         Map<String, Object> map = new HashMap<>();
 
-        Notice updatedNotice = noticeService.updateNotice(noticeId, reqNoticeUpdateFormDto);
-        if(updatedNotice != null) {
+        List<ResponseNoticeDetailDto> afterUpdatedNotices = noticeService.updateNotice(noticeId, reqNoticeUpdateFormDto);
+        if(afterUpdatedNotices != null) {
             map.put(MESSAGE, SUCCESS);
-            map.put("notice", updatedNotice);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
+            map.put("notices", afterUpdatedNotices);
+            return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
 
     }
@@ -122,12 +122,14 @@ public class NoticeController {
     @DeleteMapping("/{noticeId}")
     public ResponseEntity<Map<String, Object>> deleteNotice(@PathVariable @ApiParam(value = "삭제할 공지사항 번호", example = "0") int noticeId) {
         Map<String, Object> map = new HashMap<>();
-        if(noticeService.deleteNotice(noticeId) == 1) {
+        List<ResponseNoticeDetailDto> afterDeletedNotices = noticeService.deleteNotice(noticeId);
+        if(afterDeletedNotices != null) {
             map.put(MESSAGE, SUCCESS);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
+            map.put("notices", afterDeletedNotices);
+            return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
     }
 }

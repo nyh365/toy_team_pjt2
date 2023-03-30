@@ -1,10 +1,7 @@
 package com.ssafy.mongttang.dto;
 
-import com.ssafy.mongttang.entity.BaseEntity;
 import com.ssafy.mongttang.entity.Challenge;
 import lombok.Getter;
-import org.springframework.data.annotation.CreatedDate;
-
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 

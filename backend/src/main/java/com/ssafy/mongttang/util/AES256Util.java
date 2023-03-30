@@ -2,7 +2,6 @@ package com.ssafy.mongttang.util;
 
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;

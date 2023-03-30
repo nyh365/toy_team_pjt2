@@ -1,8 +1,5 @@
 package com.ssafy.mongttang.util;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.Map;

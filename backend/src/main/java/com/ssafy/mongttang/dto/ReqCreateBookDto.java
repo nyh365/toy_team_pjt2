@@ -1,11 +1,8 @@
 package com.ssafy.mongttang.dto;
 
-import com.ssafy.mongttang.entity.Book;
 import lombok.Getter;
-import org.springframework.web.multipart.MultipartFile;
-
 import javax.validation.constraints.NotNull;
-import java.util.List;
+
 
 @Getter
 public class ReqCreateBookDto {

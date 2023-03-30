@@ -3,7 +3,6 @@ package com.ssafy.mongttang.dto;
 import com.ssafy.mongttang.entity.Notice;
 import lombok.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
