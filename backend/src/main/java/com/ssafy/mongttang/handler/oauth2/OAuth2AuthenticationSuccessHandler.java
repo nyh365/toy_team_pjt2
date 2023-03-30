@@ -79,6 +79,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                     .queryParam("userNickname", userNickname)
                     .queryParam("refreshToken", newRefreshToken)
                     .queryParam("profileImgURL", userPrincipalDto.getUser().getUserProfileImg())
+                    .queryParam("userWallet", userPrincipalDto.getUser().getUserPrivateKey())
                     .queryParam("accessToken", token)
                     .build().toUriString();
         } catch (UnsupportedEncodingException e) {

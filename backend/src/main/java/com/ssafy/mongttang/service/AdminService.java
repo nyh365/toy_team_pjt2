@@ -38,11 +38,14 @@ public class AdminService {
     }
 
     @Transactional
-    public ResponseChallengeUpdateDto updateChallenge(int challengeId, ReqChallengeCreateFormDto reqChallengeCreateFormDto) {
+    public List<ResponseChallengeUpdateDto> updateChallenge(int challengeId, ReqChallengeCreateFormDto reqChallengeCreateFormDto) {
         Optional<Challenge> challenge = challengRepository.findById(challengeId);
         if(!challenge.isPresent()) return null;
         challenge.get().update(reqChallengeCreateFormDto);
-        return new ResponseChallengeUpdateDto(challengRepository.save(challenge.get()));
+
+        Challenge updatedChallenge = challengRepository.save(challenge.get());
+        if(updatedChallenge == null) return null;
+        return getChallenges();
     }
 
     public List<ResponseChallengeUpdateDto> getChallenges() {
@@ -50,11 +53,12 @@ public class AdminService {
                 .map(challenge -> new ResponseChallengeUpdateDto(challenge)).collect(Collectors.toList());
     }
 
-    public int deleteChallenge(int challengeId) {
+    public List<ResponseChallengeUpdateDto>  deleteChallenge(int challengeId) {
         Optional<Challenge> challenge = challengRepository.findById(challengeId);
-        if(!challenge.isPresent()) return 0;
+        if(!challenge.isPresent()) return null;
         challengRepository.deleteById(challengeId);
-        return 1;
+
+        return getChallenges();
     }
 
     public Book deleteBook(int bookId) {

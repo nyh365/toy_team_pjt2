@@ -56,10 +56,10 @@ public class AdminController {
                                                                @ApiParam(value = "챌린지 수정 정보 dto") @RequestBody ReqChallengeCreateFormDto reqChallengeCreateFormDto) {
         Map<String, Object> map = new HashMap<>();
 
-        ResponseChallengeUpdateDto challenge = adminService.updateChallenge(challengeId, reqChallengeCreateFormDto);
-        if(challenge != null){
+        List<ResponseChallengeUpdateDto> updatedChallenges = adminService.updateChallenge(challengeId, reqChallengeCreateFormDto);
+        if(updatedChallenges != null){
             map.put(MESSAGE, SUCCESS);
-            map.put("challenge", challenge);
+            map.put("challenges", updatedChallenges);
             return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
@@ -88,9 +88,10 @@ public class AdminController {
     public ResponseEntity<Map<String, Object>> deleteChallenge(@PathVariable @ApiParam(value = "삭제할 챌린지 아이디 번호") int challengeId) {
         Map<String, Object> map = new HashMap<>();
 
-        int cnt = adminService.deleteChallenge(challengeId);
-        if(cnt == 1){
+        List<ResponseChallengeUpdateDto> deletedChallenges = adminService.deleteChallenge(challengeId);
+        if(deletedChallenges != null){
             map.put(MESSAGE, SUCCESS);
+            map.put("challenges", deletedChallenges);
             return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
