@@ -3,14 +3,12 @@ package com.ssafy.mongttang.controller;
 
 import com.ssafy.mongttang.dto.ReqIssueDto;
 import com.ssafy.mongttang.entity.User;
-import com.ssafy.mongttang.repository.UserRepository;
 import com.ssafy.mongttang.service.TokenProviderService;
 import com.ssafy.mongttang.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,7 +39,7 @@ public class AuthController {
         if (!tokenProviderService.validateToken(reqIssueDto.getRefreshToken())) {
             resultMap.put(MESSAGE, FAIL);
             status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+            return new ResponseEntity<>(resultMap, status);
         }
 
         User user = userService.getUser(reqIssueDto.getUserId());
@@ -51,13 +49,13 @@ public class AuthController {
         if(ObjectUtils.isEmpty(refreshToken) || !refreshToken.equals(reqIssueDto.getRefreshToken())) {
             resultMap.put(MESSAGE, FAIL);
             status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+            return new ResponseEntity<>(resultMap, status);
         }
 
         String token = tokenProviderService.createAccessToken(user.getUserId(), user.getUserRole());
         resultMap.put(MESSAGE, SUCCESS);
         resultMap.put("accessToken", token);
         status = HttpStatus.ACCEPTED;
-        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        return new ResponseEntity<>(resultMap, status);
     }
 }

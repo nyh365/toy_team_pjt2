@@ -1,7 +1,6 @@
 package com.ssafy.mongttang.dto;
 
 import com.ssafy.mongttang.entity.BookReport;
-import com.ssafy.mongttang.entity.CommentReport;
 import com.ssafy.mongttang.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

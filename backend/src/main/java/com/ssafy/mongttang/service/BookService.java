@@ -41,7 +41,7 @@ public class BookService {
     private final S3Service s3Service;
     private final RedisTemplate redisTemplate;
 
-    public int createBook(int userId, ReqCreateBookDto reqCreateBookDto, ArrayList<MultipartFile> imgList) throws IOException {
+    public int createBook(int userId, ReqCreateBookDto reqCreateBookDto, List<MultipartFile> imgList) throws IOException {
         User user = userRepository.findByUserId(userId);
         Challenge challenge = challengeRepository.findByChallengeId(reqCreateBookDto.getChallengeId());
         if (user == null || challenge == null) return 0;
@@ -72,7 +72,7 @@ public class BookService {
         }
     }
 
-    public int updateBook(int userId, ReqUpdateBookDto reqUpdateBookDto, ArrayList<MultipartFile> imgList) throws IOException {
+    public int updateBook(int userId, ReqUpdateBookDto reqUpdateBookDto, List<MultipartFile> imgList) throws IOException {
         User user = userRepository.findByUserId(userId);
         Challenge challenge = challengeRepository.findByChallengeId(reqUpdateBookDto.getChallengeId());
         Book book = bookRepository.findByBookId(reqUpdateBookDto.getBookId());
@@ -112,7 +112,7 @@ public class BookService {
         return 0;
     }
 
-    public ArrayList<Illust> savePhoto(Book book, ArrayList<MultipartFile> imgList, ArrayList<String> imgPathList) {
+    public ArrayList<Illust> savePhoto(Book book, List<MultipartFile> imgList, ArrayList<String> imgPathList) {
 
         ArrayList<Illust> illustList = new ArrayList<>();
 
@@ -124,7 +124,7 @@ public class BookService {
         return illustList;
     }
 
-    public ArrayList<Illust> updatePhoto(Book book, ArrayList<MultipartFile> imgList, ArrayList<String> imgPathList) {
+    public ArrayList<Illust> updatePhoto(Book book, List<MultipartFile> imgList, ArrayList<String> imgPathList) {
         illustRepository.deleteByIllustBookId(book);
 
         ArrayList<Illust> illustList = new ArrayList<>();

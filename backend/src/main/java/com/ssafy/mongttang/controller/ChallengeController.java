@@ -43,10 +43,10 @@ public class ChallengeController {
             map.put(MESSAGE, SUCCESS);
             map.put("thisWeekChallenge", thisWeekChallenge);
             map.put("discountBooks", discountBooks);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
+            return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
     }
     @ApiOperation(value = "챌린지 상세 조회", notes = "챌린지를 상세 조회한다.", response = Map.class)
@@ -68,10 +68,10 @@ public class ChallengeController {
             map.put("best", best);
             map.put("liked", liked);
             map.put("recent", recent);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
+            return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -87,10 +87,10 @@ public class ChallengeController {
         if(beforeChallenges != null){
             map.put(MESSAGE, SUCCESS);
             map.put("totalChallenges", beforeChallenges);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
+            return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
-            return new ResponseEntity<Map<String, Object>>(map, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
         }
     }
 }

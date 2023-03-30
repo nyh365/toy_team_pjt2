@@ -3,9 +3,8 @@ package com.ssafy.mongttang.dto;
 import com.ssafy.mongttang.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -19,10 +18,10 @@ public class ResponseProfileDto {
     private int numOfFollowing;
 
     private boolean isFollow;
-    private ArrayList<ResponseChallengeBookInfoDto> myBooks;
-    private ArrayList<ResponseChallengeBookInfoDto> inCompleteBooks;
-    private ArrayList<ResponseChallengeBookInfoDto> interestBooks;
-    private ArrayList<ResponseChallengeBookInfoDto> paidBooks;
+    private List<ResponseChallengeBookInfoDto> myBooks;
+    private List<ResponseChallengeBookInfoDto> inCompleteBooks;
+    private List<ResponseChallengeBookInfoDto> interestBooks;
+    private List<ResponseChallengeBookInfoDto> paidBooks;
 
     public ResponseProfileDto(User user, int numOfFollower, int numOfFollowing) {
         this.userId = user.getUserId();

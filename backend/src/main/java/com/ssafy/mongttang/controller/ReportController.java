@@ -9,7 +9,6 @@ import com.ssafy.mongttang.util.TokenUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,21 +37,21 @@ public class ReportController {
 
         if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
             status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+            return new ResponseEntity<>(resultMap, status);
         }
 
         int cnt = reportService.reportComment(commentId, userId, reqReportCommentDto);
         if(cnt == 1){
             resultMap.put(MESSAGE, SUCCESS);
             resultMap.put("isReported", true);
-            return new ResponseEntity<Map<String, Object>>(resultMap, HttpStatus.OK);
+            return new ResponseEntity<>(resultMap, HttpStatus.OK);
         } else if(cnt == 0) {
             resultMap.put(MESSAGE, FAIL);
-            return new ResponseEntity<Map<String, Object>>(resultMap, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(resultMap, HttpStatus.BAD_REQUEST);
         } else {
             resultMap.put(MESSAGE, FAIL);
             resultMap.put("message", "이미 신고한 회원입니다");
-            return new ResponseEntity<Map<String, Object>>(resultMap, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(resultMap, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -60,16 +59,15 @@ public class ReportController {
     @GetMapping("/comment")
     public ResponseEntity<Map<String, Object>> getReportComments () {
         Map<String, Object> resultMap = new HashMap<>();
-        HttpStatus status = null;
 
         List<ResponseReportCommentInfoDto> result = reportService.getReportComments();
         if(result != null){
             resultMap.put(MESSAGE, SUCCESS);
             resultMap.put("commentreports", result);
-            return new ResponseEntity<Map<String, Object>>(resultMap, HttpStatus.OK);
+            return new ResponseEntity<>(resultMap, HttpStatus.OK);
         }
         resultMap.put(MESSAGE, FAIL);
-        return new ResponseEntity<Map<String, Object>>(resultMap, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(resultMap, HttpStatus.BAD_REQUEST);
     }
 
     @ApiOperation(value = "동화신고", notes = "동화를 신고한다.")
@@ -82,21 +80,21 @@ public class ReportController {
 
         if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
             status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+            return new ResponseEntity<>(resultMap, status);
         }
 
         int cnt = reportService.reportBook(bookId, userId, reqReportBookDto);
         if(cnt == 1){
             resultMap.put(MESSAGE, SUCCESS);
             resultMap.put("isReported", true);
-            return new ResponseEntity<Map<String, Object>>(resultMap, HttpStatus.OK);
+            return new ResponseEntity<>(resultMap, HttpStatus.OK);
         } else if(cnt == 0) {
             resultMap.put(MESSAGE, FAIL);
-            return new ResponseEntity<Map<String, Object>>(resultMap, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(resultMap, HttpStatus.BAD_REQUEST);
         } else {
             resultMap.put(MESSAGE, FAIL);
             resultMap.put("message", "이미 신고한 회원입니다");
-            return new ResponseEntity<Map<String, Object>>(resultMap, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(resultMap, HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -104,15 +102,14 @@ public class ReportController {
     @GetMapping("/book")
     public ResponseEntity<Map<String, Object>> getReportBooks () {
         Map<String, Object> resultMap = new HashMap<>();
-        HttpStatus status = null;
 
         List<ResponseReportBookInfoDto> result = reportService.getReportBooks();
         if(result != null){
             resultMap.put(MESSAGE, SUCCESS);
             resultMap.put("bookreports", result);
-            return new ResponseEntity<Map<String, Object>>(resultMap, HttpStatus.OK);
+            return new ResponseEntity<>(resultMap, HttpStatus.OK);
         }
         resultMap.put(MESSAGE, FAIL);
-        return new ResponseEntity<Map<String, Object>>(resultMap, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(resultMap, HttpStatus.BAD_REQUEST);
     }
 }

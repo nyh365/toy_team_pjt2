@@ -3,15 +3,12 @@ package com.ssafy.mongttang.dto;
 
 import com.ssafy.mongttang.entity.Book;
 import com.ssafy.mongttang.entity.BookReport;
-import com.ssafy.mongttang.entity.Comment;
-import com.ssafy.mongttang.entity.CommentReport;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter

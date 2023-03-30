@@ -38,7 +38,7 @@ public class ProfileController{
 
         if(TokenUtils.compareUserIdAndToken(followFromId, principal,resultMap)) {
             status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+            return new ResponseEntity<>(resultMap, status);
         }
 
         Follow follow = profileService.createFollow(followFromId,followToId);
@@ -53,7 +53,7 @@ public class ProfileController{
             status = HttpStatus.BAD_REQUEST;
         }
 
-        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        return new ResponseEntity<>(resultMap, status);
     }
 
     @ApiOperation(value = "팔로우 취소", notes = "팔로잉을 취소한다.", response = Map.class)
@@ -65,7 +65,7 @@ public class ProfileController{
 
         if(TokenUtils.compareUserIdAndToken(followFromId, principal,resultMap)) {
             status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+            return new ResponseEntity<>(resultMap, status);
         }
 
         int isDeleted= profileService.cancleFollow(followFromId,followToId);
@@ -80,7 +80,7 @@ public class ProfileController{
             status = HttpStatus.BAD_REQUEST;
         }
 
-        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        return new ResponseEntity<>(resultMap, status);
     }
 
     @ApiOperation(value = "팔로잉 목록 조회", notes = "자신이 팔로우한 사용자의 목록을 조회한다.", response = Map.class)
@@ -100,7 +100,7 @@ public class ProfileController{
             status = HttpStatus.OK;
         }
 
-        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        return new ResponseEntity<>(resultMap, status);
     }
 
     @ApiOperation(value = "팔로워 목록 조회", notes = "자신을 팔로우한 사용자의 목록을 조회한다.", response = Map.class)
@@ -120,7 +120,7 @@ public class ProfileController{
             status = HttpStatus.OK;
         }
 
-        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        return new ResponseEntity<>(resultMap, status);
     }
 
     @ApiOperation(value = "관심 목록 추가", notes = "관심있는 동화를 내 관심목록에 추가한다.", response = Map.class)
@@ -132,7 +132,7 @@ public class ProfileController{
 
         if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
             status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+            return new ResponseEntity<>(resultMap, status);
         }
 
         InterestBook interestBokk = profileService.createInterest(userId, bookId);
@@ -147,7 +147,7 @@ public class ProfileController{
             status = HttpStatus.OK;
         }
 
-        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        return new ResponseEntity<>(resultMap, status);
     }
 
     @ApiOperation(value = "관심 목록 삭제", notes = "관심있는 동화를 내 관심목록에 추가한다.", response = Map.class)
@@ -159,7 +159,7 @@ public class ProfileController{
 
         if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
             status = HttpStatus.BAD_REQUEST;
-            return new ResponseEntity<Map<String, Object>>(resultMap, status);
+            return new ResponseEntity<>(resultMap, status);
         }
 
         int isDeleted = profileService.cancleInterest(userId, bookId);
@@ -174,7 +174,7 @@ public class ProfileController{
             status = HttpStatus.BAD_REQUEST;
         }
 
-        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        return new ResponseEntity<>(resultMap, status);
     }
 
     @ApiOperation(value = "프로필 조회", notes = "사용자의 프로필을 조회한다.", response = Map.class)
@@ -195,7 +195,7 @@ public class ProfileController{
             status = HttpStatus.OK;
         }
 
-        return new ResponseEntity<Map<String, Object>>(resultMap, status);
+        return new ResponseEntity<>(resultMap, status);
     }
 
 }

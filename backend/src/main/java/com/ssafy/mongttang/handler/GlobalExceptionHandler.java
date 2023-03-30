@@ -1,13 +1,12 @@
 package com.ssafy.mongttang.handler;
 
-import com.nimbusds.oauth2.sdk.ErrorResponse;
+
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.management.JMException;
 import java.util.HashMap;
 import java.util.Map;
 

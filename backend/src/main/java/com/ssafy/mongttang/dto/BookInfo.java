@@ -1,6 +1,5 @@
 package com.ssafy.mongttang.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

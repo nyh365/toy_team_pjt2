@@ -1,7 +1,6 @@
 package com.ssafy.mongttang.repository;
 
-import com.querydsl.core.types.Path;
-import com.querydsl.core.types.dsl.Expressions;
+
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.mongttang.entity.Book;
 import com.ssafy.mongttang.entity.QBookLike;

@@ -1,6 +1,6 @@
 package com.ssafy.mongttang.service;
 
-import com.ssafy.mongttang.dto.ResponseBookInfoDto;
+
 import com.ssafy.mongttang.dto.ResponseChallengeBookInfoDto;
 import com.ssafy.mongttang.dto.ResponseThisWeekChallengeDto;
 import com.ssafy.mongttang.entity.Book;
