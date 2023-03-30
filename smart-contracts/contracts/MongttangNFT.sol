@@ -20,6 +20,7 @@ contract MongttangNFT is ERC721, Ownable {
 
     mapping(uint => string) tokenURIs;
     mapping(uint => uint) _nftBalances;
+    mapping(uint => uint) _nftTotalEarned;
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
       return tokenURIs[tokenId];
@@ -45,7 +46,8 @@ contract MongttangNFT is ERC721, Ownable {
         bool success = _token.transferFrom(_msgSender(), address(this), amount);
         require(success, "MyNFT: ERC20 transfer failed");
         
-        _nftBalances[tokenId] = _nftBalances[tokenId] + amount;
+        _nftBalances[tokenId] += amount;
+        _nftTotalEarned[tokenId] += amount;
     }
     
     function withdraw(uint256 tokenId, uint256 amount) public {
@@ -59,29 +61,37 @@ contract MongttangNFT is ERC721, Ownable {
         _nftBalances[tokenId] = _nftBalances[tokenId] - amount;
     }
 
-    function nftBalances(uint256 tokenId) public view returns (uint256){        
+    function nftBalance(uint256 tokenId) public view returns (uint256){        
         return _nftBalances[tokenId];
     }
 
-    function getMyNfts() public view returns (uint[][] memory) {
+    function nftTotalEarned(uint256 tokenId) public view returns (uint256){
+        return _nftTotalEarned[tokenId];
+    }
+
+    function getNfts(address ownerAddress) public view returns (uint[] memory, uint[] memory, uint[] memory) {
 
         uint256 count = 0;
         for(uint i = 1; i<=_tokenIds.current(); i++) {
-            if( ownerOf(i) == _msgSender()) {
+            if( ownerOf(i) == ownerAddress) {
                 count++;
             }
         }
 
-        uint[][] memory nftWithDeposit = new uint[][](count);        
+        uint[] memory nftIds = new uint[](count);
+        uint[] memory nftBalances = new uint[](count);
+        uint[] memory nftTotalEarneds = new uint[](count);
+                
         count = 0;
         for(uint i = 1; i<=_tokenIds.current(); i++){
-            if(ownerOf(i) == _msgSender()){
-                nftWithDeposit[count] = new uint[](2);                
-                nftWithDeposit[count][0] = i;
-                nftWithDeposit[count++][1] = _nftBalances[i];
+            if(ownerOf(i) == ownerAddress){
+                nftIds[count] = i;
+                nftBalances[count] = nftBalance(i);
+                nftTotalEarneds[count] = nftTotalEarned(i);
+                count++;
             }
         }
         
-        return nftWithDeposit;
+        return (nftIds, nftBalances, nftTotalEarneds);
     }
 }
