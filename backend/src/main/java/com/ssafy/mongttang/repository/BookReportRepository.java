@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.ArrayList;
 
 public interface BookReportRepository  extends JpaRepository<BookReport, Integer> {
-    BookReport findBookReportByBookreportBookIdAndAndBookreportReportUserId(Book book, int userId);
-
+    BookReport findBookReportByBookreportBookIdAndBookreportReportUserId(Book book, int userId);
+    int countDistinctByBookreportBookId_BookId(int bookId);
     ArrayList<BookReport> findByBookreportBookId(Book book);
 }

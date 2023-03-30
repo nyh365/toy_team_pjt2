@@ -363,7 +363,7 @@ public class BookService {
 
         //신고 여부
         boolean isReported = false;
-        if(bookReportRepository.findBookReportByBookreportBookIdAndAndBookreportReportUserId(book,userId) != null)isReported = true;
+        if(bookReportRepository.findBookReportByBookreportBookIdAndBookreportReportUserId(book,userId) != null)isReported = true;
 
         //좋아요 여부
         boolean isLiked = false;

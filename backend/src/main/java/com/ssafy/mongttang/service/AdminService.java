@@ -61,18 +61,18 @@ public class AdminService {
         return getChallenges();
     }
 
-    public Book deleteBook(int bookId) {
+    public int deleteBook(int bookId) {
         Book book = bookRepository.findByBookId(bookId);
-        if(book == null) return null;
-        book.changeStatus();
-        return bookRepository.save(book);
+        if(book == null) return 0;
+        bookRepository.delete(book);
+        return 1;
     }
 
-    public Comment deleteComment(int commentId) {
+    public int deleteComment(int commentId) {
         Comment comment = commentRepository.findCommentByCommentId(commentId);
-        if(comment == null) return null;
-        comment.changeStatus();
-        return commentRepository.save(comment);
+        if(comment == null) return 0;
+        commentRepository.delete(comment);
+        return 1;
     }
 
     public int discountBook(int bookId, LocalDateTime endDate) {
@@ -101,5 +101,19 @@ public class AdminService {
             resultBooks.add(new ResponseBookInfoDto(book, "pay"));
         }
         return resultBooks;
+    }
+
+    public Book changeBookStatus(int bookId) {
+        Book book = bookRepository.findByBookId(bookId);
+        if(book == null) return null;
+        book.changeStatus();
+        return bookRepository.save(book);
+    }
+
+    public Comment changeCommentStatus(int commentId) {
+        Comment comment = commentRepository.findCommentByCommentId(commentId);
+        if(comment == null) return null;
+        comment.changeStatus();
+        return commentRepository.save(comment);
     }
 }

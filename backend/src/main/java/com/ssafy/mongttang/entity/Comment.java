@@ -41,6 +41,14 @@ public class Comment extends BaseEntity{
     }
 
     public void changeStatus(){
+        if(this.commentStatus){
+            this.commentStatus = false;
+        } else {
+            this.commentStatus = true;
+        }
+    }
+
+    public void changeToDisabled(){
         this.commentStatus = false;
     }
 
