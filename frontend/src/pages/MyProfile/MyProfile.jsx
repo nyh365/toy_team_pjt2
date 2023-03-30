@@ -5,6 +5,7 @@ import tw, { styled, css } from 'twin.macro';
 import requests from 'api/config';
 import { defaultApi, authApi } from 'api/axios';
 
+import UserIcon from 'assets/images/UserIcon.svg';
 import ProfileImg2 from 'components/common/ProfileImg2';
 import BookList from 'components/common/BookList';
 import EditProfileIcon from 'assets/icons/pencil03.svg';
@@ -46,7 +47,7 @@ const PurchasedBookList = styled.div`
 
 function MyProfile() {
   const userId = Number(localStorage.getItem('userId'));
-  const [userImg, setUserImg] = useState('');
+  const [userImg, setUserImg] = useState(UserIcon);
   const [userNickname, setUserNickname] = useState('');
   const [userInfo, setUserInfo] = useState('');
   const [userEmail, setUserEmail] = useState('');
@@ -62,7 +63,6 @@ function MyProfile() {
     const get_user = async () => {
       try {
         const { data } = await authApi.get(requests.GET_PROFILE(userId));
-        // console.log(data);
         setUserNickname(data.profile.userNickname);
         setUserFollower(data.profile.numOfFollower);
         setUserFollowing(data.profile.numOfFollowing);
@@ -72,14 +72,14 @@ function MyProfile() {
         setInCompleteBooks(data.profile.inCompleteBooks);
         setInterestBooks(data.profile.interestBooks);
         setPaidBooks(data.profile.paidBooks);
-        return console.log('여긴가');
+        console.log(data.profile.profileImgURL);
       } catch (error) {
         throw error;
       }
     };
 
     get_user();
-  }, []);
+  }, [userImg]);
 
   return (
     <div>

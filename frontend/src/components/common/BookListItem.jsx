@@ -13,7 +13,7 @@ const BookListItemWrapper = styled.div`
 `;
 
 const BookImage = styled.div`
-  ${tw`z-0 absolute transition rounded duration-300 ease-in-out shadow-lg hover:opacity-40 hover:scale-110`}
+  ${tw`z-0 absolute transition rounded duration-300 ease-in-out shadow-lg hover:opacity-20 hover:scale-110`}
   ${(props) =>
     css`
       background-image: url(${props.imgSrc});

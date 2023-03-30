@@ -6,7 +6,7 @@ export const userStore = create(
   devtools((set) => ({
     userId: '', //유저 id(번호)
     userNickname: '', //유저 닉네임
-    userImg: '', //유저 프로필 사진
+    userImg: '', //유저 프로필 사진URL
     userRole: 'reader', //역할
     accessToken: '', //액세스 토큰
 

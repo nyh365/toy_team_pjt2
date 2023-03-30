@@ -7,6 +7,8 @@ import ProfileImg from './ProfileImg';
 import UserIcon from 'assets/images/UserIcon.svg';
 import LogoutModal from 'pages/Logout/LogoutModal';
 import { userStore } from 'store/userStore';
+import { authApi } from 'api/axios';
+import requests from 'api/config';
 // Styled Component
 
 const Container = styled.div`
@@ -25,6 +27,7 @@ const Tab = styled.span`
 function NavBar() {
   const [userId, setUserId] = useState();
   const [userNickname, setUserNickname] = useState();
+  const [userImg, setUserImg] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const onClose = () => {
@@ -32,10 +35,25 @@ function NavBar() {
   };
 
   useEffect(() => {
-    userStore.subscribe((state) => setUserNickname(state.userNickname));
+    userStore.subscribe((state) => {
+      setUserNickname(state.userNickname);
+    });
     setUserId(localStorage.getItem('userId'));
     setUserNickname(localStorage.getItem('userNickname'));
   }, [userId, userNickname, isModalOpen]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await authApi
+          .get(requests.GET_PROFILE(localStorage.getItem('userId')))
+          .then((res) => {
+            setUserImg(res.data.profile.profileImgURL);
+          });
+      } catch (error) {}
+    };
+    fetchData();
+  });
 
   const location = useLocation().pathname;
 
@@ -107,7 +125,7 @@ function NavBar() {
             </Link>
           )}
           <Link to="/myprofile">
-            <ProfileImg userImg={UserIcon} className="justify-end" />
+            <ProfileImg userImg={userImg} className="justify-end" />
           </Link>
         </IconWrapper>
       </Container>

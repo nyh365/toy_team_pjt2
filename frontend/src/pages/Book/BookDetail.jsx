@@ -8,6 +8,8 @@ import { authApi } from 'api/axios';
 import requests from 'api/config';
 import CommentForm from 'components/common/CommentForm';
 import { userStore } from 'store/userStore';
+import LikeButtonFill from 'assets/icons/LikeButtonFill.svg';
+import LikeButtonEmpty from 'assets/icons/LikeButtonEmpty.svg';
 
 const BodyContainer = styled.div`
   ${tw`flex flex-col items-center pt-[5%]`}
@@ -76,20 +78,36 @@ function BookDetail() {
   useEffect(() => {
     authApi(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
       setBook(res.data.bookDetail);
+      setIsLiked(res.data.bookDetail.liked);
+      setIsInterested(res.data.bookDetail.interested);
+      console.log(res);
     });
   }, []);
   // console.log(book);
 
   const [isLiked, setIsLiked] = useState(false);
+  const [isInterested, setIsInterested] = useState(false);
+
+  const interestBook = () => {
+    setIsInterested(true);
+    //관심목록 추가 API 호출
+    authApi.post(requests.POST_INTEREST(userId, bookId)).then((res) => {});
+  };
+
+  const uninterestBook = () => {
+    setIsInterested(false);
+    //관심목록 제거 API 호출
+    authApi.delete(requests.DELETE_INTEREST(userId, bookId)).then((res) => {});
+  };
 
   const likeBook = () => {
     setIsLiked(true);
-    //관심목록 추가 API 호출
+    //좋아요
     authApi.post(requests.POST_BOOKLIKE(userId, bookId)).then((res) => {
       if (res.data.message === 'success') {
         authApi(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
           setBook(res.data.bookDetail);
-          // console.log(res.data.bookDetail);
+          console.log(res.data.bookDetail);
         });
       }
     });
@@ -97,7 +115,7 @@ function BookDetail() {
 
   const dislikeBook = () => {
     setIsLiked(false);
-    //관심목록 제거 API 호출
+    //좋아요 취소
     authApi.delete(requests.DELETE_BOOKLIKE(userId, bookId)).then((res) => {
       if (res.data.message === 'success') {
         authApi(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
@@ -118,7 +136,7 @@ function BookDetail() {
     <BodyContainer>
       {book ? (
         <BookInfoContainer>
-          <BookImgWrapper imgSrc={book.bookImgUrl} />
+          <BookImgWrapper imgSrc={book.illustPath} />
           <MainInfoContainer>
             <TitleContainer>
               <TitleWrapper>{book.bookTitle}</TitleWrapper>
@@ -130,20 +148,32 @@ function BookDetail() {
             <ContentWrapper>{book.bookSummary}</ContentWrapper>
             <SubInfoContainer>
               <LikeBtnWrapper>
-                {!isLiked ? (
-                  <button onClick={likeBook}>관심목록 추가</button>
+                {!isInterested ? (
+                  <button onClick={interestBook}>관심목록 추가</button>
                 ) : (
-                  <button onClick={dislikeBook}>관심 취소</button>
+                  <button onClick={uninterestBook}>관심 취소</button>
                 )}
               </LikeBtnWrapper>
               <LikesWrapper>{}</LikesWrapper>
+              <div>
+                {!isLiked ? (
+                  <button onClick={likeBook}>
+                    <img src={LikeButtonEmpty} alt="" />
+                  </button>
+                ) : (
+                  <button onClick={dislikeBook}>
+                    <img src={LikeButtonFill} alt="" />
+                  </button>
+                )}
+              </div>
+              <LikesWrapper>{book.numOfLike}</LikesWrapper>
             </SubInfoContainer>
             <ServiceContainer>
               <PriceWrapper>
                 <PriceImgWrapper>
                   <img src={Coin} alt="coin" />
                 </PriceImgWrapper>
-                {/* {book.bookPrice} */}
+                {book.price}
               </PriceWrapper>
               <LinkWrapper>
                 <Button

@@ -38,20 +38,19 @@ function ChallengeInfo({ challenge }) {
   const challengeId = challenge.challengeId;
 
   return (
-    <Challenge>
-      <TextContainer>
-        <TextWrapper>
-          <TitleWrapper>{title}</TitleWrapper>
-          <ContentWrapper>{summary}</ContentWrapper>
-        </TextWrapper>
-        <LinkWrapper>
-          <Link to={`/challenge/${challengeId}`}>더 많은 동화 보러가기 →</Link>
-        </LinkWrapper>
-      </TextContainer>
-      <ImageWrapper>
-        <img src={challengeBg} alt="challengeImg" />
-      </ImageWrapper>
-    </Challenge>
+    <Link to={`/challenge/${challengeId}`}>
+      <Challenge>
+        <TextContainer>
+          <TextWrapper>
+            <TitleWrapper>{title}</TitleWrapper>
+            <ContentWrapper>{summary}</ContentWrapper>
+          </TextWrapper>
+        </TextContainer>
+        <ImageWrapper>
+          <img src={challengeBg} alt="challengeImg" />
+        </ImageWrapper>
+      </Challenge>
+    </Link>
   );
 }
 

@@ -10,11 +10,11 @@ const BookInfoWrapper = styled.div`
 `;
 
 const Title = styled.div`
-  ${tw`text-lg`}
+  ${tw`text-xl`}
 `;
 
 const SubInfoContainer = styled.div`
-  ${tw`flex justify-between flex-wrap text-[0.7rem] m-0.5`}
+  ${tw`flex justify-between flex-wrap text-[1rem] m-1`}
 `;
 
 const Artist = styled.div`
@@ -35,20 +35,19 @@ const Comments = styled.div`
 function BookInfo({ title, artist, likes, comments, width, height }) {
   return (
     <BookInfoWrapper className={`${width} ${height}`}>
-      <Title>제목</Title>
+      <Title>{title}</Title>
       <SubInfoContainer className={`${width}-1`}>
         <Artist>
-          <img src={ProfileIcon} width={16} height={16} alt="" />
-          작가명
+          <img src={ProfileIcon} width={20} height={20} alt="" />
+          {artist}
         </Artist>
         <SubInfoWrapper>
           <Likes>
-            <img src={ReviewIcon} width={16} height={16} alt="" />
-            1234
+            <img src={ReviewIcon} width={20} height={20} alt="" /> {likes}
           </Likes>
           <Comments>
-            <img src={LikeIcon} width={16} height={16} alt="" />
-            22
+            <img src={LikeIcon} width={20} height={20} alt="" />
+            {comments}
           </Comments>
         </SubInfoWrapper>
       </SubInfoContainer>

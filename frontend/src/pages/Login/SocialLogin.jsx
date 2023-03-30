@@ -43,7 +43,7 @@ function SocialLogin() {
     setUserImg(profileImg);
     setUserRole('reader');
     setToken(accessToken);
-    if (userNickname === '' || ' ') {
+    if (userNickname === '' || userNickname === undefined) {
       navigate('/myprofile/edit/nickname');
     } else {
       navigate('/home');

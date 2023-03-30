@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
 
 import requests from 'api/config';
 import { defaultApi, authApi } from 'api/axios';
+import { userStore } from 'store/userStore';
 
 import ProfileImg2 from 'components/common/ProfileImg2';
 import Button from 'components/common/Button';
@@ -46,79 +47,83 @@ function MyProfileEdit() {
   const [userNickname, setUserNickname] = useState('');
   const [userInfo, setUserInfo] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [userImage, setUserImage] = useState();
-  const [newImage, setNewImage] = useState();
+  const [userImage, setUserImage] = useState(UserIcon); //미리보기 이미지
+
+  const [formData, setFormData] = useState(new FormData());
+  const [file, setFile] = useState(null);
+  const fileInput = useRef(null);
 
   useEffect(() => {
-    const get_user = async () => {
-      try {
-        const { data } = await authApi.get(requests.GET_PROFILE(userId));
-        setUserNickname(data.profile.userNickname);
-        setUserInfo(data.profile.userInfo);
-        setUserImage(data.profile.profileImgURL);
-        return console.log(data);
-      } catch (error) {
-        throw error;
-      }
-    };
-
-    get_user();
+    authApi.get(requests.GET_PROFILE(userId)).then((res) => {
+      setUserImage(res.data.profile.profileImgURL);
+    });
   }, []);
+
+  useEffect(() => {
+    authApi.get(requests.GET_PROFILE(userId)).then((res) => {
+      setUserNickname(res.data.profile.userNickname);
+      setUserInfo(res.data.profile.userInfo);
+    });
+  });
 
   const onClose = () => {
     setIsModalOpen(false);
   };
 
   const handleClickAddImage = () => {
-    document.getElementById('imageInput').click();
+    fileInput.current.click();
   };
-  const handleUserImage = (event) => {
-    const file = event.target.files[0];
-    setNewImage(file);
+  const handleUserImage = (e) => {
+    if (e.target.files[0]) {
+      setFile(e.target.files[0]);
+    } else {
+      setUserImage(UserIcon);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (reader.readyState === 2) {
+        setUserImage(reader.result);
+      }
+    };
+    reader.readAsDataURL(e.target.files[0]);
   };
   const changeToDefaultImg = () => {
-    console.log('12');
-    setNewImage(URL.createObjectURL(UserIcon));
+    setUserImage(UserIcon);
+    setFile(null);
   };
   const submitHandler = () => {
-    console.log('asdad');
-    const formData = new FormData();
-    if (newImage === 0) {
-      formData.append('userImg', userImage);
+    if (file !== null) {
+      formData.append('userImg', file);
+      console.log(file);
     } else {
-      formData.append('userImg', newImage);
+      formData.append('userImg', UserIcon, 'image.png');
+      console.log(UserIcon);
     }
+
     const patch_profile_image = async () => {
       try {
-        const response = await authApi.patch(
-          requests.PATCH_PROFILE_IMAGE(userId),
-          formData,
-          {
+        await authApi
+          .patch(requests.PATCH_PROFILE_IMAGE(userId), formData, {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
-          },
-        );
-        // console.log(response);
-        return response;
+          })
+          .then((res) => console.log(res));
       } catch (error) {
         throw error;
       }
     };
-    patch_profile_image();
-
-    navigate('/myprofile');
+    patch_profile_image().then(() => navigate('/myprofile'));
   };
   return (
     <div>
       {isModalOpen ? <WithdrawalModal onClose={onClose} /> : null}
       <ProfileImgContainer>
         <ImgWrapper>
-          {newImage ? (
-            <ProfileImg2 userImg={URL.createObjectURL(newImage)} />
-          ) : (
-            <ProfileImg2 userImg={userImage} />
-          )}
+          <ProfileImg2 userImg={userImage} />
+
           <ImgAddBtn onClick={handleClickAddImage}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
               <path d="M149.1 64.8L138.7 96H64C28.7 96 0 124.7 0 160V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H373.3L362.9 64.8C356.4 45.2 338.1 32 317.4 32H194.6c-20.7 0-39 13.2-45.5 32.8zM256 192a96 96 0 1 1 0 192 96 96 0 1 1 0-192z" />
@@ -133,6 +138,7 @@ function MyProfileEdit() {
         onChange={handleUserImage}
         className="display: hidden"
         multiple={false}
+        ref={fileInput}
       />
       <ProfileContainer>
         <ButtonContainer>
