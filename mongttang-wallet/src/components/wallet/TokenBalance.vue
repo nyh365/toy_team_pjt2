@@ -25,6 +25,7 @@
     },
     computed: {
       privateKey() {
+        console.log("뭐지이게", this.$store.state.privateKey);
         return this.$store.state.privateKey;
       }
 

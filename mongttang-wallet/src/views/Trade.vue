@@ -1,13 +1,17 @@
 <template>
   <div>
-    <h1>This is an about page</h1>
+    <trade-area></trade-area>
   </div>
 </template>
 
 <script>
+import TradeArea from '@/components/trade/TradeArea.vue';
 
 export default {
   name: 'TradeView',
+  components: {
+    TradeArea,
+  },
 }
 </script>
 
