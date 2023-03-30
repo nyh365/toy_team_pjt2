@@ -6,7 +6,6 @@ WORKDIR /usr/src/app
 ENV PATH /usr/src/app/node_modules/.bin:$PATH
 COPY package.json /usr/src/app/package.json
 RUN npm install --silent
-RUN npm install react-scripts@5.0.1 -g --silent
 
 # 소스를 작업폴더로 복사하고 빌드
 COPY . /usr/src/app
