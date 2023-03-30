@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
+import { useParams } from 'react-router-dom';
+import requests from 'api/config';
+import { defaultApi, authApi } from 'api/axios';
 
 import ProfileImg from './ProfileImg';
 import Button from './Button';
@@ -44,6 +47,8 @@ const NumOfLike = styled.span`
 `;
 
 function CommentItem({ comment, comments, setComments }) {
+  const userId = Number(localStorage.getItem('userId'));
+  const params = useParams();
   const formatDate = useFormatDate(comment.updatedTime);
   const [numOfLike, setNumOfLike] = useState(comment.numOfLike);
   const [isLiked, setIsLiked] = useState(comment.isLiked);
@@ -60,33 +65,26 @@ function CommentItem({ comment, comments, setComments }) {
     setNumOfLike(numOfLike + 1);
     //좋아요 API 호출
   };
-  const submitHandler = () => {
+  const patchCommentHandler = () => {
     //댓글 등록 API 호출
+    const patch_comment = async () => {
+      try {
+        const { data } = await authApi.patch(requests.PATCH_COMMENT(), {
+          commentId: comment.commentId,
+          commentUserId: userId,
+          commentBookId: params.bookId,
+          commentContent: commentContent,
+        });
+        setComments(data.comments);
+        return console.log(data.comments);
+      } catch (error) {
+        throw error;
+      }
+    };
+    patch_comment();
     setCommentContent('');
     setEditComment(false);
     //댓글목록 API 재 호출
-    setComments([
-      {
-        commentId: 1,
-        userId: 13,
-        userNickname: '홍길동',
-        numOfLike: 13,
-        isLiked: true,
-        isReported: false,
-        commentContent: '동화가 너무 재미있네요1',
-        commentCreateDate: '2023-02-01T10:27:14.153045',
-      },
-      {
-        commentId: 2,
-        userId: 12,
-        userNickname: '홍길동',
-        numOfLike: 13,
-        isLiked: true,
-        isReported: false,
-        commentContent: '동화가 너무 재미있네요2',
-        commentCreateDate: '2023-02-01T10:27:14.153045',
-      },
-    ]);
     //댓글목록 다시 불러오면 state에 저장하고 리 렌더링하기 (현재는 테스트용)
   };
   const editCommentHandler = () => {
@@ -97,7 +95,18 @@ function CommentItem({ comment, comments, setComments }) {
   };
   const deleteCommentHandler = () => {
     //댓글 삭제 api 호출
-    // setComments()
+    const delete_comment = async () => {
+      try {
+        const { data } = await authApi.delete(
+          requests.DELETE_COMMENT(userId, comment.commentId),
+        );
+        setComments(data.comments);
+        return console.log(data.comments);
+      } catch (error) {
+        throw error;
+      }
+    };
+    delete_comment();
   };
   return (
     <CommentFormcontainer>
@@ -116,7 +125,7 @@ function CommentItem({ comment, comments, setComments }) {
             name="Comment Content"
           />
           <ButtonContainer>
-            <div className="mx-1" onClick={submitHandler}>
+            <div className="mx-1" onClick={patchCommentHandler}>
               <Button title="수정" buttonType="black" className="" />
             </div>
             <div onClick={exitHandler}>
@@ -128,7 +137,7 @@ function CommentItem({ comment, comments, setComments }) {
         <form action="submit">
           <CommentContentContainer>
             {comment.commentContent}
-            {comment.userId === 13 ? (
+            {comment.commentUserId === userId ? (
               <img
                 src={trashCan}
                 alt=""
@@ -147,7 +156,7 @@ function CommentItem({ comment, comments, setComments }) {
             )}
             <NumOfLike>{numOfLike}</NumOfLike>
             {/* 나중에 local에 저장된 유저 Id와 비교 */}
-            {comment.userId === 13 ? (
+            {comment.commentUserId === userId ? (
               <img
                 src={pencil}
                 alt=""

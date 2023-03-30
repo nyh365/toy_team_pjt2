@@ -116,7 +116,7 @@ const requests = {
   },
 
   //댓글 수정
-  PATCH_COMMENT(userId) {
+  PATCH_COMMENT() {
     return `/api/book/comment/`;
   },
 
