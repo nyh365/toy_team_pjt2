@@ -9,7 +9,7 @@ import {
 } from 'react-router-dom';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-// import NavBar from 'components/common/NavBar';
+import NavBar from 'components/common/NavBar';
 
 // component
 import Home from './pages/Home/Home';
@@ -52,7 +52,7 @@ function App() {
       <CookiesProvider>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter className="App">
-            {/* <NavBar /> */}
+            <NavBar />
             <AdminNavBar />
             <Routes>
               <Route path="/" element={<Home />} />
