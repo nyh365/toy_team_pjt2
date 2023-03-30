@@ -42,6 +42,7 @@ function NicknameEdit() {
   const userId = localStorage.getItem('userId');
   const userInfo = localStorage.getItem('userInfo');
   const navigate = useNavigate();
+  const [userImg, setUserImg] = useState();
   const [nickname, setNickname] = useState('');
   const [verify, setVerify] = useState('');
   const [nicknameMessage, setNicknameMessage] = useState('');
@@ -77,17 +78,32 @@ function NicknameEdit() {
         );
         if (response.data.message === 'success') {
           setVerify('success');
+        } else if (response.status === 400) {
+          setVerify('fail');
+          setVerifyMessage('이미 사용중인 닉네임입니다.');
         } else {
           setVerify('fail');
         }
-
-        return console.log(response.data.message);
       } catch (error) {
         throw error;
       }
     };
-    get_nickname_available();
+    get_nickname_available().then((res) => console.log(res));
   };
+
+  useEffect(() => {
+    const get_user = async () => {
+      try {
+        const { data } = await authApi.get(requests.GET_PROFILE(userId));
+        setUserImg(data.profile.profileImgURL);
+      } catch (error) {
+        throw error;
+      }
+    };
+
+    get_user();
+  }, [userImg]);
+
   useEffect(() => {
     if (verify === 'success') {
       setVerifyMessage('중복확인이 완료되었습니다');
@@ -120,7 +136,7 @@ function NicknameEdit() {
   return (
     <div>
       <ProfileContainer>
-        <ProfileImg2 />
+        <ProfileImg2 userImg={userImg} />
       </ProfileContainer>
       <form action="submit">
         <InputContainer disabled={isValidName ? false : true}>
@@ -129,7 +145,7 @@ function NicknameEdit() {
           <input
             type="text"
             onChange={onChangeNicknameInput}
-            placeholder="오성과 한음"
+            placeholder={userNickname}
             name="Username"
           />
           <p>{nicknameMessage}</p>
