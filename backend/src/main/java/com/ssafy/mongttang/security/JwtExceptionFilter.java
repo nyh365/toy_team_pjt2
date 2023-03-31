@@ -21,11 +21,11 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         try {
             chain.doFilter(request, response);
         } catch (JwtException ex) {
-            setErrorResponse(request, response, ex);
+            setErrorResponse(response, ex);
         }
     }
 
-    public void setErrorResponse(HttpServletRequest request, HttpServletResponse response, Throwable ex) throws IOException {
+    public void setErrorResponse(HttpServletResponse response, Throwable ex) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json; charset=UTF-8");
 

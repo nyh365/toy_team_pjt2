@@ -21,15 +21,13 @@ public class UserPrincipalDto implements UserDetails, OAuth2User{
     private Collection<? extends GrantedAuthority> authorities;
 
     public UserPrincipalDto(User user) {
-        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole()));
-        this.authorities = authorities;
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole()));
         this.user = user;
     }
 
     // OAuth2.0 로그인시 사용
     public UserPrincipalDto(User user, Map<String, Object> attributes) {
-        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole()));
-        this.authorities = authorities;
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole()));
         this.user = user;
         this.attributes = attributes;
     }
