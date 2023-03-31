@@ -103,6 +103,7 @@ function MyProfile() {
         ) : (
           <UserInfo>소개를 작성해 주세요</UserInfo>
         )}
+        <NickName>지갑보러가기</NickName>
       </ProfileContainer>
       <CompletedBookList>
         <span className="text-[40px]">완성한 동화</span>
