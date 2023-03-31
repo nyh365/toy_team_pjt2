@@ -1,7 +1,6 @@
 package com.ssafy.mongttang.dto;
 
 import com.ssafy.mongttang.entity.Book;
-import com.ssafy.mongttang.repository.BookRepository;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

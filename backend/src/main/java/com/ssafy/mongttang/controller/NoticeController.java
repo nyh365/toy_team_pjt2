@@ -31,6 +31,7 @@ public class NoticeController {
     private static final String MESSAGE = "message";
     private static final String SUCCESS = "success";
     private static final String FAIL = "fail";
+    private static final String NOTICES = "notices";
 
     //공지사항 목록
     @ApiOperation(value = "공지사항 목록 조회(페이징)", notes = "공지사항 목록 페이징", response = Page.class)
@@ -42,7 +43,7 @@ public class NoticeController {
         Page<ResponseNoticeInfoDto> noticeList = noticeService.getNoticeList(page, limit);
         if(noticeList != null){
             map.put(MESSAGE, SUCCESS);
-            map.put("notices", noticeList);
+            map.put(NOTICES, noticeList);
             return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
@@ -58,7 +59,7 @@ public class NoticeController {
         List<ResponseNoticeDetailDto> noticeList = noticeService.getNotices();
         if (noticeList != null) {
             map.put(MESSAGE, SUCCESS);
-            map.put("notices", noticeList);
+            map.put(NOTICES, noticeList);
             return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
@@ -108,7 +109,7 @@ public class NoticeController {
         List<ResponseNoticeDetailDto> afterUpdatedNotices = noticeService.updateNotice(noticeId, reqNoticeUpdateFormDto);
         if(afterUpdatedNotices != null) {
             map.put(MESSAGE, SUCCESS);
-            map.put("notices", afterUpdatedNotices);
+            map.put(NOTICES, afterUpdatedNotices);
             return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
@@ -125,7 +126,7 @@ public class NoticeController {
         List<ResponseNoticeDetailDto> afterDeletedNotices = noticeService.deleteNotice(noticeId);
         if(afterDeletedNotices != null) {
             map.put(MESSAGE, SUCCESS);
-            map.put("notices", afterDeletedNotices);
+            map.put(NOTICES, afterDeletedNotices);
             return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);

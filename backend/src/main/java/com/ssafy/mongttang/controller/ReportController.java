@@ -49,8 +49,7 @@ public class ReportController {
             resultMap.put(MESSAGE, FAIL);
             return new ResponseEntity<>(resultMap, HttpStatus.BAD_REQUEST);
         } else {
-            resultMap.put(MESSAGE, FAIL);
-            resultMap.put("message", "이미 신고한 회원입니다");
+            resultMap.put(MESSAGE, "이미 신고한 회원입니다");
             return new ResponseEntity<>(resultMap, HttpStatus.BAD_REQUEST);
         }
     }
@@ -92,8 +91,7 @@ public class ReportController {
             resultMap.put(MESSAGE, FAIL);
             return new ResponseEntity<>(resultMap, HttpStatus.BAD_REQUEST);
         } else {
-            resultMap.put(MESSAGE, FAIL);
-            resultMap.put("message", "이미 신고한 회원입니다");
+            resultMap.put(MESSAGE, "이미 신고한 회원입니다");
             return new ResponseEntity<>(resultMap, HttpStatus.BAD_REQUEST);
         }
     }

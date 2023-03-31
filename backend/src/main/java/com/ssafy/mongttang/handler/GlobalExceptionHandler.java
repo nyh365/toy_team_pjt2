@@ -17,7 +17,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(JwtException.class)
     protected ResponseEntity<Map<String,Object>> handleIllegalArgumentException(JwtException ex) {
         Map<String, Object> resultMap = new HashMap<>();
-        HttpStatus status = null;
 
         resultMap.put(MESSAGE, ex.getMessage());
 

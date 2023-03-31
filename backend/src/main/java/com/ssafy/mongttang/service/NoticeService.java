@@ -50,8 +50,7 @@ public class NoticeService {
         if(!notice.isPresent()) return null;
 
         notice.get().update(reqNoticeUpdateFormDto);
-        Notice getNotice = noticeRepository.save(notice.get());
-        if(getNotice == null) return null;
+        noticeRepository.save(notice.get());
 
         return getNotices();
     }

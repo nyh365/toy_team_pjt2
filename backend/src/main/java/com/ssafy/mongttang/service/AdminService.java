@@ -43,8 +43,7 @@ public class AdminService {
         if(!challenge.isPresent()) return null;
         challenge.get().update(reqChallengeCreateFormDto);
 
-        Challenge updatedChallenge = challengRepository.save(challenge.get());
-        if(updatedChallenge == null) return null;
+        challengRepository.save(challenge.get());
         return getChallenges();
     }
 

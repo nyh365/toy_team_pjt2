@@ -32,6 +32,8 @@ public class AdminController {
     private static final String SUCCESS = "success";
     private static final String FAIL = "fail";
 
+    private static final String CHALLENGES = "challenges";
+
     private final RedisTemplate redisTemplate;
 
     @ApiOperation(value = "관리자가 새로운 챌린지 등록", notes = "관리자가 새로운 챌린지를 등록한다.", response = Map.class)
@@ -59,7 +61,7 @@ public class AdminController {
         List<ResponseChallengeUpdateDto> updatedChallenges = adminService.updateChallenge(challengeId, reqChallengeCreateFormDto);
         if(updatedChallenges != null){
             map.put(MESSAGE, SUCCESS);
-            map.put("challenges", updatedChallenges);
+            map.put(CHALLENGES, updatedChallenges);
             return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
@@ -75,7 +77,7 @@ public class AdminController {
         List<ResponseChallengeUpdateDto> challengeList = adminService.getChallenges();
         if(challengeList != null){
             map.put(MESSAGE, SUCCESS);
-            map.put("challenges", challengeList);
+            map.put(CHALLENGES, challengeList);
             return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
@@ -91,7 +93,7 @@ public class AdminController {
         List<ResponseChallengeUpdateDto> deletedChallenges = adminService.deleteChallenge(challengeId);
         if(deletedChallenges != null){
             map.put(MESSAGE, SUCCESS);
-            map.put("challenges", deletedChallenges);
+            map.put(CHALLENGES, deletedChallenges);
             return new ResponseEntity<>(map, HttpStatus.OK);
         } else {
             map.put(MESSAGE, FAIL);
