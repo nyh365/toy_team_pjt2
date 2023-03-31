@@ -5,7 +5,7 @@ RUN mkdir /usr/src/app
 WORKDIR /usr/src/app
 ENV PATH /usr/src/app/node_modules/.bin:$PATH
 COPY package.json /usr/src/app/package.json
-RUN npm install --silent
+RUN npm install --silent --production
 
 # 소스를 작업폴더로 복사하고 빌드
 COPY . /usr/src/app
@@ -17,7 +17,7 @@ RUN rm -rf /etc/nginx/conf.d
 COPY default.conf /etc/nginx/conf.d/default.conf
 
 # 위에서 생성한 앱의 빌드산출물을 nginx의 샘플 앱이 사용하던 폴더로 이동
-COPY --from=builder /usr/src/app/build /usr/share/nginx/html
+COPY --from=builder /usr/src/app/dist /usr/share/nginx/html
 
 # 80포트 오픈하고 nginx 실행
 EXPOSE 80
