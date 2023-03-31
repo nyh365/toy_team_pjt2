@@ -1,19 +1,26 @@
 <template>
-  <TokenBalance></TokenBalance>
-  <NFTList></NFTList>
+  <div class="wallet">
+    <WalletMenu></WalletMenu>
+    <NFTList></NFTList>
+  </div>
 </template>
 
 <script>
-import TokenBalance from '@/components/wallet/TokenBalance.vue';
-import NFTList from '@/components/wallet/NFTList.vue';
-
-// import { API_BASE_URL } from '@/config';
+import NFTList from "@/components/wallet/NFTList.vue";
+import WalletMenu from "@/components/wallet/WalletMenu.vue";
 
 export default {
-  name: 'WalletView',
+  name: "WalletView",
   components: {
-    TokenBalance,
     NFTList,
-  }
-}
+    WalletMenu,
+  },
+};
 </script>
+<style>
+.wallet {
+  margin: 40px auto;
+  width: 500px;
+  border: 1px solid #eaeaea;
+}
+</style>
