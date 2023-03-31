@@ -63,7 +63,7 @@ authApi.interceptors.response.use(
         })
         .then((response) => {
           const { accessToken } = response.data;
-          // console.log(data);
+          console.log(response);
           localStorage.setItem('accessToken', accessToken);
           config.headers.Authorization = `Bearer ${accessToken}`;
 

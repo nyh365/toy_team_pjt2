@@ -61,7 +61,8 @@ function NavBar() {
   if (
     location.startsWith('/login') ||
     location.startsWith('/commentform') ||
-    location.startsWith('/admin')
+    location.startsWith('/admin') ||
+    location.startsWith('/books/viewer')
   ) {
     return null;
   }

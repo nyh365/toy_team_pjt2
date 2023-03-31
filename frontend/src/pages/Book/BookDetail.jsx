@@ -80,10 +80,8 @@ function BookDetail() {
       setBook(res.data.bookDetail);
       setIsLiked(res.data.bookDetail.liked);
       setIsInterested(res.data.bookDetail.interested);
-      console.log(res);
     });
   }, []);
-  // console.log(book);
 
   const [isLiked, setIsLiked] = useState(false);
   const [isInterested, setIsInterested] = useState(false);
@@ -129,7 +127,10 @@ function BookDetail() {
   const gotoViewer = async () => {
     try {
       // console.log('userID: ', userId, 'bookId; ', bookId);
-      await authApi(requests.GET_BOOK_AUTH(userId, bookId)).then((res) => {});
+      await authApi(requests.GET_BOOK_AUTH(userId, bookId)).then((res) => {
+        navigate(`/books/viewer/${bookId}`);
+        console.log(res);
+      });
     } catch (error) {}
   };
   return (

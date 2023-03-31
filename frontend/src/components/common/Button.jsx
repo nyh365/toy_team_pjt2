@@ -8,8 +8,8 @@ const ButtonContainer = styled.div`
   ${tw`w-fit h-[24px] p-1 py-[12px] text-sub-bold text-black rounded-full flex justify-center items-center shadow cursor-pointer`}
   ${(props) =>
     props.buttonType === 'mint'
-      ? tw`bg-btnMint text-black`
-      : tw`bg-btnBlack text-whiteText`}
+      ? tw`bg-btnMint text-black hover:opacity-70 transition-opacity`
+      : tw`bg-btnBlack text-whiteText hover:opacity-70 transition-opacity`}
 `;
 
 function Button({ title, buttonType, onClick }) {
