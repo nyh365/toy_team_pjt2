@@ -1,0 +1,483 @@
+{
+  "contractName": "CrossChainEnabledArbitrumL2",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.19+commit.7dd6d404\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"details\":\"https://arbitrum.io/[Arbitrum] specialization or the {CrossChainEnabled} abstraction the L2 side (arbitrum). This version should only be deployed on L2 to process cross-chain messages originating from L1. For the other side, use {CrossChainEnabledArbitrumL1}. Arbitrum L2 includes the `ArbSys` contract at a fixed address. Therefore, this specialization of {CrossChainEnabled} does not include a constructor. _Available since v4.6._ WARNING: There is currently a bug in Arbitrum that causes this contract to fail to detect cross-chain calls when deployed behind a proxy. This will be fixed when the network is upgraded to Arbitrum Nitro, currently scheduled for August 31st 2022.\",\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/crosschain/arbitrum/CrossChainEnabledArbitrumL2.sol\":\"CrossChainEnabledArbitrumL2\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/crosschain/CrossChainEnabled.sol\":{\"keccak256\":\"0xe3796f669986f88c231262fc454399c7068123d59c6d2721b3e8807e1b5490e4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://01dae8a0bedc02610d1eb581a1114ed87afc5f6c0de59b4ffa91fb3d30fc94a7\",\"dweb:/ipfs/QmTEs6tt5TUBxQKnFw4uNPn7ZE59uz3E2hhVKCnKvpzwPh\"]},\"project:/contracts/crosschain/arbitrum/CrossChainEnabledArbitrumL2.sol\":{\"keccak256\":\"0x4c1319f6217893ef9e69408a03eae3641c6ec3d415c92c2763c3888fde5b1ba3\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://9bbac49bca74be8afb250991ed79d99bb28d81a288eae4ebc54b42666d42564d\",\"dweb:/ipfs/QmV13g7edssm8sVDRWpe5HXFWc5DDkksSk3xJpFGRfuC2a\"]},\"project:/contracts/crosschain/arbitrum/LibArbitrumL2.sol\":{\"keccak256\":\"0x1b844a2a99922619347974e73baacacf4d1cef0f7bd3c8daadb3e5429249bbe7\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://486d1f7d934f2e398d22dc68dafa120ec586554ddb497f2524b078ef80f7aa4b\",\"dweb:/ipfs/Qmf5gw1pBfTCsxGmNmNrse9KGCNY4i2V3gfwgSmWoVyyG7\"]},\"project:/contracts/crosschain/errors.sol\":{\"keccak256\":\"0x9d3ffe3bc59c2dac36d93cb4641ffeaa98b96cce588d106efe050a0b67b4d902\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://bf8c1e49412c6975de84fe2c72f6785f139d36843aaa623bc9964003748b3757\",\"dweb:/ipfs/QmcDPdSYsWHGnMZB6yHH8Tczr16QVjd8TjPcMVDdyvPV1W\"]},\"project:/contracts/vendor/arbitrum/IArbSys.sol\":{\"keccak256\":\"0xb89dd723234b4d9ce13083eec9a530ceceeb618412bc3b7ac3d37d0a2a6874e0\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://e3a598a3cc3caa09d33bcf2a120d457b2f69d770c173055b42948210ae34643f\",\"dweb:/ipfs/QmXBgdEomTjn6L9pXEb8hUzwUJ5S9zAuZE5qQVtbJwWvBn\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "// SPDX-License-Identifier: MIT\r\n// OpenZeppelin Contracts (last updated v4.8.0) (crosschain/arbitrum/CrossChainEnabledArbitrumL2.sol)\r\n\r\npragma solidity ^0.8.4;\r\n\r\nimport \"../CrossChainEnabled.sol\";\r\nimport \"./LibArbitrumL2.sol\";\r\n\r\n/**\r\n * @dev https://arbitrum.io/[Arbitrum] specialization or the\r\n * {CrossChainEnabled} abstraction the L2 side (arbitrum).\r\n *\r\n * This version should only be deployed on L2 to process cross-chain messages\r\n * originating from L1. For the other side, use {CrossChainEnabledArbitrumL1}.\r\n *\r\n * Arbitrum L2 includes the `ArbSys` contract at a fixed address. Therefore,\r\n * this specialization of {CrossChainEnabled} does not include a constructor.\r\n *\r\n * _Available since v4.6._\r\n *\r\n * WARNING: There is currently a bug in Arbitrum that causes this contract to\r\n * fail to detect cross-chain calls when deployed behind a proxy. This will be\r\n * fixed when the network is upgraded to Arbitrum Nitro, currently scheduled for\r\n * August 31st 2022.\r\n */\r\nabstract contract CrossChainEnabledArbitrumL2 is CrossChainEnabled {\r\n    /**\r\n     * @dev see {CrossChainEnabled-_isCrossChain}\r\n     */\r\n    function _isCrossChain() internal view virtual override returns (bool) {\r\n        return LibArbitrumL2.isCrossChain(LibArbitrumL2.ARBSYS);\r\n    }\r\n\r\n    /**\r\n     * @dev see {CrossChainEnabled-_crossChainSender}\r\n     */\r\n    function _crossChainSender() internal view virtual override onlyCrossChain returns (address) {\r\n        return LibArbitrumL2.crossChainSender(LibArbitrumL2.ARBSYS);\r\n    }\r\n}\r\n",
+  "sourcePath": "C:\\Users\\SSAFY\\Desktop\\S08P22A308\\smart-contracts\\contracts\\crosschain\\arbitrum\\CrossChainEnabledArbitrumL2.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/crosschain/arbitrum/CrossChainEnabledArbitrumL2.sol",
+    "exportedSymbols": {
+      "ArbitrumL2_Bridge": [
+        39705
+      ],
+      "CrossChainEnabled": [
+        1677
+      ],
+      "CrossChainEnabledArbitrumL2": [
+        1859
+      ],
+      "InvalidCrossChainSender": [
+        1981
+      ],
+      "LibArbitrumL2": [
+        1971
+      ],
+      "NotCrossChainCall": [
+        1975
+      ]
+    },
+    "id": 1860,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1823,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".4"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "138:23:15"
+      },
+      {
+        "absolutePath": "project:/contracts/crosschain/CrossChainEnabled.sol",
+        "file": "../CrossChainEnabled.sol",
+        "id": 1824,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 1860,
+        "sourceUnit": 1678,
+        "src": "165:34:15",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "project:/contracts/crosschain/arbitrum/LibArbitrumL2.sol",
+        "file": "./LibArbitrumL2.sol",
+        "id": 1825,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 1860,
+        "sourceUnit": 1972,
+        "src": "201:29:15",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": true,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 1827,
+              "name": "CrossChainEnabled",
+              "nameLocations": [
+                "1038:17:15"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 1677,
+              "src": "1038:17:15"
+            },
+            "id": 1828,
+            "nodeType": "InheritanceSpecifier",
+            "src": "1038:17:15"
+          }
+        ],
+        "canonicalName": "CrossChainEnabledArbitrumL2",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 1826,
+          "nodeType": "StructuredDocumentation",
+          "src": "234:753:15",
+          "text": " @dev https://arbitrum.io/[Arbitrum] specialization or the\n {CrossChainEnabled} abstraction the L2 side (arbitrum).\n This version should only be deployed on L2 to process cross-chain messages\n originating from L1. For the other side, use {CrossChainEnabledArbitrumL1}.\n Arbitrum L2 includes the `ArbSys` contract at a fixed address. Therefore,\n this specialization of {CrossChainEnabled} does not include a constructor.\n _Available since v4.6._\n WARNING: There is currently a bug in Arbitrum that causes this contract to\n fail to detect cross-chain calls when deployed behind a proxy. This will be\n fixed when the network is upgraded to Arbitrum Nitro, currently scheduled for\n August 31st 2022."
+        },
+        "fullyImplemented": true,
+        "id": 1859,
+        "linearizedBaseContracts": [
+          1859,
+          1677
+        ],
+        "name": "CrossChainEnabledArbitrumL2",
+        "nameLocation": "1007:27:15",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "baseFunctions": [
+              1670
+            ],
+            "body": {
+              "id": 1841,
+              "nodeType": "Block",
+              "src": "1203:74:15",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "expression": {
+                          "id": 1837,
+                          "name": "LibArbitrumL2",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 1971,
+                          "src": "1248:13:15",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_type$_t_contract$_LibArbitrumL2_$1971_$",
+                            "typeString": "type(library LibArbitrumL2)"
+                          }
+                        },
+                        "id": 1838,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "lValueRequested": false,
+                        "memberLocation": "1262:6:15",
+                        "memberName": "ARBSYS",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 1933,
+                        "src": "1248:20:15",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "expression": {
+                        "id": 1835,
+                        "name": "LibArbitrumL2",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1971,
+                        "src": "1221:13:15",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_LibArbitrumL2_$1971_$",
+                          "typeString": "type(library LibArbitrumL2)"
+                        }
+                      },
+                      "id": 1836,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "1235:12:15",
+                      "memberName": "isCrossChain",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 1947,
+                      "src": "1221:26:15",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_address_$returns$_t_bool_$",
+                        "typeString": "function (address) view returns (bool)"
+                      }
+                    },
+                    "id": 1839,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1221:48:15",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "functionReturnParameters": 1834,
+                  "id": 1840,
+                  "nodeType": "Return",
+                  "src": "1214:55:15"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 1829,
+              "nodeType": "StructuredDocumentation",
+              "src": "1063:63:15",
+              "text": " @dev see {CrossChainEnabled-_isCrossChain}"
+            },
+            "id": 1842,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "_isCrossChain",
+            "nameLocation": "1141:13:15",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 1831,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1179:8:15"
+            },
+            "parameters": {
+              "id": 1830,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1154:2:15"
+            },
+            "returnParameters": {
+              "id": 1834,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1833,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1842,
+                  "src": "1197:4:15",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 1832,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1197:4:15",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1196:6:15"
+            },
+            "scope": 1859,
+            "src": "1132:145:15",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "internal"
+          },
+          {
+            "baseFunctions": [
+              1676
+            ],
+            "body": {
+              "id": 1857,
+              "nodeType": "Block",
+              "src": "1451:78:15",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "expression": {
+                          "id": 1853,
+                          "name": "LibArbitrumL2",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 1971,
+                          "src": "1500:13:15",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_type$_t_contract$_LibArbitrumL2_$1971_$",
+                            "typeString": "type(library LibArbitrumL2)"
+                          }
+                        },
+                        "id": 1854,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "lValueRequested": false,
+                        "memberLocation": "1514:6:15",
+                        "memberName": "ARBSYS",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 1933,
+                        "src": "1500:20:15",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "expression": {
+                        "id": 1851,
+                        "name": "LibArbitrumL2",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1971,
+                        "src": "1469:13:15",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_LibArbitrumL2_$1971_$",
+                          "typeString": "type(library LibArbitrumL2)"
+                        }
+                      },
+                      "id": 1852,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "1483:16:15",
+                      "memberName": "crossChainSender",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 1970,
+                      "src": "1469:30:15",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_address_$returns$_t_address_$",
+                        "typeString": "function (address) view returns (address)"
+                      }
+                    },
+                    "id": 1855,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1469:52:15",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "functionReturnParameters": 1850,
+                  "id": 1856,
+                  "nodeType": "Return",
+                  "src": "1462:59:15"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 1843,
+              "nodeType": "StructuredDocumentation",
+              "src": "1285:67:15",
+              "text": " @dev see {CrossChainEnabled-_crossChainSender}"
+            },
+            "id": 1858,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [
+              {
+                "id": 1847,
+                "kind": "modifierInvocation",
+                "modifierName": {
+                  "id": 1846,
+                  "name": "onlyCrossChain",
+                  "nameLocations": [
+                    "1418:14:15"
+                  ],
+                  "nodeType": "IdentifierPath",
+                  "referencedDeclaration": 1643,
+                  "src": "1418:14:15"
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "1418:14:15"
+              }
+            ],
+            "name": "_crossChainSender",
+            "nameLocation": "1367:17:15",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 1845,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1409:8:15"
+            },
+            "parameters": {
+              "id": 1844,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1384:2:15"
+            },
+            "returnParameters": {
+              "id": 1850,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1849,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1858,
+                  "src": "1442:7:15",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1848,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1442:7:15",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1441:9:15"
+            },
+            "scope": 1859,
+            "src": "1358:171:15",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "internal"
+          }
+        ],
+        "scope": 1860,
+        "src": "989:543:15",
+        "usedErrors": []
+      }
+    ],
+    "src": "138:1396:15"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.19+commit.7dd6d404.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.13",
+  "updatedAt": "2023-03-23T05:45:08.055Z",
+  "devdoc": {
+    "details": "https://arbitrum.io/[Arbitrum] specialization or the {CrossChainEnabled} abstraction the L2 side (arbitrum). This version should only be deployed on L2 to process cross-chain messages originating from L1. For the other side, use {CrossChainEnabledArbitrumL1}. Arbitrum L2 includes the `ArbSys` contract at a fixed address. Therefore, this specialization of {CrossChainEnabled} does not include a constructor. _Available since v4.6._ WARNING: There is currently a bug in Arbitrum that causes this contract to fail to detect cross-chain calls when deployed behind a proxy. This will be fixed when the network is upgraded to Arbitrum Nitro, currently scheduled for August 31st 2022.",
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

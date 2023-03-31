@@ -1,0 +1,4043 @@
+{
+  "contractName": "DoubleEndedQueue",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "Empty",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "OutOfBounds",
+      "type": "error"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.19+commit.7dd6d404\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"name\":\"Empty\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"OutOfBounds\",\"type\":\"error\"}],\"devdoc\":{\"details\":\"A sequence of items with the ability to efficiently push and pop items (i.e. insert and remove) on both ends of the sequence (called front and back). Among other access patterns, it can be used to implement efficient LIFO and FIFO queues. Storage use is optimized, and all operations are O(1) constant time. This includes {clear}, given that the existing queue contents are left in storage. The struct is called `Bytes32Deque`. Other types can be cast to and from `bytes32`. This data structure can only be used in storage, and not in memory. ```solidity DoubleEndedQueue.Bytes32Deque queue; ``` _Available since v4.6._\",\"errors\":{\"Empty()\":[{\"details\":\"An operation (e.g. {front}) couldn't be completed due to the queue being empty.\"}],\"OutOfBounds()\":[{\"details\":\"An operation (e.g. {at}) couldn't be completed due to an index being out of bounds.\"}]},\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/utils/structs/DoubleEndedQueue.sol\":\"DoubleEndedQueue\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/utils/math/SafeCast.sol\":{\"keccak256\":\"0x2c66e95ab107fd79a1c7f05348351ed954edf544854adf782c8b61bc67ecc074\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://8a069ca7a560c518d1338c48bf0618499ef601d34044c10f59a18b1e554cae37\",\"dweb:/ipfs/QmRXxKoq1Q47zpMcbCevkyUmV66zQcAcCrwhEQ2xtSvRQ1\"]},\"project:/contracts/utils/structs/DoubleEndedQueue.sol\":{\"keccak256\":\"0xd87a074690b253bda417ba82dff7b32fd822d7a72929e3bb37f7b530aa569da1\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://477fb9daed74246661a2bac9075262d166b64b228e367ca380baeebe80010510\",\"dweb:/ipfs/QmSiXEtsWcdsaXZ6Feo2MfZpjAtvAc8rTc3v26fpcDBkxi\"]}},\"version\":1}",
+  "bytecode": "0x60566050600b82828239805160001a6073146043577f4e487b7100000000000000000000000000000000000000000000000000000000600052600060045260246000fd5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212202409ed8ab36717dadd957539fc7c4fa9156f7c309308e17b68a86450f5a9c85964736f6c63430008130033",
+  "deployedBytecode": "0x73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212202409ed8ab36717dadd957539fc7c4fa9156f7c309308e17b68a86450f5a9c85964736f6c63430008130033",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "863:5215:245:-:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "863:5215:245:-:0;;;;;;;;",
+  "source": "// SPDX-License-Identifier: MIT\r\n// OpenZeppelin Contracts (last updated v4.6.0) (utils/structs/DoubleEndedQueue.sol)\r\npragma solidity ^0.8.4;\r\n\r\nimport \"../math/SafeCast.sol\";\r\n\r\n/**\r\n * @dev A sequence of items with the ability to efficiently push and pop items (i.e. insert and remove) on both ends of\r\n * the sequence (called front and back). Among other access patterns, it can be used to implement efficient LIFO and\r\n * FIFO queues. Storage use is optimized, and all operations are O(1) constant time. This includes {clear}, given that\r\n * the existing queue contents are left in storage.\r\n *\r\n * The struct is called `Bytes32Deque`. Other types can be cast to and from `bytes32`. This data structure can only be\r\n * used in storage, and not in memory.\r\n * ```solidity\r\n * DoubleEndedQueue.Bytes32Deque queue;\r\n * ```\r\n *\r\n * _Available since v4.6._\r\n */\r\nlibrary DoubleEndedQueue {\r\n    /**\r\n     * @dev An operation (e.g. {front}) couldn't be completed due to the queue being empty.\r\n     */\r\n    error Empty();\r\n\r\n    /**\r\n     * @dev An operation (e.g. {at}) couldn't be completed due to an index being out of bounds.\r\n     */\r\n    error OutOfBounds();\r\n\r\n    /**\r\n     * @dev Indices are signed integers because the queue can grow in any direction. They are 128 bits so begin and end\r\n     * are packed in a single storage slot for efficient access. Since the items are added one at a time we can safely\r\n     * assume that these 128-bit indices will not overflow, and use unchecked arithmetic.\r\n     *\r\n     * Struct members have an underscore prefix indicating that they are \"private\" and should not be read or written to\r\n     * directly. Use the functions provided below instead. Modifying the struct manually may violate assumptions and\r\n     * lead to unexpected behavior.\r\n     *\r\n     * Indices are in the range [begin, end) which means the first item is at data[begin] and the last item is at\r\n     * data[end - 1].\r\n     */\r\n    struct Bytes32Deque {\r\n        int128 _begin;\r\n        int128 _end;\r\n        mapping(int128 => bytes32) _data;\r\n    }\r\n\r\n    /**\r\n     * @dev Inserts an item at the end of the queue.\r\n     */\r\n    function pushBack(Bytes32Deque storage deque, bytes32 value) internal {\r\n        int128 backIndex = deque._end;\r\n        deque._data[backIndex] = value;\r\n        unchecked {\r\n            deque._end = backIndex + 1;\r\n        }\r\n    }\r\n\r\n    /**\r\n     * @dev Removes the item at the end of the queue and returns it.\r\n     *\r\n     * Reverts with `Empty` if the queue is empty.\r\n     */\r\n    function popBack(Bytes32Deque storage deque) internal returns (bytes32 value) {\r\n        if (empty(deque)) revert Empty();\r\n        int128 backIndex;\r\n        unchecked {\r\n            backIndex = deque._end - 1;\r\n        }\r\n        value = deque._data[backIndex];\r\n        delete deque._data[backIndex];\r\n        deque._end = backIndex;\r\n    }\r\n\r\n    /**\r\n     * @dev Inserts an item at the beginning of the queue.\r\n     */\r\n    function pushFront(Bytes32Deque storage deque, bytes32 value) internal {\r\n        int128 frontIndex;\r\n        unchecked {\r\n            frontIndex = deque._begin - 1;\r\n        }\r\n        deque._data[frontIndex] = value;\r\n        deque._begin = frontIndex;\r\n    }\r\n\r\n    /**\r\n     * @dev Removes the item at the beginning of the queue and returns it.\r\n     *\r\n     * Reverts with `Empty` if the queue is empty.\r\n     */\r\n    function popFront(Bytes32Deque storage deque) internal returns (bytes32 value) {\r\n        if (empty(deque)) revert Empty();\r\n        int128 frontIndex = deque._begin;\r\n        value = deque._data[frontIndex];\r\n        delete deque._data[frontIndex];\r\n        unchecked {\r\n            deque._begin = frontIndex + 1;\r\n        }\r\n    }\r\n\r\n    /**\r\n     * @dev Returns the item at the beginning of the queue.\r\n     *\r\n     * Reverts with `Empty` if the queue is empty.\r\n     */\r\n    function front(Bytes32Deque storage deque) internal view returns (bytes32 value) {\r\n        if (empty(deque)) revert Empty();\r\n        int128 frontIndex = deque._begin;\r\n        return deque._data[frontIndex];\r\n    }\r\n\r\n    /**\r\n     * @dev Returns the item at the end of the queue.\r\n     *\r\n     * Reverts with `Empty` if the queue is empty.\r\n     */\r\n    function back(Bytes32Deque storage deque) internal view returns (bytes32 value) {\r\n        if (empty(deque)) revert Empty();\r\n        int128 backIndex;\r\n        unchecked {\r\n            backIndex = deque._end - 1;\r\n        }\r\n        return deque._data[backIndex];\r\n    }\r\n\r\n    /**\r\n     * @dev Return the item at a position in the queue given by `index`, with the first item at 0 and last item at\r\n     * `length(deque) - 1`.\r\n     *\r\n     * Reverts with `OutOfBounds` if the index is out of bounds.\r\n     */\r\n    function at(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32 value) {\r\n        // int256(deque._begin) is a safe upcast\r\n        int128 idx = SafeCast.toInt128(int256(deque._begin) + SafeCast.toInt256(index));\r\n        if (idx >= deque._end) revert OutOfBounds();\r\n        return deque._data[idx];\r\n    }\r\n\r\n    /**\r\n     * @dev Resets the queue back to being empty.\r\n     *\r\n     * NOTE: The current items are left behind in storage. This does not affect the functioning of the queue, but misses\r\n     * out on potential gas refunds.\r\n     */\r\n    function clear(Bytes32Deque storage deque) internal {\r\n        deque._begin = 0;\r\n        deque._end = 0;\r\n    }\r\n\r\n    /**\r\n     * @dev Returns the number of items in the queue.\r\n     */\r\n    function length(Bytes32Deque storage deque) internal view returns (uint256) {\r\n        // The interface preserves the invariant that begin <= end so we assume this will not overflow.\r\n        // We also assume there are at most int256.max items in the queue.\r\n        unchecked {\r\n            return uint256(int256(deque._end) - int256(deque._begin));\r\n        }\r\n    }\r\n\r\n    /**\r\n     * @dev Returns true if the queue is empty.\r\n     */\r\n    function empty(Bytes32Deque storage deque) internal view returns (bool) {\r\n        return deque._end <= deque._begin;\r\n    }\r\n}\r\n",
+  "sourcePath": "C:\\Users\\SSAFY\\Desktop\\S08P22A308\\smart-contracts\\contracts\\utils\\structs\\DoubleEndedQueue.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/utils/structs/DoubleEndedQueue.sol",
+    "exportedSymbols": {
+      "DoubleEndedQueue": [
+        37568
+      ],
+      "SafeCast": [
+        36608
+      ]
+    },
+    "id": 37569,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 37229,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".4"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "119:23:245"
+      },
+      {
+        "absolutePath": "project:/contracts/utils/math/SafeCast.sol",
+        "file": "../math/SafeCast.sol",
+        "id": 37230,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 37569,
+        "sourceUnit": 36609,
+        "src": "146:30:245",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "DoubleEndedQueue",
+        "contractDependencies": [],
+        "contractKind": "library",
+        "documentation": {
+          "id": 37231,
+          "nodeType": "StructuredDocumentation",
+          "src": "180:681:245",
+          "text": " @dev A sequence of items with the ability to efficiently push and pop items (i.e. insert and remove) on both ends of\n the sequence (called front and back). Among other access patterns, it can be used to implement efficient LIFO and\n FIFO queues. Storage use is optimized, and all operations are O(1) constant time. This includes {clear}, given that\n the existing queue contents are left in storage.\n The struct is called `Bytes32Deque`. Other types can be cast to and from `bytes32`. This data structure can only be\n used in storage, and not in memory.\n ```solidity\n DoubleEndedQueue.Bytes32Deque queue;\n ```\n _Available since v4.6._"
+        },
+        "fullyImplemented": true,
+        "id": 37568,
+        "linearizedBaseContracts": [
+          37568
+        ],
+        "name": "DoubleEndedQueue",
+        "nameLocation": "871:16:245",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "documentation": {
+              "id": 37232,
+              "nodeType": "StructuredDocumentation",
+              "src": "895:105:245",
+              "text": " @dev An operation (e.g. {front}) couldn't be completed due to the queue being empty."
+            },
+            "errorSelector": "3db2a12a",
+            "id": 37234,
+            "name": "Empty",
+            "nameLocation": "1012:5:245",
+            "nodeType": "ErrorDefinition",
+            "parameters": {
+              "id": 37233,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1017:2:245"
+            },
+            "src": "1006:14:245"
+          },
+          {
+            "documentation": {
+              "id": 37235,
+              "nodeType": "StructuredDocumentation",
+              "src": "1028:109:245",
+              "text": " @dev An operation (e.g. {at}) couldn't be completed due to an index being out of bounds."
+            },
+            "errorSelector": "b4120f14",
+            "id": 37237,
+            "name": "OutOfBounds",
+            "nameLocation": "1149:11:245",
+            "nodeType": "ErrorDefinition",
+            "parameters": {
+              "id": 37236,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1160:2:245"
+            },
+            "src": "1143:20:245"
+          },
+          {
+            "canonicalName": "DoubleEndedQueue.Bytes32Deque",
+            "id": 37246,
+            "members": [
+              {
+                "constant": false,
+                "id": 37239,
+                "mutability": "mutable",
+                "name": "_begin",
+                "nameLocation": "1989:6:245",
+                "nodeType": "VariableDeclaration",
+                "scope": 37246,
+                "src": "1982:13:245",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_int128",
+                  "typeString": "int128"
+                },
+                "typeName": {
+                  "id": 37238,
+                  "name": "int128",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "1982:6:245",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_int128",
+                    "typeString": "int128"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 37241,
+                "mutability": "mutable",
+                "name": "_end",
+                "nameLocation": "2013:4:245",
+                "nodeType": "VariableDeclaration",
+                "scope": 37246,
+                "src": "2006:11:245",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_int128",
+                  "typeString": "int128"
+                },
+                "typeName": {
+                  "id": 37240,
+                  "name": "int128",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "2006:6:245",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_int128",
+                    "typeString": "int128"
+                  }
+                },
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 37245,
+                "mutability": "mutable",
+                "name": "_data",
+                "nameLocation": "2055:5:245",
+                "nodeType": "VariableDeclaration",
+                "scope": 37246,
+                "src": "2028:32:245",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_mapping$_t_int128_$_t_bytes32_$",
+                  "typeString": "mapping(int128 => bytes32)"
+                },
+                "typeName": {
+                  "id": 37244,
+                  "keyName": "",
+                  "keyNameLocation": "-1:-1:-1",
+                  "keyType": {
+                    "id": 37242,
+                    "name": "int128",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2036:6:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int128",
+                      "typeString": "int128"
+                    }
+                  },
+                  "nodeType": "Mapping",
+                  "src": "2028:26:245",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_mapping$_t_int128_$_t_bytes32_$",
+                    "typeString": "mapping(int128 => bytes32)"
+                  },
+                  "valueName": "",
+                  "valueNameLocation": "-1:-1:-1",
+                  "valueType": {
+                    "id": 37243,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2046:7:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  }
+                },
+                "visibility": "internal"
+              }
+            ],
+            "name": "Bytes32Deque",
+            "nameLocation": "1958:12:245",
+            "nodeType": "StructDefinition",
+            "scope": 37568,
+            "src": "1951:117:245",
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 37277,
+              "nodeType": "Block",
+              "src": "2218:162:245",
+              "statements": [
+                {
+                  "assignments": [
+                    37256
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 37256,
+                      "mutability": "mutable",
+                      "name": "backIndex",
+                      "nameLocation": "2236:9:245",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 37277,
+                      "src": "2229:16:245",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      },
+                      "typeName": {
+                        "id": 37255,
+                        "name": "int128",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "2229:6:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 37259,
+                  "initialValue": {
+                    "expression": {
+                      "id": 37257,
+                      "name": "deque",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37250,
+                      "src": "2248:5:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                        "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                      }
+                    },
+                    "id": 37258,
+                    "isConstant": false,
+                    "isLValue": true,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "memberLocation": "2254:4:245",
+                    "memberName": "_end",
+                    "nodeType": "MemberAccess",
+                    "referencedDeclaration": 37241,
+                    "src": "2248:10:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int128",
+                      "typeString": "int128"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "2229:29:245"
+                },
+                {
+                  "expression": {
+                    "id": 37266,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "baseExpression": {
+                        "expression": {
+                          "id": 37260,
+                          "name": "deque",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 37250,
+                          "src": "2269:5:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                            "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                          }
+                        },
+                        "id": 37263,
+                        "isConstant": false,
+                        "isLValue": true,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "2275:5:245",
+                        "memberName": "_data",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 37245,
+                        "src": "2269:11:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_mapping$_t_int128_$_t_bytes32_$",
+                          "typeString": "mapping(int128 => bytes32)"
+                        }
+                      },
+                      "id": 37264,
+                      "indexExpression": {
+                        "id": 37262,
+                        "name": "backIndex",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37256,
+                        "src": "2281:9:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "nodeType": "IndexAccess",
+                      "src": "2269:22:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "id": 37265,
+                      "name": "value",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37252,
+                      "src": "2294:5:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "src": "2269:30:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "id": 37267,
+                  "nodeType": "ExpressionStatement",
+                  "src": "2269:30:245"
+                },
+                {
+                  "id": 37276,
+                  "nodeType": "UncheckedBlock",
+                  "src": "2310:63:245",
+                  "statements": [
+                    {
+                      "expression": {
+                        "id": 37274,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftHandSide": {
+                          "expression": {
+                            "id": 37268,
+                            "name": "deque",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 37250,
+                            "src": "2335:5:245",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                              "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                            }
+                          },
+                          "id": 37270,
+                          "isConstant": false,
+                          "isLValue": true,
+                          "isPure": false,
+                          "lValueRequested": true,
+                          "memberLocation": "2341:4:245",
+                          "memberName": "_end",
+                          "nodeType": "MemberAccess",
+                          "referencedDeclaration": 37241,
+                          "src": "2335:10:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_int128",
+                            "typeString": "int128"
+                          }
+                        },
+                        "nodeType": "Assignment",
+                        "operator": "=",
+                        "rightHandSide": {
+                          "commonType": {
+                            "typeIdentifier": "t_int128",
+                            "typeString": "int128"
+                          },
+                          "id": 37273,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftExpression": {
+                            "id": 37271,
+                            "name": "backIndex",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 37256,
+                            "src": "2348:9:245",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_int128",
+                              "typeString": "int128"
+                            }
+                          },
+                          "nodeType": "BinaryOperation",
+                          "operator": "+",
+                          "rightExpression": {
+                            "hexValue": "31",
+                            "id": 37272,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "number",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "2360:1:245",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_rational_1_by_1",
+                              "typeString": "int_const 1"
+                            },
+                            "value": "1"
+                          },
+                          "src": "2348:13:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_int128",
+                            "typeString": "int128"
+                          }
+                        },
+                        "src": "2335:26:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "id": 37275,
+                      "nodeType": "ExpressionStatement",
+                      "src": "2335:26:245"
+                    }
+                  ]
+                }
+              ]
+            },
+            "documentation": {
+              "id": 37247,
+              "nodeType": "StructuredDocumentation",
+              "src": "2076:66:245",
+              "text": " @dev Inserts an item at the end of the queue."
+            },
+            "id": 37278,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "pushBack",
+            "nameLocation": "2157:8:245",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 37253,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37250,
+                  "mutability": "mutable",
+                  "name": "deque",
+                  "nameLocation": "2187:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37278,
+                  "src": "2166:26:245",
+                  "stateVariable": false,
+                  "storageLocation": "storage",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                    "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                  },
+                  "typeName": {
+                    "id": 37249,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 37248,
+                      "name": "Bytes32Deque",
+                      "nameLocations": [
+                        "2166:12:245"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 37246,
+                      "src": "2166:12:245"
+                    },
+                    "referencedDeclaration": 37246,
+                    "src": "2166:12:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                      "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 37252,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "2202:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37278,
+                  "src": "2194:13:245",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 37251,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2194:7:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2165:43:245"
+            },
+            "returnParameters": {
+              "id": 37254,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "2218:0:245"
+            },
+            "scope": 37568,
+            "src": "2148:232:245",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 37324,
+              "nodeType": "Block",
+              "src": "2614:265:245",
+              "statements": [
+                {
+                  "condition": {
+                    "arguments": [
+                      {
+                        "id": 37288,
+                        "name": "deque",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37282,
+                        "src": "2635:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      ],
+                      "id": 37287,
+                      "name": "empty",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37567,
+                      "src": "2629:5:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_struct$_Bytes32Deque_$37246_storage_ptr_$returns$_t_bool_$",
+                        "typeString": "function (struct DoubleEndedQueue.Bytes32Deque storage pointer) view returns (bool)"
+                      }
+                    },
+                    "id": 37289,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "2629:12:245",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 37293,
+                  "nodeType": "IfStatement",
+                  "src": "2625:32:245",
+                  "trueBody": {
+                    "errorCall": {
+                      "arguments": [],
+                      "expression": {
+                        "argumentTypes": [],
+                        "id": 37290,
+                        "name": "Empty",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37234,
+                        "src": "2650:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_error_pure$__$returns$__$",
+                          "typeString": "function () pure"
+                        }
+                      },
+                      "id": 37291,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "2650:7:245",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_tuple$__$",
+                        "typeString": "tuple()"
+                      }
+                    },
+                    "id": 37292,
+                    "nodeType": "RevertStatement",
+                    "src": "2643:14:245"
+                  }
+                },
+                {
+                  "assignments": [
+                    37295
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 37295,
+                      "mutability": "mutable",
+                      "name": "backIndex",
+                      "nameLocation": "2675:9:245",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 37324,
+                      "src": "2668:16:245",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      },
+                      "typeName": {
+                        "id": 37294,
+                        "name": "int128",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "2668:6:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 37296,
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "2668:16:245"
+                },
+                {
+                  "id": 37304,
+                  "nodeType": "UncheckedBlock",
+                  "src": "2695:63:245",
+                  "statements": [
+                    {
+                      "expression": {
+                        "id": 37302,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftHandSide": {
+                          "id": 37297,
+                          "name": "backIndex",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 37295,
+                          "src": "2720:9:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_int128",
+                            "typeString": "int128"
+                          }
+                        },
+                        "nodeType": "Assignment",
+                        "operator": "=",
+                        "rightHandSide": {
+                          "commonType": {
+                            "typeIdentifier": "t_int128",
+                            "typeString": "int128"
+                          },
+                          "id": 37301,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftExpression": {
+                            "expression": {
+                              "id": 37298,
+                              "name": "deque",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 37282,
+                              "src": "2732:5:245",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                                "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                              }
+                            },
+                            "id": 37299,
+                            "isConstant": false,
+                            "isLValue": true,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberLocation": "2738:4:245",
+                            "memberName": "_end",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": 37241,
+                            "src": "2732:10:245",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_int128",
+                              "typeString": "int128"
+                            }
+                          },
+                          "nodeType": "BinaryOperation",
+                          "operator": "-",
+                          "rightExpression": {
+                            "hexValue": "31",
+                            "id": 37300,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "number",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "2745:1:245",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_rational_1_by_1",
+                              "typeString": "int_const 1"
+                            },
+                            "value": "1"
+                          },
+                          "src": "2732:14:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_int128",
+                            "typeString": "int128"
+                          }
+                        },
+                        "src": "2720:26:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "id": 37303,
+                      "nodeType": "ExpressionStatement",
+                      "src": "2720:26:245"
+                    }
+                  ]
+                },
+                {
+                  "expression": {
+                    "id": 37310,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "id": 37305,
+                      "name": "value",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37285,
+                      "src": "2768:5:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "baseExpression": {
+                        "expression": {
+                          "id": 37306,
+                          "name": "deque",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 37282,
+                          "src": "2776:5:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                            "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                          }
+                        },
+                        "id": 37307,
+                        "isConstant": false,
+                        "isLValue": true,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "2782:5:245",
+                        "memberName": "_data",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 37245,
+                        "src": "2776:11:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_mapping$_t_int128_$_t_bytes32_$",
+                          "typeString": "mapping(int128 => bytes32)"
+                        }
+                      },
+                      "id": 37309,
+                      "indexExpression": {
+                        "id": 37308,
+                        "name": "backIndex",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37295,
+                        "src": "2788:9:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "nodeType": "IndexAccess",
+                      "src": "2776:22:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "src": "2768:30:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "id": 37311,
+                  "nodeType": "ExpressionStatement",
+                  "src": "2768:30:245"
+                },
+                {
+                  "expression": {
+                    "id": 37316,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "UnaryOperation",
+                    "operator": "delete",
+                    "prefix": true,
+                    "src": "2809:29:245",
+                    "subExpression": {
+                      "baseExpression": {
+                        "expression": {
+                          "id": 37312,
+                          "name": "deque",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 37282,
+                          "src": "2816:5:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                            "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                          }
+                        },
+                        "id": 37313,
+                        "isConstant": false,
+                        "isLValue": true,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "2822:5:245",
+                        "memberName": "_data",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 37245,
+                        "src": "2816:11:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_mapping$_t_int128_$_t_bytes32_$",
+                          "typeString": "mapping(int128 => bytes32)"
+                        }
+                      },
+                      "id": 37315,
+                      "indexExpression": {
+                        "id": 37314,
+                        "name": "backIndex",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37295,
+                        "src": "2828:9:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "nodeType": "IndexAccess",
+                      "src": "2816:22:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 37317,
+                  "nodeType": "ExpressionStatement",
+                  "src": "2809:29:245"
+                },
+                {
+                  "expression": {
+                    "id": 37322,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "expression": {
+                        "id": 37318,
+                        "name": "deque",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37282,
+                        "src": "2849:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      },
+                      "id": 37320,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "memberLocation": "2855:4:245",
+                      "memberName": "_end",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 37241,
+                      "src": "2849:10:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "id": 37321,
+                      "name": "backIndex",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37295,
+                      "src": "2862:9:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      }
+                    },
+                    "src": "2849:22:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int128",
+                      "typeString": "int128"
+                    }
+                  },
+                  "id": 37323,
+                  "nodeType": "ExpressionStatement",
+                  "src": "2849:22:245"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 37279,
+              "nodeType": "StructuredDocumentation",
+              "src": "2388:142:245",
+              "text": " @dev Removes the item at the end of the queue and returns it.\n Reverts with `Empty` if the queue is empty."
+            },
+            "id": 37325,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "popBack",
+            "nameLocation": "2545:7:245",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 37283,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37282,
+                  "mutability": "mutable",
+                  "name": "deque",
+                  "nameLocation": "2574:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37325,
+                  "src": "2553:26:245",
+                  "stateVariable": false,
+                  "storageLocation": "storage",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                    "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                  },
+                  "typeName": {
+                    "id": 37281,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 37280,
+                      "name": "Bytes32Deque",
+                      "nameLocations": [
+                        "2553:12:245"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 37246,
+                      "src": "2553:12:245"
+                    },
+                    "referencedDeclaration": 37246,
+                    "src": "2553:12:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                      "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2552:28:245"
+            },
+            "returnParameters": {
+              "id": 37286,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37285,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "2607:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37325,
+                  "src": "2599:13:245",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 37284,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2599:7:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2598:15:245"
+            },
+            "scope": 37568,
+            "src": "2536:343:245",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 37359,
+              "nodeType": "Block",
+              "src": "3036:190:245",
+              "statements": [
+                {
+                  "assignments": [
+                    37335
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 37335,
+                      "mutability": "mutable",
+                      "name": "frontIndex",
+                      "nameLocation": "3054:10:245",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 37359,
+                      "src": "3047:17:245",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      },
+                      "typeName": {
+                        "id": 37334,
+                        "name": "int128",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "3047:6:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 37336,
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "3047:17:245"
+                },
+                {
+                  "id": 37344,
+                  "nodeType": "UncheckedBlock",
+                  "src": "3075:66:245",
+                  "statements": [
+                    {
+                      "expression": {
+                        "id": 37342,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftHandSide": {
+                          "id": 37337,
+                          "name": "frontIndex",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 37335,
+                          "src": "3100:10:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_int128",
+                            "typeString": "int128"
+                          }
+                        },
+                        "nodeType": "Assignment",
+                        "operator": "=",
+                        "rightHandSide": {
+                          "commonType": {
+                            "typeIdentifier": "t_int128",
+                            "typeString": "int128"
+                          },
+                          "id": 37341,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftExpression": {
+                            "expression": {
+                              "id": 37338,
+                              "name": "deque",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 37329,
+                              "src": "3113:5:245",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                                "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                              }
+                            },
+                            "id": 37339,
+                            "isConstant": false,
+                            "isLValue": true,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberLocation": "3119:6:245",
+                            "memberName": "_begin",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": 37239,
+                            "src": "3113:12:245",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_int128",
+                              "typeString": "int128"
+                            }
+                          },
+                          "nodeType": "BinaryOperation",
+                          "operator": "-",
+                          "rightExpression": {
+                            "hexValue": "31",
+                            "id": 37340,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "number",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "3128:1:245",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_rational_1_by_1",
+                              "typeString": "int_const 1"
+                            },
+                            "value": "1"
+                          },
+                          "src": "3113:16:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_int128",
+                            "typeString": "int128"
+                          }
+                        },
+                        "src": "3100:29:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "id": 37343,
+                      "nodeType": "ExpressionStatement",
+                      "src": "3100:29:245"
+                    }
+                  ]
+                },
+                {
+                  "expression": {
+                    "id": 37351,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "baseExpression": {
+                        "expression": {
+                          "id": 37345,
+                          "name": "deque",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 37329,
+                          "src": "3151:5:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                            "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                          }
+                        },
+                        "id": 37348,
+                        "isConstant": false,
+                        "isLValue": true,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "3157:5:245",
+                        "memberName": "_data",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 37245,
+                        "src": "3151:11:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_mapping$_t_int128_$_t_bytes32_$",
+                          "typeString": "mapping(int128 => bytes32)"
+                        }
+                      },
+                      "id": 37349,
+                      "indexExpression": {
+                        "id": 37347,
+                        "name": "frontIndex",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37335,
+                        "src": "3163:10:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "nodeType": "IndexAccess",
+                      "src": "3151:23:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "id": 37350,
+                      "name": "value",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37331,
+                      "src": "3177:5:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "src": "3151:31:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "id": 37352,
+                  "nodeType": "ExpressionStatement",
+                  "src": "3151:31:245"
+                },
+                {
+                  "expression": {
+                    "id": 37357,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "expression": {
+                        "id": 37353,
+                        "name": "deque",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37329,
+                        "src": "3193:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      },
+                      "id": 37355,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "memberLocation": "3199:6:245",
+                      "memberName": "_begin",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 37239,
+                      "src": "3193:12:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "id": 37356,
+                      "name": "frontIndex",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37335,
+                      "src": "3208:10:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      }
+                    },
+                    "src": "3193:25:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int128",
+                      "typeString": "int128"
+                    }
+                  },
+                  "id": 37358,
+                  "nodeType": "ExpressionStatement",
+                  "src": "3193:25:245"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 37326,
+              "nodeType": "StructuredDocumentation",
+              "src": "2887:72:245",
+              "text": " @dev Inserts an item at the beginning of the queue."
+            },
+            "id": 37360,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "pushFront",
+            "nameLocation": "2974:9:245",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 37332,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37329,
+                  "mutability": "mutable",
+                  "name": "deque",
+                  "nameLocation": "3005:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37360,
+                  "src": "2984:26:245",
+                  "stateVariable": false,
+                  "storageLocation": "storage",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                    "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                  },
+                  "typeName": {
+                    "id": 37328,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 37327,
+                      "name": "Bytes32Deque",
+                      "nameLocations": [
+                        "2984:12:245"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 37246,
+                      "src": "2984:12:245"
+                    },
+                    "referencedDeclaration": 37246,
+                    "src": "2984:12:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                      "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 37331,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "3020:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37360,
+                  "src": "3012:13:245",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 37330,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3012:7:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2983:43:245"
+            },
+            "returnParameters": {
+              "id": 37333,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "3036:0:245"
+            },
+            "scope": 37568,
+            "src": "2965:261:245",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 37403,
+              "nodeType": "Block",
+              "src": "3467:253:245",
+              "statements": [
+                {
+                  "condition": {
+                    "arguments": [
+                      {
+                        "id": 37370,
+                        "name": "deque",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37364,
+                        "src": "3488:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      ],
+                      "id": 37369,
+                      "name": "empty",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37567,
+                      "src": "3482:5:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_struct$_Bytes32Deque_$37246_storage_ptr_$returns$_t_bool_$",
+                        "typeString": "function (struct DoubleEndedQueue.Bytes32Deque storage pointer) view returns (bool)"
+                      }
+                    },
+                    "id": 37371,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "3482:12:245",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 37375,
+                  "nodeType": "IfStatement",
+                  "src": "3478:32:245",
+                  "trueBody": {
+                    "errorCall": {
+                      "arguments": [],
+                      "expression": {
+                        "argumentTypes": [],
+                        "id": 37372,
+                        "name": "Empty",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37234,
+                        "src": "3503:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_error_pure$__$returns$__$",
+                          "typeString": "function () pure"
+                        }
+                      },
+                      "id": 37373,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "3503:7:245",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_tuple$__$",
+                        "typeString": "tuple()"
+                      }
+                    },
+                    "id": 37374,
+                    "nodeType": "RevertStatement",
+                    "src": "3496:14:245"
+                  }
+                },
+                {
+                  "assignments": [
+                    37377
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 37377,
+                      "mutability": "mutable",
+                      "name": "frontIndex",
+                      "nameLocation": "3528:10:245",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 37403,
+                      "src": "3521:17:245",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      },
+                      "typeName": {
+                        "id": 37376,
+                        "name": "int128",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "3521:6:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 37380,
+                  "initialValue": {
+                    "expression": {
+                      "id": 37378,
+                      "name": "deque",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37364,
+                      "src": "3541:5:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                        "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                      }
+                    },
+                    "id": 37379,
+                    "isConstant": false,
+                    "isLValue": true,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "memberLocation": "3547:6:245",
+                    "memberName": "_begin",
+                    "nodeType": "MemberAccess",
+                    "referencedDeclaration": 37239,
+                    "src": "3541:12:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int128",
+                      "typeString": "int128"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "3521:32:245"
+                },
+                {
+                  "expression": {
+                    "id": 37386,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "id": 37381,
+                      "name": "value",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37367,
+                      "src": "3564:5:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "baseExpression": {
+                        "expression": {
+                          "id": 37382,
+                          "name": "deque",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 37364,
+                          "src": "3572:5:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                            "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                          }
+                        },
+                        "id": 37383,
+                        "isConstant": false,
+                        "isLValue": true,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "3578:5:245",
+                        "memberName": "_data",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 37245,
+                        "src": "3572:11:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_mapping$_t_int128_$_t_bytes32_$",
+                          "typeString": "mapping(int128 => bytes32)"
+                        }
+                      },
+                      "id": 37385,
+                      "indexExpression": {
+                        "id": 37384,
+                        "name": "frontIndex",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37377,
+                        "src": "3584:10:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "nodeType": "IndexAccess",
+                      "src": "3572:23:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "src": "3564:31:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "id": 37387,
+                  "nodeType": "ExpressionStatement",
+                  "src": "3564:31:245"
+                },
+                {
+                  "expression": {
+                    "id": 37392,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "UnaryOperation",
+                    "operator": "delete",
+                    "prefix": true,
+                    "src": "3606:30:245",
+                    "subExpression": {
+                      "baseExpression": {
+                        "expression": {
+                          "id": 37388,
+                          "name": "deque",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 37364,
+                          "src": "3613:5:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                            "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                          }
+                        },
+                        "id": 37389,
+                        "isConstant": false,
+                        "isLValue": true,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "memberLocation": "3619:5:245",
+                        "memberName": "_data",
+                        "nodeType": "MemberAccess",
+                        "referencedDeclaration": 37245,
+                        "src": "3613:11:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_mapping$_t_int128_$_t_bytes32_$",
+                          "typeString": "mapping(int128 => bytes32)"
+                        }
+                      },
+                      "id": 37391,
+                      "indexExpression": {
+                        "id": 37390,
+                        "name": "frontIndex",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37377,
+                        "src": "3625:10:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "nodeType": "IndexAccess",
+                      "src": "3613:23:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 37393,
+                  "nodeType": "ExpressionStatement",
+                  "src": "3606:30:245"
+                },
+                {
+                  "id": 37402,
+                  "nodeType": "UncheckedBlock",
+                  "src": "3647:66:245",
+                  "statements": [
+                    {
+                      "expression": {
+                        "id": 37400,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftHandSide": {
+                          "expression": {
+                            "id": 37394,
+                            "name": "deque",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 37364,
+                            "src": "3672:5:245",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                              "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                            }
+                          },
+                          "id": 37396,
+                          "isConstant": false,
+                          "isLValue": true,
+                          "isPure": false,
+                          "lValueRequested": true,
+                          "memberLocation": "3678:6:245",
+                          "memberName": "_begin",
+                          "nodeType": "MemberAccess",
+                          "referencedDeclaration": 37239,
+                          "src": "3672:12:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_int128",
+                            "typeString": "int128"
+                          }
+                        },
+                        "nodeType": "Assignment",
+                        "operator": "=",
+                        "rightHandSide": {
+                          "commonType": {
+                            "typeIdentifier": "t_int128",
+                            "typeString": "int128"
+                          },
+                          "id": 37399,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftExpression": {
+                            "id": 37397,
+                            "name": "frontIndex",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 37377,
+                            "src": "3687:10:245",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_int128",
+                              "typeString": "int128"
+                            }
+                          },
+                          "nodeType": "BinaryOperation",
+                          "operator": "+",
+                          "rightExpression": {
+                            "hexValue": "31",
+                            "id": 37398,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "number",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "3700:1:245",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_rational_1_by_1",
+                              "typeString": "int_const 1"
+                            },
+                            "value": "1"
+                          },
+                          "src": "3687:14:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_int128",
+                            "typeString": "int128"
+                          }
+                        },
+                        "src": "3672:29:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "id": 37401,
+                      "nodeType": "ExpressionStatement",
+                      "src": "3672:29:245"
+                    }
+                  ]
+                }
+              ]
+            },
+            "documentation": {
+              "id": 37361,
+              "nodeType": "StructuredDocumentation",
+              "src": "3234:148:245",
+              "text": " @dev Removes the item at the beginning of the queue and returns it.\n Reverts with `Empty` if the queue is empty."
+            },
+            "id": 37404,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "popFront",
+            "nameLocation": "3397:8:245",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 37365,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37364,
+                  "mutability": "mutable",
+                  "name": "deque",
+                  "nameLocation": "3427:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37404,
+                  "src": "3406:26:245",
+                  "stateVariable": false,
+                  "storageLocation": "storage",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                    "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                  },
+                  "typeName": {
+                    "id": 37363,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 37362,
+                      "name": "Bytes32Deque",
+                      "nameLocations": [
+                        "3406:12:245"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 37246,
+                      "src": "3406:12:245"
+                    },
+                    "referencedDeclaration": 37246,
+                    "src": "3406:12:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                      "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3405:28:245"
+            },
+            "returnParameters": {
+              "id": 37368,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37367,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "3460:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37404,
+                  "src": "3452:13:245",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 37366,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3452:7:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3451:15:245"
+            },
+            "scope": 37568,
+            "src": "3388:332:245",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 37430,
+              "nodeType": "Block",
+              "src": "3948:135:245",
+              "statements": [
+                {
+                  "condition": {
+                    "arguments": [
+                      {
+                        "id": 37414,
+                        "name": "deque",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37408,
+                        "src": "3969:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      ],
+                      "id": 37413,
+                      "name": "empty",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37567,
+                      "src": "3963:5:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_struct$_Bytes32Deque_$37246_storage_ptr_$returns$_t_bool_$",
+                        "typeString": "function (struct DoubleEndedQueue.Bytes32Deque storage pointer) view returns (bool)"
+                      }
+                    },
+                    "id": 37415,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "3963:12:245",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 37419,
+                  "nodeType": "IfStatement",
+                  "src": "3959:32:245",
+                  "trueBody": {
+                    "errorCall": {
+                      "arguments": [],
+                      "expression": {
+                        "argumentTypes": [],
+                        "id": 37416,
+                        "name": "Empty",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37234,
+                        "src": "3984:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_error_pure$__$returns$__$",
+                          "typeString": "function () pure"
+                        }
+                      },
+                      "id": 37417,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "3984:7:245",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_tuple$__$",
+                        "typeString": "tuple()"
+                      }
+                    },
+                    "id": 37418,
+                    "nodeType": "RevertStatement",
+                    "src": "3977:14:245"
+                  }
+                },
+                {
+                  "assignments": [
+                    37421
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 37421,
+                      "mutability": "mutable",
+                      "name": "frontIndex",
+                      "nameLocation": "4009:10:245",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 37430,
+                      "src": "4002:17:245",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      },
+                      "typeName": {
+                        "id": 37420,
+                        "name": "int128",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "4002:6:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 37424,
+                  "initialValue": {
+                    "expression": {
+                      "id": 37422,
+                      "name": "deque",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37408,
+                      "src": "4022:5:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                        "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                      }
+                    },
+                    "id": 37423,
+                    "isConstant": false,
+                    "isLValue": true,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "memberLocation": "4028:6:245",
+                    "memberName": "_begin",
+                    "nodeType": "MemberAccess",
+                    "referencedDeclaration": 37239,
+                    "src": "4022:12:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int128",
+                      "typeString": "int128"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "4002:32:245"
+                },
+                {
+                  "expression": {
+                    "baseExpression": {
+                      "expression": {
+                        "id": 37425,
+                        "name": "deque",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37408,
+                        "src": "4052:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      },
+                      "id": 37426,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "4058:5:245",
+                      "memberName": "_data",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 37245,
+                      "src": "4052:11:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_mapping$_t_int128_$_t_bytes32_$",
+                        "typeString": "mapping(int128 => bytes32)"
+                      }
+                    },
+                    "id": 37428,
+                    "indexExpression": {
+                      "id": 37427,
+                      "name": "frontIndex",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37421,
+                      "src": "4064:10:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      }
+                    },
+                    "isConstant": false,
+                    "isLValue": true,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "IndexAccess",
+                    "src": "4052:23:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "functionReturnParameters": 37412,
+                  "id": 37429,
+                  "nodeType": "Return",
+                  "src": "4045:30:245"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 37405,
+              "nodeType": "StructuredDocumentation",
+              "src": "3728:133:245",
+              "text": " @dev Returns the item at the beginning of the queue.\n Reverts with `Empty` if the queue is empty."
+            },
+            "id": 37431,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "front",
+            "nameLocation": "3876:5:245",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 37409,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37408,
+                  "mutability": "mutable",
+                  "name": "deque",
+                  "nameLocation": "3903:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37431,
+                  "src": "3882:26:245",
+                  "stateVariable": false,
+                  "storageLocation": "storage",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                    "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                  },
+                  "typeName": {
+                    "id": 37407,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 37406,
+                      "name": "Bytes32Deque",
+                      "nameLocations": [
+                        "3882:12:245"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 37246,
+                      "src": "3882:12:245"
+                    },
+                    "referencedDeclaration": 37246,
+                    "src": "3882:12:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                      "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3881:28:245"
+            },
+            "returnParameters": {
+              "id": 37412,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37411,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "3941:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37431,
+                  "src": "3933:13:245",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 37410,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "3933:7:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "3932:15:245"
+            },
+            "scope": 37568,
+            "src": "3867:216:245",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 37463,
+              "nodeType": "Block",
+              "src": "4304:191:245",
+              "statements": [
+                {
+                  "condition": {
+                    "arguments": [
+                      {
+                        "id": 37441,
+                        "name": "deque",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37435,
+                        "src": "4325:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      ],
+                      "id": 37440,
+                      "name": "empty",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37567,
+                      "src": "4319:5:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_struct$_Bytes32Deque_$37246_storage_ptr_$returns$_t_bool_$",
+                        "typeString": "function (struct DoubleEndedQueue.Bytes32Deque storage pointer) view returns (bool)"
+                      }
+                    },
+                    "id": 37442,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "4319:12:245",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 37446,
+                  "nodeType": "IfStatement",
+                  "src": "4315:32:245",
+                  "trueBody": {
+                    "errorCall": {
+                      "arguments": [],
+                      "expression": {
+                        "argumentTypes": [],
+                        "id": 37443,
+                        "name": "Empty",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37234,
+                        "src": "4340:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_error_pure$__$returns$__$",
+                          "typeString": "function () pure"
+                        }
+                      },
+                      "id": 37444,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "4340:7:245",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_tuple$__$",
+                        "typeString": "tuple()"
+                      }
+                    },
+                    "id": 37445,
+                    "nodeType": "RevertStatement",
+                    "src": "4333:14:245"
+                  }
+                },
+                {
+                  "assignments": [
+                    37448
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 37448,
+                      "mutability": "mutable",
+                      "name": "backIndex",
+                      "nameLocation": "4365:9:245",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 37463,
+                      "src": "4358:16:245",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      },
+                      "typeName": {
+                        "id": 37447,
+                        "name": "int128",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "4358:6:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 37449,
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "4358:16:245"
+                },
+                {
+                  "id": 37457,
+                  "nodeType": "UncheckedBlock",
+                  "src": "4385:63:245",
+                  "statements": [
+                    {
+                      "expression": {
+                        "id": 37455,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftHandSide": {
+                          "id": 37450,
+                          "name": "backIndex",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 37448,
+                          "src": "4410:9:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_int128",
+                            "typeString": "int128"
+                          }
+                        },
+                        "nodeType": "Assignment",
+                        "operator": "=",
+                        "rightHandSide": {
+                          "commonType": {
+                            "typeIdentifier": "t_int128",
+                            "typeString": "int128"
+                          },
+                          "id": 37454,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftExpression": {
+                            "expression": {
+                              "id": 37451,
+                              "name": "deque",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 37435,
+                              "src": "4422:5:245",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                                "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                              }
+                            },
+                            "id": 37452,
+                            "isConstant": false,
+                            "isLValue": true,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberLocation": "4428:4:245",
+                            "memberName": "_end",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": 37241,
+                            "src": "4422:10:245",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_int128",
+                              "typeString": "int128"
+                            }
+                          },
+                          "nodeType": "BinaryOperation",
+                          "operator": "-",
+                          "rightExpression": {
+                            "hexValue": "31",
+                            "id": 37453,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "number",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "4435:1:245",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_rational_1_by_1",
+                              "typeString": "int_const 1"
+                            },
+                            "value": "1"
+                          },
+                          "src": "4422:14:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_int128",
+                            "typeString": "int128"
+                          }
+                        },
+                        "src": "4410:26:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "id": 37456,
+                      "nodeType": "ExpressionStatement",
+                      "src": "4410:26:245"
+                    }
+                  ]
+                },
+                {
+                  "expression": {
+                    "baseExpression": {
+                      "expression": {
+                        "id": 37458,
+                        "name": "deque",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37435,
+                        "src": "4465:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      },
+                      "id": 37459,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "4471:5:245",
+                      "memberName": "_data",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 37245,
+                      "src": "4465:11:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_mapping$_t_int128_$_t_bytes32_$",
+                        "typeString": "mapping(int128 => bytes32)"
+                      }
+                    },
+                    "id": 37461,
+                    "indexExpression": {
+                      "id": 37460,
+                      "name": "backIndex",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37448,
+                      "src": "4477:9:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      }
+                    },
+                    "isConstant": false,
+                    "isLValue": true,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "IndexAccess",
+                    "src": "4465:22:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "functionReturnParameters": 37439,
+                  "id": 37462,
+                  "nodeType": "Return",
+                  "src": "4458:29:245"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 37432,
+              "nodeType": "StructuredDocumentation",
+              "src": "4091:127:245",
+              "text": " @dev Returns the item at the end of the queue.\n Reverts with `Empty` if the queue is empty."
+            },
+            "id": 37464,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "back",
+            "nameLocation": "4233:4:245",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 37436,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37435,
+                  "mutability": "mutable",
+                  "name": "deque",
+                  "nameLocation": "4259:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37464,
+                  "src": "4238:26:245",
+                  "stateVariable": false,
+                  "storageLocation": "storage",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                    "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                  },
+                  "typeName": {
+                    "id": 37434,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 37433,
+                      "name": "Bytes32Deque",
+                      "nameLocations": [
+                        "4238:12:245"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 37246,
+                      "src": "4238:12:245"
+                    },
+                    "referencedDeclaration": 37246,
+                    "src": "4238:12:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                      "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4237:28:245"
+            },
+            "returnParameters": {
+              "id": 37439,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37438,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "4297:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37464,
+                  "src": "4289:13:245",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 37437,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4289:7:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4288:15:245"
+            },
+            "scope": 37568,
+            "src": "4224:271:245",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 37504,
+              "nodeType": "Block",
+              "src": "4833:236:245",
+              "statements": [
+                {
+                  "assignments": [
+                    37476
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 37476,
+                      "mutability": "mutable",
+                      "name": "idx",
+                      "nameLocation": "4901:3:245",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 37504,
+                      "src": "4894:10:245",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      },
+                      "typeName": {
+                        "id": 37475,
+                        "name": "int128",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "4894:6:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int128",
+                          "typeString": "int128"
+                        }
+                      },
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 37490,
+                  "initialValue": {
+                    "arguments": [
+                      {
+                        "commonType": {
+                          "typeIdentifier": "t_int256",
+                          "typeString": "int256"
+                        },
+                        "id": 37488,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "arguments": [
+                            {
+                              "expression": {
+                                "id": 37481,
+                                "name": "deque",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 37468,
+                                "src": "4932:5:245",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                                  "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                                }
+                              },
+                              "id": 37482,
+                              "isConstant": false,
+                              "isLValue": true,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberLocation": "4938:6:245",
+                              "memberName": "_begin",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": 37239,
+                              "src": "4932:12:245",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_int128",
+                                "typeString": "int128"
+                              }
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_int128",
+                                "typeString": "int128"
+                              }
+                            ],
+                            "id": 37480,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "lValueRequested": false,
+                            "nodeType": "ElementaryTypeNameExpression",
+                            "src": "4925:6:245",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_type$_t_int256_$",
+                              "typeString": "type(int256)"
+                            },
+                            "typeName": {
+                              "id": 37479,
+                              "name": "int256",
+                              "nodeType": "ElementaryTypeName",
+                              "src": "4925:6:245",
+                              "typeDescriptions": {}
+                            }
+                          },
+                          "id": 37483,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "typeConversion",
+                          "lValueRequested": false,
+                          "nameLocations": [],
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "4925:20:245",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_int256",
+                            "typeString": "int256"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": "+",
+                        "rightExpression": {
+                          "arguments": [
+                            {
+                              "id": 37486,
+                              "name": "index",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 37470,
+                              "src": "4966:5:245",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_uint256",
+                                "typeString": "uint256"
+                              }
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_uint256",
+                                "typeString": "uint256"
+                              }
+                            ],
+                            "expression": {
+                              "id": 37484,
+                              "name": "SafeCast",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 36608,
+                              "src": "4948:8:245",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_type$_t_contract$_SafeCast_$36608_$",
+                                "typeString": "type(library SafeCast)"
+                              }
+                            },
+                            "id": 37485,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberLocation": "4957:8:245",
+                            "memberName": "toInt256",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": 36607,
+                            "src": "4948:17:245",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_internal_pure$_t_uint256_$returns$_t_int256_$",
+                              "typeString": "function (uint256) pure returns (int256)"
+                            }
+                          },
+                          "id": 37487,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "nameLocations": [],
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "4948:24:245",
+                          "tryCall": false,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_int256",
+                            "typeString": "int256"
+                          }
+                        },
+                        "src": "4925:47:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_int256",
+                          "typeString": "int256"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_int256",
+                          "typeString": "int256"
+                        }
+                      ],
+                      "expression": {
+                        "id": 37477,
+                        "name": "SafeCast",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 36608,
+                        "src": "4907:8:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_SafeCast_$36608_$",
+                          "typeString": "type(library SafeCast)"
+                        }
+                      },
+                      "id": 37478,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "4916:8:245",
+                      "memberName": "toInt128",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 36234,
+                      "src": "4907:17:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_pure$_t_int256_$returns$_t_int128_$",
+                        "typeString": "function (int256) pure returns (int128)"
+                      }
+                    },
+                    "id": 37489,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "4907:66:245",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int128",
+                      "typeString": "int128"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "4894:79:245"
+                },
+                {
+                  "condition": {
+                    "commonType": {
+                      "typeIdentifier": "t_int128",
+                      "typeString": "int128"
+                    },
+                    "id": 37494,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "id": 37491,
+                      "name": "idx",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37476,
+                      "src": "4988:3:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": ">=",
+                    "rightExpression": {
+                      "expression": {
+                        "id": 37492,
+                        "name": "deque",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37468,
+                        "src": "4995:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      },
+                      "id": 37493,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "5001:4:245",
+                      "memberName": "_end",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 37241,
+                      "src": "4995:10:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      }
+                    },
+                    "src": "4988:17:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 37498,
+                  "nodeType": "IfStatement",
+                  "src": "4984:43:245",
+                  "trueBody": {
+                    "errorCall": {
+                      "arguments": [],
+                      "expression": {
+                        "argumentTypes": [],
+                        "id": 37495,
+                        "name": "OutOfBounds",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37237,
+                        "src": "5014:11:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_error_pure$__$returns$__$",
+                          "typeString": "function () pure"
+                        }
+                      },
+                      "id": 37496,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "nameLocations": [],
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "5014:13:245",
+                      "tryCall": false,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_tuple$__$",
+                        "typeString": "tuple()"
+                      }
+                    },
+                    "id": 37497,
+                    "nodeType": "RevertStatement",
+                    "src": "5007:20:245"
+                  }
+                },
+                {
+                  "expression": {
+                    "baseExpression": {
+                      "expression": {
+                        "id": 37499,
+                        "name": "deque",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37468,
+                        "src": "5045:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      },
+                      "id": 37500,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "5051:5:245",
+                      "memberName": "_data",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 37245,
+                      "src": "5045:11:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_mapping$_t_int128_$_t_bytes32_$",
+                        "typeString": "mapping(int128 => bytes32)"
+                      }
+                    },
+                    "id": 37502,
+                    "indexExpression": {
+                      "id": 37501,
+                      "name": "idx",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 37476,
+                      "src": "5057:3:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      }
+                    },
+                    "isConstant": false,
+                    "isLValue": true,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "IndexAccess",
+                    "src": "5045:16:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "functionReturnParameters": 37474,
+                  "id": 37503,
+                  "nodeType": "Return",
+                  "src": "5038:23:245"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 37465,
+              "nodeType": "StructuredDocumentation",
+              "src": "4503:231:245",
+              "text": " @dev Return the item at a position in the queue given by `index`, with the first item at 0 and last item at\n `length(deque) - 1`.\n Reverts with `OutOfBounds` if the index is out of bounds."
+            },
+            "id": 37505,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "at",
+            "nameLocation": "4749:2:245",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 37471,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37468,
+                  "mutability": "mutable",
+                  "name": "deque",
+                  "nameLocation": "4773:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37505,
+                  "src": "4752:26:245",
+                  "stateVariable": false,
+                  "storageLocation": "storage",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                    "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                  },
+                  "typeName": {
+                    "id": 37467,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 37466,
+                      "name": "Bytes32Deque",
+                      "nameLocations": [
+                        "4752:12:245"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 37246,
+                      "src": "4752:12:245"
+                    },
+                    "referencedDeclaration": 37246,
+                    "src": "4752:12:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                      "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 37470,
+                  "mutability": "mutable",
+                  "name": "index",
+                  "nameLocation": "4788:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37505,
+                  "src": "4780:13:245",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 37469,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4780:7:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4751:43:245"
+            },
+            "returnParameters": {
+              "id": 37474,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37473,
+                  "mutability": "mutable",
+                  "name": "value",
+                  "nameLocation": "4826:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37505,
+                  "src": "4818:13:245",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 37472,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "4818:7:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "4817:15:245"
+            },
+            "scope": 37568,
+            "src": "4740:329:245",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 37524,
+              "nodeType": "Block",
+              "src": "5366:60:245",
+              "statements": [
+                {
+                  "expression": {
+                    "id": 37516,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "expression": {
+                        "id": 37512,
+                        "name": "deque",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37509,
+                        "src": "5377:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      },
+                      "id": 37514,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "memberLocation": "5383:6:245",
+                      "memberName": "_begin",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 37239,
+                      "src": "5377:12:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "hexValue": "30",
+                      "id": 37515,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "number",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "5392:1:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_rational_0_by_1",
+                        "typeString": "int_const 0"
+                      },
+                      "value": "0"
+                    },
+                    "src": "5377:16:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int128",
+                      "typeString": "int128"
+                    }
+                  },
+                  "id": 37517,
+                  "nodeType": "ExpressionStatement",
+                  "src": "5377:16:245"
+                },
+                {
+                  "expression": {
+                    "id": 37522,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "expression": {
+                        "id": 37518,
+                        "name": "deque",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37509,
+                        "src": "5404:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      },
+                      "id": 37520,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "memberLocation": "5410:4:245",
+                      "memberName": "_end",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 37241,
+                      "src": "5404:10:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "hexValue": "30",
+                      "id": 37521,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "number",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "5417:1:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_rational_0_by_1",
+                        "typeString": "int_const 0"
+                      },
+                      "value": "0"
+                    },
+                    "src": "5404:14:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_int128",
+                      "typeString": "int128"
+                    }
+                  },
+                  "id": 37523,
+                  "nodeType": "ExpressionStatement",
+                  "src": "5404:14:245"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 37506,
+              "nodeType": "StructuredDocumentation",
+              "src": "5077:231:245",
+              "text": " @dev Resets the queue back to being empty.\n NOTE: The current items are left behind in storage. This does not affect the functioning of the queue, but misses\n out on potential gas refunds."
+            },
+            "id": 37525,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "clear",
+            "nameLocation": "5323:5:245",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 37510,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37509,
+                  "mutability": "mutable",
+                  "name": "deque",
+                  "nameLocation": "5350:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37525,
+                  "src": "5329:26:245",
+                  "stateVariable": false,
+                  "storageLocation": "storage",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                    "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                  },
+                  "typeName": {
+                    "id": 37508,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 37507,
+                      "name": "Bytes32Deque",
+                      "nameLocations": [
+                        "5329:12:245"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 37246,
+                      "src": "5329:12:245"
+                    },
+                    "referencedDeclaration": 37246,
+                    "src": "5329:12:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                      "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5328:28:245"
+            },
+            "returnParameters": {
+              "id": 37511,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "5366:0:245"
+            },
+            "scope": 37568,
+            "src": "5314:112:245",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 37550,
+              "nodeType": "Block",
+              "src": "5583:293:245",
+              "statements": [
+                {
+                  "id": 37549,
+                  "nodeType": "UncheckedBlock",
+                  "src": "5775:94:245",
+                  "statements": [
+                    {
+                      "expression": {
+                        "arguments": [
+                          {
+                            "commonType": {
+                              "typeIdentifier": "t_int256",
+                              "typeString": "int256"
+                            },
+                            "id": 37546,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "leftExpression": {
+                              "arguments": [
+                                {
+                                  "expression": {
+                                    "id": 37538,
+                                    "name": "deque",
+                                    "nodeType": "Identifier",
+                                    "overloadedDeclarations": [],
+                                    "referencedDeclaration": 37529,
+                                    "src": "5822:5:245",
+                                    "typeDescriptions": {
+                                      "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                                      "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                                    }
+                                  },
+                                  "id": 37539,
+                                  "isConstant": false,
+                                  "isLValue": true,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "memberLocation": "5828:4:245",
+                                  "memberName": "_end",
+                                  "nodeType": "MemberAccess",
+                                  "referencedDeclaration": 37241,
+                                  "src": "5822:10:245",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_int128",
+                                    "typeString": "int128"
+                                  }
+                                }
+                              ],
+                              "expression": {
+                                "argumentTypes": [
+                                  {
+                                    "typeIdentifier": "t_int128",
+                                    "typeString": "int128"
+                                  }
+                                ],
+                                "id": 37537,
+                                "isConstant": false,
+                                "isLValue": false,
+                                "isPure": true,
+                                "lValueRequested": false,
+                                "nodeType": "ElementaryTypeNameExpression",
+                                "src": "5815:6:245",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_type$_t_int256_$",
+                                  "typeString": "type(int256)"
+                                },
+                                "typeName": {
+                                  "id": 37536,
+                                  "name": "int256",
+                                  "nodeType": "ElementaryTypeName",
+                                  "src": "5815:6:245",
+                                  "typeDescriptions": {}
+                                }
+                              },
+                              "id": 37540,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "kind": "typeConversion",
+                              "lValueRequested": false,
+                              "nameLocations": [],
+                              "names": [],
+                              "nodeType": "FunctionCall",
+                              "src": "5815:18:245",
+                              "tryCall": false,
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_int256",
+                                "typeString": "int256"
+                              }
+                            },
+                            "nodeType": "BinaryOperation",
+                            "operator": "-",
+                            "rightExpression": {
+                              "arguments": [
+                                {
+                                  "expression": {
+                                    "id": 37543,
+                                    "name": "deque",
+                                    "nodeType": "Identifier",
+                                    "overloadedDeclarations": [],
+                                    "referencedDeclaration": 37529,
+                                    "src": "5843:5:245",
+                                    "typeDescriptions": {
+                                      "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                                      "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                                    }
+                                  },
+                                  "id": 37544,
+                                  "isConstant": false,
+                                  "isLValue": true,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "memberLocation": "5849:6:245",
+                                  "memberName": "_begin",
+                                  "nodeType": "MemberAccess",
+                                  "referencedDeclaration": 37239,
+                                  "src": "5843:12:245",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_int128",
+                                    "typeString": "int128"
+                                  }
+                                }
+                              ],
+                              "expression": {
+                                "argumentTypes": [
+                                  {
+                                    "typeIdentifier": "t_int128",
+                                    "typeString": "int128"
+                                  }
+                                ],
+                                "id": 37542,
+                                "isConstant": false,
+                                "isLValue": false,
+                                "isPure": true,
+                                "lValueRequested": false,
+                                "nodeType": "ElementaryTypeNameExpression",
+                                "src": "5836:6:245",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_type$_t_int256_$",
+                                  "typeString": "type(int256)"
+                                },
+                                "typeName": {
+                                  "id": 37541,
+                                  "name": "int256",
+                                  "nodeType": "ElementaryTypeName",
+                                  "src": "5836:6:245",
+                                  "typeDescriptions": {}
+                                }
+                              },
+                              "id": 37545,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "kind": "typeConversion",
+                              "lValueRequested": false,
+                              "nameLocations": [],
+                              "names": [],
+                              "nodeType": "FunctionCall",
+                              "src": "5836:20:245",
+                              "tryCall": false,
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_int256",
+                                "typeString": "int256"
+                              }
+                            },
+                            "src": "5815:41:245",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_int256",
+                              "typeString": "int256"
+                            }
+                          }
+                        ],
+                        "expression": {
+                          "argumentTypes": [
+                            {
+                              "typeIdentifier": "t_int256",
+                              "typeString": "int256"
+                            }
+                          ],
+                          "id": 37535,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "lValueRequested": false,
+                          "nodeType": "ElementaryTypeNameExpression",
+                          "src": "5807:7:245",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_type$_t_uint256_$",
+                            "typeString": "type(uint256)"
+                          },
+                          "typeName": {
+                            "id": 37534,
+                            "name": "uint256",
+                            "nodeType": "ElementaryTypeName",
+                            "src": "5807:7:245",
+                            "typeDescriptions": {}
+                          }
+                        },
+                        "id": 37547,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "kind": "typeConversion",
+                        "lValueRequested": false,
+                        "nameLocations": [],
+                        "names": [],
+                        "nodeType": "FunctionCall",
+                        "src": "5807:50:245",
+                        "tryCall": false,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      },
+                      "functionReturnParameters": 37533,
+                      "id": 37548,
+                      "nodeType": "Return",
+                      "src": "5800:57:245"
+                    }
+                  ]
+                }
+              ]
+            },
+            "documentation": {
+              "id": 37526,
+              "nodeType": "StructuredDocumentation",
+              "src": "5434:67:245",
+              "text": " @dev Returns the number of items in the queue."
+            },
+            "id": 37551,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "length",
+            "nameLocation": "5516:6:245",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 37530,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37529,
+                  "mutability": "mutable",
+                  "name": "deque",
+                  "nameLocation": "5544:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37551,
+                  "src": "5523:26:245",
+                  "stateVariable": false,
+                  "storageLocation": "storage",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                    "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                  },
+                  "typeName": {
+                    "id": 37528,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 37527,
+                      "name": "Bytes32Deque",
+                      "nameLocations": [
+                        "5523:12:245"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 37246,
+                      "src": "5523:12:245"
+                    },
+                    "referencedDeclaration": 37246,
+                    "src": "5523:12:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                      "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5522:28:245"
+            },
+            "returnParameters": {
+              "id": 37533,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37532,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37551,
+                  "src": "5574:7:245",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 37531,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "5574:7:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5573:9:245"
+            },
+            "scope": 37568,
+            "src": "5507:369:245",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 37566,
+              "nodeType": "Block",
+              "src": "6023:52:245",
+              "statements": [
+                {
+                  "expression": {
+                    "commonType": {
+                      "typeIdentifier": "t_int128",
+                      "typeString": "int128"
+                    },
+                    "id": 37564,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftExpression": {
+                      "expression": {
+                        "id": 37560,
+                        "name": "deque",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37555,
+                        "src": "6041:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      },
+                      "id": 37561,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "6047:4:245",
+                      "memberName": "_end",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 37241,
+                      "src": "6041:10:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      }
+                    },
+                    "nodeType": "BinaryOperation",
+                    "operator": "<=",
+                    "rightExpression": {
+                      "expression": {
+                        "id": 37562,
+                        "name": "deque",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 37555,
+                        "src": "6055:5:245",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                          "typeString": "struct DoubleEndedQueue.Bytes32Deque storage pointer"
+                        }
+                      },
+                      "id": 37563,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "6061:6:245",
+                      "memberName": "_begin",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 37239,
+                      "src": "6055:12:245",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_int128",
+                        "typeString": "int128"
+                      }
+                    },
+                    "src": "6041:26:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "functionReturnParameters": 37559,
+                  "id": 37565,
+                  "nodeType": "Return",
+                  "src": "6034:33:245"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 37552,
+              "nodeType": "StructuredDocumentation",
+              "src": "5884:61:245",
+              "text": " @dev Returns true if the queue is empty."
+            },
+            "id": 37567,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "empty",
+            "nameLocation": "5960:5:245",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 37556,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37555,
+                  "mutability": "mutable",
+                  "name": "deque",
+                  "nameLocation": "5987:5:245",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37567,
+                  "src": "5966:26:245",
+                  "stateVariable": false,
+                  "storageLocation": "storage",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                    "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                  },
+                  "typeName": {
+                    "id": 37554,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 37553,
+                      "name": "Bytes32Deque",
+                      "nameLocations": [
+                        "5966:12:245"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 37246,
+                      "src": "5966:12:245"
+                    },
+                    "referencedDeclaration": 37246,
+                    "src": "5966:12:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_Bytes32Deque_$37246_storage_ptr",
+                      "typeString": "struct DoubleEndedQueue.Bytes32Deque"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "5965:28:245"
+            },
+            "returnParameters": {
+              "id": 37559,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 37558,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 37567,
+                  "src": "6017:4:245",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 37557,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "6017:4:245",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "6016:6:245"
+            },
+            "scope": 37568,
+            "src": "5951:124:245",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "internal"
+          }
+        ],
+        "scope": 37569,
+        "src": "863:5215:245",
+        "usedErrors": [
+          37234,
+          37237
+        ]
+      }
+    ],
+    "src": "119:5961:245"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.19+commit.7dd6d404.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.13",
+  "updatedAt": "2023-03-23T05:45:08.849Z",
+  "devdoc": {
+    "details": "A sequence of items with the ability to efficiently push and pop items (i.e. insert and remove) on both ends of the sequence (called front and back). Among other access patterns, it can be used to implement efficient LIFO and FIFO queues. Storage use is optimized, and all operations are O(1) constant time. This includes {clear}, given that the existing queue contents are left in storage. The struct is called `Bytes32Deque`. Other types can be cast to and from `bytes32`. This data structure can only be used in storage, and not in memory. ```solidity DoubleEndedQueue.Bytes32Deque queue; ``` _Available since v4.6._",
+    "errors": {
+      "Empty()": [
+        {
+          "details": "An operation (e.g. {front}) couldn't be completed due to the queue being empty."
+        }
+      ],
+      "OutOfBounds()": [
+        {
+          "details": "An operation (e.g. {at}) couldn't be completed due to an index being out of bounds."
+        }
+      ]
+    },
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

@@ -1,0 +1,608 @@
+{
+  "contractName": "CrossChainEnabledArbitrumL1",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.8.19+commit.7dd6d404\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"details\":\"https://arbitrum.io/[Arbitrum] specialization or the {CrossChainEnabled} abstraction the L1 side (mainnet). This version should only be deployed on L1 to process cross-chain messages originating from L2. For the other side, use {CrossChainEnabledArbitrumL2}. The bridge contract is provided and maintained by the arbitrum team. You can find the address of this contract on the rinkeby testnet in https://developer.offchainlabs.com/docs/useful_addresses[Arbitrum's developer documentation]. _Available since v4.6._\",\"kind\":\"dev\",\"methods\":{\"constructor\":{\"custom:oz-upgrades-unsafe-allow\":\"constructor\"}},\"stateVariables\":{\"_bridge\":{\"custom:oz-upgrades-unsafe-allow\":\"state-variable-immutable\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/crosschain/arbitrum/CrossChainEnabledArbitrumL1.sol\":\"CrossChainEnabledArbitrumL1\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/crosschain/CrossChainEnabled.sol\":{\"keccak256\":\"0xe3796f669986f88c231262fc454399c7068123d59c6d2721b3e8807e1b5490e4\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://01dae8a0bedc02610d1eb581a1114ed87afc5f6c0de59b4ffa91fb3d30fc94a7\",\"dweb:/ipfs/QmTEs6tt5TUBxQKnFw4uNPn7ZE59uz3E2hhVKCnKvpzwPh\"]},\"project:/contracts/crosschain/arbitrum/CrossChainEnabledArbitrumL1.sol\":{\"keccak256\":\"0xc3c3f7561bea3e99cf39e417a3e16b6dcd44890020c2d8467c40e144d775586c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://a3dbe802702d007dc088f0544837ddb74fc2aa1381c600a1a6bbd7cc9d831efe\",\"dweb:/ipfs/QmetgcWJyuT5xAQapfYEqKfcfq67jzRzbSRQTguYZtw99j\"]},\"project:/contracts/crosschain/arbitrum/LibArbitrumL1.sol\":{\"keccak256\":\"0x485f48973145c30d3748c4e2dec9d4f3abfba82a4ed4dcda25b219a4fdf5001a\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://013fae119fbe0eca29c3c20ca1eee40d1a3dd463928e83b470f9c444beea6c96\",\"dweb:/ipfs/QmdnbCpMftzGd7tw6iSPa7hPf4ptwVJmy4XULZUYpjCN5f\"]},\"project:/contracts/crosschain/errors.sol\":{\"keccak256\":\"0x9d3ffe3bc59c2dac36d93cb4641ffeaa98b96cce588d106efe050a0b67b4d902\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://bf8c1e49412c6975de84fe2c72f6785f139d36843aaa623bc9964003748b3757\",\"dweb:/ipfs/QmcDPdSYsWHGnMZB6yHH8Tczr16QVjd8TjPcMVDdyvPV1W\"]},\"project:/contracts/vendor/arbitrum/IBridge.sol\":{\"keccak256\":\"0x16ed51c5e0216ec7fe39ef106c562d6040dade0e0fc3b46d655cef5e97995cc0\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://19f73a00f20b779f0eb9eab2644b5847afa03eacaae2dec2f7b7661e85b03b98\",\"dweb:/ipfs/QmNTaSqpk2a3i26xSXcEtp4WRVs4rcSo6rRgqGS3HXwjna\"]},\"project:/contracts/vendor/arbitrum/IOutbox.sol\":{\"keccak256\":\"0xfbee3cd1c9bafa36a10a63ef34663e5c65c861628ade8eb5fce554c6d0557c48\",\"license\":\"BUSL-1.1\",\"urls\":[\"bzz-raw://e3eb8d9af55eda410c159edf3fbe273e3ca15aff1d546e355cfcb03b3a9b39a1\",\"dweb:/ipfs/QmW635Ctq3p4PdSdyn2QnY3BSTY9sr7QsLYHZEVXYxzT1B\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "// SPDX-License-Identifier: MIT\r\n// OpenZeppelin Contracts (last updated v4.7.0) (crosschain/arbitrum/CrossChainEnabledArbitrumL1.sol)\r\n\r\npragma solidity ^0.8.4;\r\n\r\nimport \"../CrossChainEnabled.sol\";\r\nimport \"./LibArbitrumL1.sol\";\r\n\r\n/**\r\n * @dev https://arbitrum.io/[Arbitrum] specialization or the\r\n * {CrossChainEnabled} abstraction the L1 side (mainnet).\r\n *\r\n * This version should only be deployed on L1 to process cross-chain messages\r\n * originating from L2. For the other side, use {CrossChainEnabledArbitrumL2}.\r\n *\r\n * The bridge contract is provided and maintained by the arbitrum team. You can\r\n * find the address of this contract on the rinkeby testnet in\r\n * https://developer.offchainlabs.com/docs/useful_addresses[Arbitrum's developer documentation].\r\n *\r\n * _Available since v4.6._\r\n */\r\nabstract contract CrossChainEnabledArbitrumL1 is CrossChainEnabled {\r\n    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable\r\n    address private immutable _bridge;\r\n\r\n    /// @custom:oz-upgrades-unsafe-allow constructor\r\n    constructor(address bridge) {\r\n        _bridge = bridge;\r\n    }\r\n\r\n    /**\r\n     * @dev see {CrossChainEnabled-_isCrossChain}\r\n     */\r\n    function _isCrossChain() internal view virtual override returns (bool) {\r\n        return LibArbitrumL1.isCrossChain(_bridge);\r\n    }\r\n\r\n    /**\r\n     * @dev see {CrossChainEnabled-_crossChainSender}\r\n     */\r\n    function _crossChainSender() internal view virtual override onlyCrossChain returns (address) {\r\n        return LibArbitrumL1.crossChainSender(_bridge);\r\n    }\r\n}\r\n",
+  "sourcePath": "C:\\Users\\SSAFY\\Desktop\\S08P22A308\\smart-contracts\\contracts\\crosschain\\arbitrum\\CrossChainEnabledArbitrumL1.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/crosschain/arbitrum/CrossChainEnabledArbitrumL1.sol",
+    "exportedSymbols": {
+      "ArbitrumL1_Bridge": [
+        39904
+      ],
+      "ArbitrumL1_Outbox": [
+        40265
+      ],
+      "CrossChainEnabled": [
+        1677
+      ],
+      "CrossChainEnabledArbitrumL1": [
+        1821
+      ],
+      "InvalidCrossChainSender": [
+        1981
+      ],
+      "LibArbitrumL1": [
+        1923
+      ],
+      "NotCrossChainCall": [
+        1975
+      ]
+    },
+    "id": 1822,
+    "license": "MIT",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 1773,
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".4"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "138:23:14"
+      },
+      {
+        "absolutePath": "project:/contracts/crosschain/CrossChainEnabled.sol",
+        "file": "../CrossChainEnabled.sol",
+        "id": 1774,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 1822,
+        "sourceUnit": 1678,
+        "src": "165:34:14",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "project:/contracts/crosschain/arbitrum/LibArbitrumL1.sol",
+        "file": "./LibArbitrumL1.sol",
+        "id": 1775,
+        "nameLocation": "-1:-1:-1",
+        "nodeType": "ImportDirective",
+        "scope": 1822,
+        "sourceUnit": 1924,
+        "src": "201:29:14",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": true,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 1777,
+              "name": "CrossChainEnabled",
+              "nameLocations": [
+                "856:17:14"
+              ],
+              "nodeType": "IdentifierPath",
+              "referencedDeclaration": 1677,
+              "src": "856:17:14"
+            },
+            "id": 1778,
+            "nodeType": "InheritanceSpecifier",
+            "src": "856:17:14"
+          }
+        ],
+        "canonicalName": "CrossChainEnabledArbitrumL1",
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": {
+          "id": 1776,
+          "nodeType": "StructuredDocumentation",
+          "src": "234:571:14",
+          "text": " @dev https://arbitrum.io/[Arbitrum] specialization or the\n {CrossChainEnabled} abstraction the L1 side (mainnet).\n This version should only be deployed on L1 to process cross-chain messages\n originating from L2. For the other side, use {CrossChainEnabledArbitrumL2}.\n The bridge contract is provided and maintained by the arbitrum team. You can\n find the address of this contract on the rinkeby testnet in\n https://developer.offchainlabs.com/docs/useful_addresses[Arbitrum's developer documentation].\n _Available since v4.6._"
+        },
+        "fullyImplemented": true,
+        "id": 1821,
+        "linearizedBaseContracts": [
+          1821,
+          1677
+        ],
+        "name": "CrossChainEnabledArbitrumL1",
+        "nameLocation": "825:27:14",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "documentation": {
+              "id": 1779,
+              "nodeType": "StructuredDocumentation",
+              "src": "881:61:14",
+              "text": "@custom:oz-upgrades-unsafe-allow state-variable-immutable"
+            },
+            "id": 1781,
+            "mutability": "immutable",
+            "name": "_bridge",
+            "nameLocation": "974:7:14",
+            "nodeType": "VariableDeclaration",
+            "scope": 1821,
+            "src": "948:33:14",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 1780,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "948:7:14",
+              "stateMutability": "nonpayable",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "visibility": "private"
+          },
+          {
+            "body": {
+              "id": 1791,
+              "nodeType": "Block",
+              "src": "1072:35:14",
+              "statements": [
+                {
+                  "expression": {
+                    "id": 1789,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "id": 1787,
+                      "name": "_bridge",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 1781,
+                      "src": "1083:7:14",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "id": 1788,
+                      "name": "bridge",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 1784,
+                      "src": "1093:6:14",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "1083:16:14",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 1790,
+                  "nodeType": "ExpressionStatement",
+                  "src": "1083:16:14"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 1782,
+              "nodeType": "StructuredDocumentation",
+              "src": "990:48:14",
+              "text": "@custom:oz-upgrades-unsafe-allow constructor"
+            },
+            "id": 1792,
+            "implemented": true,
+            "kind": "constructor",
+            "modifiers": [],
+            "name": "",
+            "nameLocation": "-1:-1:-1",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 1785,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1784,
+                  "mutability": "mutable",
+                  "name": "bridge",
+                  "nameLocation": "1064:6:14",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1792,
+                  "src": "1056:14:14",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1783,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1056:7:14",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1055:16:14"
+            },
+            "returnParameters": {
+              "id": 1786,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1072:0:14"
+            },
+            "scope": 1821,
+            "src": "1044:63:14",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "internal"
+          },
+          {
+            "baseFunctions": [
+              1670
+            ],
+            "body": {
+              "id": 1804,
+              "nodeType": "Block",
+              "src": "1255:61:14",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "id": 1801,
+                        "name": "_bridge",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1781,
+                        "src": "1300:7:14",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "expression": {
+                        "id": 1799,
+                        "name": "LibArbitrumL1",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1923,
+                        "src": "1273:13:14",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_LibArbitrumL1_$1923_$",
+                          "typeString": "type(library LibArbitrumL1)"
+                        }
+                      },
+                      "id": 1800,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "1287:12:14",
+                      "memberName": "isCrossChain",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 1881,
+                      "src": "1273:26:14",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_address_$returns$_t_bool_$",
+                        "typeString": "function (address) view returns (bool)"
+                      }
+                    },
+                    "id": 1802,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1273:35:14",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "functionReturnParameters": 1798,
+                  "id": 1803,
+                  "nodeType": "Return",
+                  "src": "1266:42:14"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 1793,
+              "nodeType": "StructuredDocumentation",
+              "src": "1115:63:14",
+              "text": " @dev see {CrossChainEnabled-_isCrossChain}"
+            },
+            "id": 1805,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [],
+            "name": "_isCrossChain",
+            "nameLocation": "1193:13:14",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 1795,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1231:8:14"
+            },
+            "parameters": {
+              "id": 1794,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1206:2:14"
+            },
+            "returnParameters": {
+              "id": 1798,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1797,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1805,
+                  "src": "1249:4:14",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 1796,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1249:4:14",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1248:6:14"
+            },
+            "scope": 1821,
+            "src": "1184:132:14",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "internal"
+          },
+          {
+            "baseFunctions": [
+              1676
+            ],
+            "body": {
+              "id": 1819,
+              "nodeType": "Block",
+              "src": "1490:65:14",
+              "statements": [
+                {
+                  "expression": {
+                    "arguments": [
+                      {
+                        "id": 1816,
+                        "name": "_bridge",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1781,
+                        "src": "1539:7:14",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "expression": {
+                        "id": 1814,
+                        "name": "LibArbitrumL1",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 1923,
+                        "src": "1508:13:14",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_LibArbitrumL1_$1923_$",
+                          "typeString": "type(library LibArbitrumL1)"
+                        }
+                      },
+                      "id": 1815,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberLocation": "1522:16:14",
+                      "memberName": "crossChainSender",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 1922,
+                      "src": "1508:30:14",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_address_$returns$_t_address_$",
+                        "typeString": "function (address) view returns (address)"
+                      }
+                    },
+                    "id": 1817,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "nameLocations": [],
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "1508:39:14",
+                    "tryCall": false,
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "functionReturnParameters": 1813,
+                  "id": 1818,
+                  "nodeType": "Return",
+                  "src": "1501:46:14"
+                }
+              ]
+            },
+            "documentation": {
+              "id": 1806,
+              "nodeType": "StructuredDocumentation",
+              "src": "1324:67:14",
+              "text": " @dev see {CrossChainEnabled-_crossChainSender}"
+            },
+            "id": 1820,
+            "implemented": true,
+            "kind": "function",
+            "modifiers": [
+              {
+                "id": 1810,
+                "kind": "modifierInvocation",
+                "modifierName": {
+                  "id": 1809,
+                  "name": "onlyCrossChain",
+                  "nameLocations": [
+                    "1457:14:14"
+                  ],
+                  "nodeType": "IdentifierPath",
+                  "referencedDeclaration": 1643,
+                  "src": "1457:14:14"
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "1457:14:14"
+              }
+            ],
+            "name": "_crossChainSender",
+            "nameLocation": "1406:17:14",
+            "nodeType": "FunctionDefinition",
+            "overrides": {
+              "id": 1808,
+              "nodeType": "OverrideSpecifier",
+              "overrides": [],
+              "src": "1448:8:14"
+            },
+            "parameters": {
+              "id": 1807,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1423:2:14"
+            },
+            "returnParameters": {
+              "id": 1813,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 1812,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nameLocation": "-1:-1:-1",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 1820,
+                  "src": "1481:7:14",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 1811,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1481:7:14",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1480:9:14"
+            },
+            "scope": 1821,
+            "src": "1397:158:14",
+            "stateMutability": "view",
+            "virtual": true,
+            "visibility": "internal"
+          }
+        ],
+        "scope": 1822,
+        "src": "807:751:14",
+        "usedErrors": []
+      }
+    ],
+    "src": "138:1422:14"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.8.19+commit.7dd6d404.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.13",
+  "updatedAt": "2023-03-23T05:45:08.053Z",
+  "devdoc": {
+    "details": "https://arbitrum.io/[Arbitrum] specialization or the {CrossChainEnabled} abstraction the L1 side (mainnet). This version should only be deployed on L1 to process cross-chain messages originating from L2. For the other side, use {CrossChainEnabledArbitrumL2}. The bridge contract is provided and maintained by the arbitrum team. You can find the address of this contract on the rinkeby testnet in https://developer.offchainlabs.com/docs/useful_addresses[Arbitrum's developer documentation]. _Available since v4.6._",
+    "kind": "dev",
+    "methods": {
+      "constructor": {
+        "custom:oz-upgrades-unsafe-allow": "constructor"
+      }
+    },
+    "stateVariables": {
+      "_bridge": {
+        "custom:oz-upgrades-unsafe-allow": "state-variable-immutable"
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}
