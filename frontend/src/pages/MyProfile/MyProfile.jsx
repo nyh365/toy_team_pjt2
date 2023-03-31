@@ -60,7 +60,7 @@ function MyProfile() {
 
   const openWallet = () => {
     window.open(
-      'http://localhost:3333/?key=0x6f2cf4943d60081bdd8179bde2996d83446ab2d0eccca90782ac91cb535e699a',
+      'http://j8a308.p.ssafy.io:3333/?key=0x6f2cf4943d60081bdd8179bde2996d83446ab2d0eccca90782ac91cb535e699a',
       'MyWallet',
       'toolbar=no, menubar=no, width=550, height=780',
     );
