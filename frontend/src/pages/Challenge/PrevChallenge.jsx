@@ -39,20 +39,18 @@ function PrevChallenge() {
       </CTWrapper>
 
       {prevChallenges
-        ? prevChallenges.totalChallenges.map((challenge) => {
-            return challenge.bookList.map((book, idx) => {
-              return (
-                <div key={idx}>
-                  <BookShelf
-                    books={book}
-                    width="w-40"
-                    height="h-48"
-                    challenge={challenge}
-                    size="b-5"
-                  />
-                </div>
-              );
-            });
+        ? prevChallenges.totalChallenges.map((challenge, idx) => {
+            return (
+              <div key={idx}>
+                <BookShelf
+                  books={challenge.bookList}
+                  width="w-40"
+                  height="h-48"
+                  challenge={challenge}
+                  size="b-5"
+                />
+              </div>
+            );
           })
         : null}
     </BodyContainer>
