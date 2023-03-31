@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Slider from 'react-slick';
-import Leaves from 'components/common/Leaves';
 import '../../assets/slick-theme.css';
 import '../../assets/slick.css';
 import '../../components/common/Leaves.css';
 
 import tw, { styled, css } from 'twin.macro';
+import { authApi } from 'api/axios';
+import requests from 'api/config';
+import { useParams } from 'react-router-dom';
 
-import { bookImg } from 'api/data';
+// import { bookImg } from 'api/data';
 
 const PageContainer = styled.div`
   ${tw`flex justify-center`}
@@ -95,6 +97,10 @@ function BookViewer() {
   const [rtl, setRtl] = useState(false); //rtl 모드
   const [slideIndex, setSlideIndex] = useState(0);
   const [updateCount, setUpdateCount] = useState(0);
+  const [bookImg, setBookImg] = useState();
+
+  const params = useParams();
+  const bookId = params.bookId;
 
   const slider = useRef();
 
@@ -106,9 +112,24 @@ function BookViewer() {
     slider.current.slickPause();
   };
   useEffect(() => {
+    const fetchBookImg = async () => {
+      try {
+        await authApi
+          .get(requests.GET_BOOK_IMAGES(bookId))
+          .then((res) => setBookImg(res.data.illustes));
+      } catch (error) {
+        throw error;
+      }
+    };
+    fetchBookImg();
+  }, [bookId]);
+
+  useEffect(() => {
     if (modeStatus) setSlidesToShow(1);
     else setSlidesToShow(2);
   }, [modeStatus, rtl]);
+
+  // console.log(bookImg);
 
   const settings = {
     dots: false, //페이징용 도트
@@ -142,68 +163,66 @@ function BookViewer() {
   //1단, 2단, 스크롤
 
   return (
-    <div className="leaves">
-      <Leaves />
-      <PageContainer>
-        <PageWrapper>
-          <ViewContainer>
-            <Slider ref={slider} {...settings}>
-              {bookImg
-                ? bookImg.illustes.map((illuste) => {
-                    return (
-                      <ImgSlide
-                        src={illuste.illustePath}
-                        key={illuste.pageNo}
-                        mode={settings.mode}
-                      />
-                    );
-                  })
-                : null}
-            </Slider>
-          </ViewContainer>
-          <BtnContainer>
+    <PageContainer>
+      <PageWrapper>
+        <ViewContainer>
+          <Slider ref={slider} {...settings}>
+            {bookImg !== undefined
+              ? bookImg.map((illuste, idx) => {
+                  return (
+                    // <ImgSlide
+                    //   src={illuste.illustePath}
+                    //   key={illuste.pageNo}
+                    //   mode={settings.mode}
+                    // />
+                    <img src={illuste.illustePath} key={idx} alt="" />
+                  );
+                })
+              : null}
+          </Slider>
+        </ViewContainer>
+        <BtnContainer>
+          {bookImg !== undefined ? (
             <BarWrapper>
               <input
                 onChange={(e) => slider.current.slickGoTo(e.target.value)}
                 value={slideIndex}
                 type="range"
                 min={0}
-                max={bookImg.illustes.length - 1}
+                max={bookImg.length - 1}
                 style={{
                   width: '25vw',
                 }}
               />{' '}
               {!rtl
-                ? slideIndex + 1 + '/' + bookImg.illustes.length
-                : bookImg.illustes.length -
-                  slideIndex +
-                  '/' +
-                  bookImg.illustes.length}
+                ? slideIndex + 1 + '/' + bookImg.length
+                : bookImg.length - slideIndex + '/' + bookImg.length}
             </BarWrapper>
-            <BtnWrapper>
-              {modeStatus ? (
-                <button onClick={() => setModeStatus(!modeStatus)}>2단</button>
-              ) : (
-                <button onClick={() => setModeStatus(!modeStatus)}>1단</button>
-              )}
-            </BtnWrapper>
-            <BtnWrapper>
-              <button onClick={slidePlay}>재생</button>
-            </BtnWrapper>
-            <BtnWrapper>
-              <button onClick={slidePause}>중지</button>
-            </BtnWrapper>
-            <BtnWrapper>
-              {rtl ? (
-                <button onClick={() => setRtl(!rtl)}>왼쪽부터 읽기</button>
-              ) : (
-                <button onClick={() => setRtl(!rtl)}>오른쪽부터 읽기</button>
-              )}
-            </BtnWrapper>
-          </BtnContainer>
-        </PageWrapper>
-      </PageContainer>
-    </div>
+          ) : null}
+
+          <BtnWrapper>
+            {modeStatus ? (
+              <button onClick={() => setModeStatus(!modeStatus)}>2단</button>
+            ) : (
+              <button onClick={() => setModeStatus(!modeStatus)}>1단</button>
+            )}
+          </BtnWrapper>
+          <BtnWrapper>
+            <button onClick={slidePlay}>재생</button>
+          </BtnWrapper>
+          <BtnWrapper>
+            <button onClick={slidePause}>중지</button>
+          </BtnWrapper>
+          <BtnWrapper>
+            {rtl ? (
+              <button onClick={() => setRtl(!rtl)}>왼쪽부터 읽기</button>
+            ) : (
+              <button onClick={() => setRtl(!rtl)}>오른쪽부터 읽기</button>
+            )}
+          </BtnWrapper>
+        </BtnContainer>
+      </PageWrapper>
+    </PageContainer>
   );
 }
 

@@ -58,6 +58,13 @@ function MyProfile() {
   const [interestBooks, setInterestBooks] = useState('');
   const [paidBooks, setPaidBooks] = useState('');
 
+  const openWallet = () => {
+    window.open(
+      'http://localhost:8080/?key=0x6f2cf4943d60081bdd8179bde2996d83446ab2d0eccca90782ac91cb535e699a',
+      'MyWallet',
+      'toolbar=no, menubar=no, width=550, height=780',
+    );
+  };
   //프로필 조회 api사용
   useEffect(() => {
     const get_user = async () => {
@@ -103,6 +110,7 @@ function MyProfile() {
         ) : (
           <UserInfo>소개를 작성해 주세요</UserInfo>
         )}
+        <NickName onClick={openWallet}>지갑보러가기</NickName>
       </ProfileContainer>
       <CompletedBookList>
         <span className="text-[40px]">완성한 동화</span>

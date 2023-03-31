@@ -32,11 +32,13 @@ import { CookiesProvider } from 'react-cookie';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import UserLogin from 'pages/Login/UserLogin';
 import Notice from 'pages/Notice/Notice';
-import BookViewer from 'components/viewer/BookViewer';
+import BookViewer from 'pages/Book/BookViewer';
 import BookDetail from 'pages/Book/BookDetail';
+import NewBookEditor from 'pages/Edit/NewBookEditor';
 import { userStore } from 'store/userStore';
 import SocialLogin from 'pages/Login/SocialLogin';
 import ChallengeDetail from 'pages/Challenge/ChallengeDetail';
+import FlipViewer from 'pages/Book/FlipViewer';
 const queryClient = new QueryClient();
 function App() {
   const [userId, setUserId] = useState();
@@ -91,8 +93,9 @@ function App() {
                 path="/admin/notice/edit/:noticeId"
                 element={<NoticeEdit />}
               />
-              <Route path="/books/viewer/:bookId" element={<BookViewer />} />
+              <Route path="/books/viewer/:bookId" element={<FlipViewer />} />
               <Route path="/books/:userId/:bookId" element={<BookDetail />} />
+              <Route path="/newbook/:userId" element={<NewBookEditor />} />
             </Routes>
           </BrowserRouter>
         </QueryClientProvider>
