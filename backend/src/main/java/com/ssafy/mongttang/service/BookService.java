@@ -339,7 +339,7 @@ public class BookService {
         Book book = bookRepository.findByBookId(bookId);
         if(book == null) return null;
 
-        book.accViews();
+        book.addViews();
         bookRepository.save(book);
 
         ArrayList<IllustInfo> illustInfos = new ArrayList<>();
