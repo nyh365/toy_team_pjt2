@@ -437,4 +437,30 @@ public class BookController {
         return new ResponseEntity<>(resultMap, status);
     }
 
+    @ApiOperation(value = "동화 상세 정보 조회 + 이미지", notes = "동화 상세정보 및 그림를 조회한다.", response = Map.class)
+    @GetMapping("/edit/{userId}/{bookId}")
+    public ResponseEntity<Map<String,Object>> getBookEdit(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId,
+                                                            @ApiParam(value = "동화 아이디", required = true, example = "0") @PathVariable int bookId,Principal principal){
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = null;
+
+        if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
+            status = HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<>(resultMap, status);
+        }
+
+        ResponseBookEditDto responseBookEditDto = bookService.getBookEdit(userId, bookId);
+
+        if(responseBookEditDto == null){
+            resultMap.put(MESSAGE, FAIL);
+            status = HttpStatus.BAD_REQUEST;
+        }else{
+            resultMap.put(MESSAGE,SUCCESS);
+            resultMap.put("bookEdit",responseBookEditDto);
+            status = HttpStatus.OK;
+        }
+
+        return new ResponseEntity<>(resultMap, status);
+    }
+
 }

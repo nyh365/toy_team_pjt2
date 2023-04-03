@@ -45,11 +45,11 @@ public class ProfileController{
 
         if(follow != null){
             resultMap.put(MESSAGE,SUCCESS);
-            resultMap.put("isfollow",true);
+            resultMap.put("isFollow",true);
             status = HttpStatus.OK;
         }else{
             resultMap.put(MESSAGE, FAIL);
-            resultMap.put("isfollow",false);
+            resultMap.put("isFollow",false);
             status = HttpStatus.BAD_REQUEST;
         }
 
@@ -72,11 +72,11 @@ public class ProfileController{
 
         if(isDeleted > 0){
             resultMap.put(MESSAGE,SUCCESS);
-            resultMap.put("isfollow",false);
+            resultMap.put("isFollow",false);
             status = HttpStatus.OK;
         }else{
             resultMap.put(MESSAGE, FAIL);
-            resultMap.put("isfollow",true);
+            resultMap.put("isFollow",true);
             status = HttpStatus.BAD_REQUEST;
         }
 
