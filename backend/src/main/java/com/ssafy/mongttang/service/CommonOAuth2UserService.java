@@ -29,7 +29,7 @@ public class CommonOAuth2UserService {
     @Transactional
     public User registerNewUser(OAuth2UserRequest oAuth2UserRequest, OAuth2UserInfoDto oAuth2UserInfo) {
         User user = oAuth2UserInfo.toEntity(oAuth2UserRequest);
-        return userRepository.save(user);
+        return userRepository.saveAndFlush(user);
     }
 
     @Transactional

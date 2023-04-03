@@ -66,8 +66,7 @@ public class UserService {
     public User storeWalletAddress(int userId, ReqWalletInfoDto reqWalletInfoDto) throws Exception {
         User user = userRepository.findByUserId(userId);
         if(user == null) return null;
-        if(user.getUserPrivateKey() != null) return null;
-
+        if(!(" ".equals(user.getUserPrivateKey()))) return null;
         user.changeWallet(aes256Util.encrypt(reqWalletInfoDto.getWallet()));
         return userRepository.save(user);
     }
