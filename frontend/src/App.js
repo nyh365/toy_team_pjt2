@@ -39,6 +39,7 @@ import { userStore } from 'store/userStore';
 import SocialLogin from 'pages/Login/SocialLogin';
 import ChallengeDetail from 'pages/Challenge/ChallengeDetail';
 import FlipViewer from 'pages/Book/FlipViewer';
+import NewHome from 'pages/Home/NewHome';
 const queryClient = new QueryClient();
 function App() {
   const [userId, setUserId] = useState();
@@ -57,7 +58,7 @@ function App() {
             <NavBar />
             <AdminNavBar />
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<NewHome />} />
               <Route path="/home" element={<Home />} />
               <Route path="/login" element={<UserLogin />} />
               <Route path="/oauth" element={<SocialLogin />} />

@@ -28,7 +28,7 @@ function LogoutModal({ onClose }) {
     // setUserId(id);
   }, [resetUser]);
   // console.log(userStore((state) => state.userId));
-  console.log(id);
+  // console.log(id);
 
   const logout = () => {
     authApi(requests.GET_LOGOUT(id))
