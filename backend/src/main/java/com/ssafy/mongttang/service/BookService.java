@@ -10,12 +10,10 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.sql.Array;
 import java.sql.Timestamp;
 
 import java.time.LocalDateTime;
@@ -363,7 +361,7 @@ public class BookService {
 
         //신고 여부
         boolean isReported = false;
-        if(bookReportRepository.findBookReportByBookreportBookIdAndAndBookreportReportUserId(book,userId) != null)isReported = true;
+        if(bookReportRepository.findBookReportByBookreportBookIdAndBookreportReportUserId(book,userId) != null)isReported = true;
 
         //좋아요 여부
         boolean isLiked = false;
@@ -403,13 +401,27 @@ public class BookService {
         return responseBookDetailDto;
     }
 
-    public int registFree(int bookId, LocalDateTime endDate) {
+    public void registFree(int bookId, LocalDateTime endDate) {
         Long curTime = Timestamp.valueOf(LocalDateTime.now()).getTime();
         Long endTime = Timestamp.valueOf(endDate).getTime();
 
         Long expiration = endTime - curTime;
         redisTemplate.opsForValue()
                 .set("FREE:" + bookId, String.valueOf(endTime), expiration, TimeUnit.MILLISECONDS);
-        return 1;
+
+    }
+
+    public ResponseBookEditDto getBookEdit(int userId, int bookId) {
+        //동화 기본 정보
+        Book book = bookRepository.findByBookId(bookId);
+        if(book == null || book.getBookUserId().getUserId() != userId || book.getBookStatus().equals("complete")) return null;
+
+        ArrayList<IllustInfo> illustInfos = new ArrayList<>();
+        ArrayList<Illust> illusts = illustRepository.findByIllustBookId(book);
+
+        for (Illust illust : illusts) {
+            illustInfos.add(new IllustInfo(illust));
+        }
+        return new ResponseBookEditDto(book, illustInfos);
     }
 }

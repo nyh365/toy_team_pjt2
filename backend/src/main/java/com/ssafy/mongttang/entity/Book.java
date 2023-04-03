@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -33,16 +34,21 @@ public class Book extends BaseEntity {
     @JoinColumn(name = "book_user_id")
     private User bookUserId;
 
+    @Column(columnDefinition = "TEXT")
     private String bookContent;
 
     @NotNull
     private String bookTitle;
 
     @NotNull
+    @Column(columnDefinition = "VARCHAR(2000)")
     private String bookSummary;
 
     @NotNull
     private String bookStatus;
+
+    @ColumnDefault("0")
+    private int bookViews;
 
     @Builder
     public Book(Challenge challenge, User user, ReqCreateBookDto dto){
@@ -61,6 +67,14 @@ public class Book extends BaseEntity {
     }
 
     public void changeStatus(){
+        if(this.bookStatus.equals("delete")) {
+            this.bookStatus = "complete";
+        } else {
+            this.bookStatus = "delete";
+        }
+    }
+
+    public void changeToDisabled(){
         this.bookStatus = "delete";
     }
 }

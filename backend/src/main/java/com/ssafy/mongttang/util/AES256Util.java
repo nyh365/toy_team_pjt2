@@ -7,10 +7,11 @@ import org.springframework.stereotype.Component;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class AES256Util {
-    public static String alg = "AES/CBC/PKCS5Padding";
+    public static final String alg = "AES/CBC/PKCS5Padding";
     @Value("${app.key.aesSecret}")
     private String key;
 
@@ -19,22 +20,22 @@ public class AES256Util {
 
     public String encrypt(String text) throws Exception {
         Cipher cipher = Cipher.getInstance(alg);
-        SecretKeySpec keySpec = new SecretKeySpec(iv.getBytes(), "AES");
+        SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(), "AES");
         IvParameterSpec ivParamSpec = new IvParameterSpec(iv.getBytes());
         cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivParamSpec);
 
-        byte[] encrypted = cipher.doFinal(text.getBytes("UTF-8"));
+        byte[] encrypted = cipher.doFinal(text.getBytes(StandardCharsets.UTF_8));
         return Base64.encodeBase64String(encrypted);
     }
 
     public String decrypt(String cipherText) throws Exception {
         Cipher cipher = Cipher.getInstance(alg);
-        SecretKeySpec keySpec = new SecretKeySpec(iv.getBytes(), "AES");
+        SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(), "AES");
         IvParameterSpec ivParamSpec = new IvParameterSpec(iv.getBytes());
         cipher.init(Cipher.DECRYPT_MODE, keySpec, ivParamSpec);
 
         byte[] decodedBytes = Base64.decodeBase64(cipherText);
         byte[] decrypted = cipher.doFinal(decodedBytes);
-        return new String(decrypted, "UTF-8");
+        return new String(decrypted, StandardCharsets.UTF_8);
     }
 }
