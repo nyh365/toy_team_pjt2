@@ -145,6 +145,10 @@ function FlipViewer() {
       }
     };
     fetchBookImg();
+
+    authApi(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
+      setIsLiked(res.data.bookDetail.liked);
+    });
   }, [bookId, isInterested, isLiked]);
 
   return (
