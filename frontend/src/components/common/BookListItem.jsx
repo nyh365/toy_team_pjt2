@@ -40,6 +40,7 @@ function BookListItem({ width, height, book }) {
     }, 100);
   };
 
+  // console.log(book);
   return (
     <BookListItemWrapper>
       <BookImage

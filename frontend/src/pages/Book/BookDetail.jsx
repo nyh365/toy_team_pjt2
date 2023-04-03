@@ -105,7 +105,7 @@ function BookDetail() {
       if (res.data.message === 'success') {
         authApi(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
           setBook(res.data.bookDetail);
-          console.log(res.data.bookDetail);
+          // console.log(res.data.bookDetail);
         });
       }
     });
@@ -118,7 +118,7 @@ function BookDetail() {
       if (res.data.message === 'success') {
         authApi(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
           setBook(res.data.bookDetail);
-          console.log(res.data.bookDetail);
+          // console.log(res.data.bookDetail);
         });
       }
     });
@@ -129,7 +129,7 @@ function BookDetail() {
       // console.log('userID: ', userId, 'bookId; ', bookId);
       await authApi(requests.GET_BOOK_AUTH(userId, bookId)).then((res) => {
         navigate(`/books/viewer/${bookId}`);
-        console.log(res);
+        // console.log(res);
       });
     } catch (error) {}
   };
@@ -137,7 +137,7 @@ function BookDetail() {
     <BodyContainer>
       {book ? (
         <BookInfoContainer>
-          <BookImgWrapper imgSrc={book.illustPath} />
+          <BookImgWrapper imgSrc={book.illustPath} onClick={gotoViewer} />
           <MainInfoContainer>
             <TitleContainer>
               <TitleWrapper>{book.bookTitle}</TitleWrapper>

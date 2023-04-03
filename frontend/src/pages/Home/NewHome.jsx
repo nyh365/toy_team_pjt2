@@ -21,6 +21,10 @@ const BodyContainer = styled.div`
   ${tw`flex flex-col justify-center pt-[5%] p-48`}
 `;
 
+const DiscountContainer = styled.div`
+  ${tw``}
+`;
+
 const ChallengeContainer = styled.div`
   ${tw`pt-[10%]`}
 `;
@@ -62,7 +66,17 @@ function NewHome() {
             endDate={challenges.thisWeekChallenge[0].challengeEndDate}
           />
         ) : null}
-        {/* 여기에 할인정보 */}
+        <DiscountContainer>
+          {challenges
+            ? challenges.discountBooks.map((book, index) => {
+                return (
+                  <div key={index}>
+                    <BookList books={book} width="w-40" height="h-48" />
+                  </div>
+                );
+              })
+            : null}
+        </DiscountContainer>
         <ChallengeContainer>
           {challenges
             ? challenges.thisWeekChallenge.map((challenge, index) => {
