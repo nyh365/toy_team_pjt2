@@ -29,7 +29,7 @@ public interface BookRepository extends JpaRepository<Book,Integer> {
 
     ArrayList<Book> findByBookUserIdAndBookStatus(User user, String complete);
 
-    @Query(value = "select (t.book_views + t.comment_cnt * 2 + t.blike_cnt * 5) as total,  u.user_nickname as userNikname, u.user_profile_img as userProfileImg, t.book_views as bookViews, t.comment_cnt as commentCnt, t.blike_cnt as blikeCnt, t.book_title as bookTitle, t.book_user_id as bookUserId, t.book_content as bookContent, t.book_summary as bookSummary, t.book_id as bookId \n" +
+    @Query(value = "select (t.book_views + t.comment_cnt * 2 + t.blike_cnt * 5) as total,  u.user_nickname as userNickname, u.user_profile_img as userProfileImg, t.book_views as bookViews, t.comment_cnt as commentCnt, t.blike_cnt as blikeCnt, t.book_title as bookTitle, t.book_user_id as bookUserId, t.book_content as bookContent, t.book_summary as bookSummary, t.book_id as bookId \n" +
                      "from (select * from (select count(comment_book_id) as comment_cnt, blike.booklike_book_id as v_book_id, blike.blike_cnt\n" +
                      "from comment as c right join (select count(booklike_book_id) - 1 as blike_cnt, booklike_book_id \n" +
                      "from booklike where booklike_challeng_id = :challengeId group by booklike_book_id) as blike on c.comment_book_id = blike.booklike_book_id group by blike.booklike_book_id) as v inner join book as b on b.book_id = v.v_book_id where b.book_status = 'complete') as t inner join user as u on u.user_id = t.book_user_id order by total desc, t.created_time asc limit 3", nativeQuery = true)
