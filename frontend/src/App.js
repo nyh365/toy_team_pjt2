@@ -32,7 +32,6 @@ import { CookiesProvider } from 'react-cookie';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import UserLogin from 'pages/Login/UserLogin';
 import Notice from 'pages/Notice/Notice';
-import BookViewer from 'pages/Book/BookViewer';
 import BookDetail from 'pages/Book/BookDetail';
 import NewBookEditor from 'pages/Edit/NewBookEditor';
 import { userStore } from 'store/userStore';
@@ -59,7 +58,7 @@ function App() {
             <AdminNavBar />
             <Routes>
               <Route path="/" element={<NewHome />} />
-              <Route path="/home" element={<Home />} />
+              <Route path="/home" element={<NewHome />} />
               <Route path="/login" element={<UserLogin />} />
               <Route path="/oauth" element={<SocialLogin />} />
               <Route path="/notice" element={<Notice />} />
