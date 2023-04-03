@@ -7,8 +7,8 @@ const requests = {
 
   //카카오 소셜로그인 URL
   KAKAO_LOGIN:
-    // 'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=https://j8a308.p.ssafy.io/oauth',
-    'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=http://localhost:3000/oauth',
+    'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=https://j8a308.p.ssafy.io/oauth',
+  // 'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=http://localhost:3000/oauth',
 
   //구글 소셜로그인 URL
   GOOGLE_LOGIN:
