@@ -337,8 +337,10 @@ public class BookService {
 
     public ArrayList<IllustInfo> getBookIllust(int bookId) {
         Book book = bookRepository.findByBookId(bookId);
-
         if(book == null) return null;
+
+        book.accViews();
+        bookRepository.save(book);
 
         ArrayList<IllustInfo> illustInfos = new ArrayList<>();
         ArrayList<Illust> illusts = illustRepository.findByIllustBookId(book);
