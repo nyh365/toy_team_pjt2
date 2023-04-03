@@ -3,18 +3,13 @@ import React from 'react';
 import tw, { styled, css } from 'twin.macro';
 
 //Components
-import NavBar from 'components/common/NavBar';
-import Modal from 'components/common/Modal';
-import ProfileImg from 'components/common/ProfileImg';
 import ChallengeTimer from 'components/common/ChallengeTimer';
-import BookShelf from 'components/common/BookShelf';
 
 import thisChallenge from '../../assets/images/thisChallenge.png';
 import requests from 'api/config';
-import { authApi, defaultApi } from 'api/axios';
+import { authApi } from 'api/axios';
 import { useEffect } from 'react';
 import { useState } from 'react';
-import axios from 'axios';
 import BookList from 'components/common/BookList';
 import { Link } from 'react-router-dom';
 
@@ -36,6 +31,10 @@ const TitleContainer = styled.div`
 
 const TitleWrapper = styled.p`
   ${tw`text-3xl font-bold py-2`}
+`;
+
+const LinkWrapper = styled.div`
+  ${tw`flex justify-end`}
 `;
 
 function NewHome() {
@@ -72,12 +71,6 @@ function NewHome() {
                   <div key={index}>
                     <TitleContainer>
                       <TitleWrapper>{challenge.challengeTitle}</TitleWrapper>
-                      <Link
-                        to={`/challenge/${challenge.challengeId}`}
-                        style={{ fontSize: 'small' }}
-                      >
-                        더 많은 동화 보러가기 →
-                      </Link>
                     </TitleContainer>
                     <BookList
                       books={challenge.bookList}
@@ -85,6 +78,11 @@ function NewHome() {
                       height="h-48"
                       fromHome="true"
                     />
+                    <LinkWrapper>
+                      <Link to={`/challenge/${challenge.challengeId}`}>
+                        더 많은 동화 보러가기 →
+                      </Link>
+                    </LinkWrapper>
                   </div>
                 );
               })

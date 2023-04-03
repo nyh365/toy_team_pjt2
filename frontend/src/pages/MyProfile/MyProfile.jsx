@@ -9,6 +9,7 @@ import UserIcon from 'assets/images/UserIcon.svg';
 import ProfileImg2 from 'components/common/ProfileImg2';
 import BookList from 'components/common/BookList';
 import EditProfileIcon from 'assets/icons/pencil03.svg';
+import BookListItem from 'components/common/BookListItem';
 
 const ProfileContainer = styled.div`
   ${tw`flex flex-col items-center justify-center w-full z-10 pt-[80px]`}
@@ -79,6 +80,7 @@ function MyProfile() {
         setInCompleteBooks(data.profile.inCompleteBooks);
         setInterestBooks(data.profile.interestBooks);
         setPaidBooks(data.profile.paidBooks);
+        console.log(data);
       } catch (error) {
         throw error;
       }
@@ -114,23 +116,63 @@ function MyProfile() {
       </ProfileContainer>
       <CompletedBookList>
         <span className="text-[40px]">완성한 동화</span>
-        <BookList width="w-[180px]" height="h-[250px]" books={myBooks} />
+        {myBooks.length !== 0
+          ? myBooks.map((book) => {
+              return (
+                <BookListItem
+                  key={book.bookId}
+                  width="w-[180px]"
+                  height="h-[250px]"
+                  book={book}
+                />
+              );
+            })
+          : null}
       </CompletedBookList>
       <InCompleteBookList>
         <span className="text-[40px]">작업중인 동화</span>
-        <BookList
-          width="w-[180px]"
-          height="h-[250px]"
-          books={inCompleteBooks}
-        />
+        {inCompleteBooks.length !== 0
+          ? inCompleteBooks.map((book) => {
+              return (
+                <BookListItem
+                  key={book.bookId}
+                  width="w-[180px]"
+                  height="h-[250px]"
+                  book={book}
+                />
+              );
+            })
+          : null}
       </InCompleteBookList>
       <LikedBookList>
         <span className="text-[40px]">관심목록</span>
-        <BookList width="w-[180px]" height="h-[250px]" books={interestBooks} />
+        {interestBooks.length !== 0
+          ? interestBooks.map((book) => {
+              return (
+                <BookListItem
+                  key={book.bookId}
+                  width="w-[180px]"
+                  height="h-[250px]"
+                  book={book}
+                />
+              );
+            })
+          : null}
       </LikedBookList>
       <PurchasedBookList>
         <span className="text-[40px]">구매목록</span>
-        <BookList width="w-[180px]" height="h-[250px]" books={paidBooks} />
+        {paidBooks.length !== 0
+          ? paidBooks.map((book) => {
+              return (
+                <BookListItem
+                  key={book.bookId}
+                  width="w-[180px]"
+                  height="h-[250px]"
+                  book={book}
+                />
+              );
+            })
+          : null}
       </PurchasedBookList>
     </div>
   );

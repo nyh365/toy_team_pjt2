@@ -63,25 +63,25 @@ authApi.interceptors.response.use(
           refreshToken: refreshToken,
         })
         .then((response) => {
-          const { accessToken } = response.data;
-          // console.log(response);
-          localStorage.setItem('accessToken', accessToken);
-          config.headers.Authorization = `Bearer ${accessToken}`;
+          if (response.status === 200) {
+            const { accessToken } = response.data;
+            // console.log(response);
+            localStorage.setItem('accessToken', accessToken);
+            config.headers.Authorization = `Bearer ${accessToken}`;
 
-          //새로 받은 토큰으로 로그인 재요청
-          // console.log(config);
-          return authApi(config);
+            //새로 받은 토큰으로 로그인 재요청
+            // console.log(config);
+            return authApi(config);
+          } else if (response.status === 404) {
+            //리프레시 토큰 재발급마저 안된 경우
+            console.log(response);
+            localStorage.clear();
+            removeCookie('refreshToken');
+          }
         })
-        .catch((error) => {
-          //리프레시 토큰 재발급마저 안된 경우
-          console.log(error);
-          localStorage.clear();
-          removeCookie('refreshToken');
-        })
-        .then((response) => {
+        .finally(() => {
           window.location.href = '/';
         });
-      //에러처리 추가(로그아웃)
     }
   },
 );

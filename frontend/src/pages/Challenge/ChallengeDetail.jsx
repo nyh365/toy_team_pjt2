@@ -1,14 +1,15 @@
 import React from 'react';
 import tw, { styled, css } from 'twin.macro';
 
-import { authApi, defaultApi } from 'api/axios';
+import { authApi } from 'api/axios';
 // import { challengeDetails } from 'api/data';
 import requests from 'api/config';
-import BookShelf from 'components/common/BookShelf';
 import { Link, useParams } from 'react-router-dom';
 import Button from 'components/common/Button';
 import { useState } from 'react';
 import { useEffect } from 'react';
+import BookListItem from 'components/common/BookListItem';
+import BookBadge from 'components/common/BookBadge';
 
 const BodyContainer = styled.div`
   ${tw`flex flex-col items-center pt-[5%]`}
@@ -51,6 +52,7 @@ function ChallengeDetail() {
       try {
         authApi(requests.GET_CHALLENGE(id)).then((response) => {
           setChallengeDetails(response.data);
+          console.log(response.data);
         });
 
         //url의 challengeId를 바탕으로 해당 challege에 대한 정보를 가져온다
@@ -58,6 +60,7 @@ function ChallengeDetail() {
           response.data.thisWeekChallenge.map((challenge) => {
             if (challenge.challengeId === Number.parseInt(id)) {
               setChallengeInfo(challenge);
+              // console.log(challenge);
             }
           }),
         );
@@ -71,7 +74,7 @@ function ChallengeDetail() {
       {challengeInfo ? (
         <ChallengeInfoContainer>
           <TitleWrapper>{challengeInfo.challengeTitle}</TitleWrapper>
-          <ContentWrapper>{challengeInfo.challengeContent}</ContentWrapper>
+          <ContentWrapper>{challengeInfo.challengeSummary}</ContentWrapper>
           <LinkWrapper>
             <Link>
               <Button title="동화 만들기 →" buttonType="mint" />
@@ -84,31 +87,27 @@ function ChallengeDetail() {
         <BookContainer>
           <BestBookContainer>
             <BookTitleWrapper>베스트 동화</BookTitleWrapper>
-            <BookShelf
-              books={challengeDetails.best}
-              width="w-40"
-              height="h-48"
-              size="b-5"
-            />
+            {challengeDetails.detailChallenge.bookList.map((book, index) => {
+              return (
+                <BookBadge book={book} key={book.bookId} index={index}>
+                  <BookListItem book={book} width="w-40" height="h-48" />
+                </BookBadge>
+              );
+            })}
           </BestBookContainer>
           <LikedBookContainer>
-            <BookTitleWrapper>최근 인기 동화</BookTitleWrapper>
-            <BookShelf
-              books={challengeDetails.liked}
-              width="w-40"
-              height="h-48"
-              size="b-5"
-            />
+            <BookTitleWrapper>관련 동화</BookTitleWrapper>
+            {challengeDetails.recent.map((book) => {
+              return (
+                <BookListItem
+                  key={book.bookId}
+                  book={book}
+                  width="w-40"
+                  height="h-48"
+                />
+              );
+            })}
           </LikedBookContainer>
-          <RecentBookContainer>
-            <BookTitleWrapper>최신 동화</BookTitleWrapper>
-            <BookShelf
-              books={challengeDetails.recent}
-              width="w-40"
-              height="h-48"
-              size="b-5"
-            />
-          </RecentBookContainer>
         </BookContainer>
       ) : null}
     </BodyContainer>
