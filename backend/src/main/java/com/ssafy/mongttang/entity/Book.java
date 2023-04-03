@@ -34,12 +34,14 @@ public class Book extends BaseEntity {
     @JoinColumn(name = "book_user_id")
     private User bookUserId;
 
+    @Column(columnDefinition = "TEXT")
     private String bookContent;
 
     @NotNull
     private String bookTitle;
 
     @NotNull
+    @Column(columnDefinition = "VARCHAR(2000)")
     private String bookSummary;
 
     @NotNull

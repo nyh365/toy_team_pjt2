@@ -27,6 +27,7 @@ public class Comment extends BaseEntity{
     @JoinColumn(name = "comment_user_id")
     private User commentUserId;
 
+    @Column(columnDefinition = "VARCHAR(1000)")
     private String commentContent;
 
     @NotNull

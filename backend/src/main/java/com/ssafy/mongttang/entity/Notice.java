@@ -20,6 +20,7 @@ public class Notice extends BaseEntity {
     private String noticeTitle;
 
     @NotNull
+    @Column(columnDefinition = "TEXT")
     private String noticeContent;
 
     @Builder

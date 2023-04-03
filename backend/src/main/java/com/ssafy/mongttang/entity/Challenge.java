@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,19 +23,21 @@ public class Challenge extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int challengeId;
 
-    @Column(nullable = false)
+    @NotNull
     private String challengeTitle;
 
-    @Column(nullable = false)
+    @NotNull
+    @Column(columnDefinition = "TEXT")
     private String challengeContent;
 
-    @Column(nullable = false)
+    @NotNull
+    @Column(columnDefinition = "VARCHAR(2000)")
     private String challengeSummary;
 
-    @Column(nullable = false)
+    @NotNull
     private LocalDateTime challengeStartDate;
 
-    @Column(nullable = false)
+    @NotNull
     private LocalDateTime challengeEndDate;
 
     @Builder
