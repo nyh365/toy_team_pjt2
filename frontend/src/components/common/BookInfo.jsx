@@ -4,7 +4,7 @@ import tw, { styled, css } from 'twin.macro';
 import ProfileIcon from '../../assets/icons/UserIcon01.svg';
 import CommentIcon from '../../assets/icons/ReviewIcon.svg';
 import LikeIcon from '../../assets/icons/LikeButtonFill.svg';
-
+import ProfileImg from './ProfileImg';
 const BookInfoWrapper = styled.div`
   ${tw`flex flex-col justify-between`}
 `;
@@ -18,7 +18,7 @@ const SubInfoContainer = styled.div`
 `;
 
 const Artist = styled.div`
-  ${tw`flex flex-row`}
+  ${tw`flex-wrap flex-row`}
 `;
 
 const SubInfoWrapper = styled.div`
@@ -32,13 +32,22 @@ const Comments = styled.div`
   ${tw`flex flex-row`}
 `;
 
-function BookInfo({ title, artist, likes, comments, width, height }) {
+function BookInfo({
+  title,
+  artist,
+  likes,
+  comments,
+  width,
+  height,
+  profileImgURL,
+  artistId,
+}) {
   return (
     <BookInfoWrapper className={`${width} ${height}`}>
       <Title>{title}</Title>
       <SubInfoContainer className={`${width}-1`}>
         <Artist>
-          <img src={ProfileIcon} width={20} height={20} alt="" />
+          <ProfileImg userImg={profileImgURL} userId={artistId} />
           {artist}
         </Artist>
         <SubInfoWrapper>

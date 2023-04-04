@@ -12,12 +12,12 @@ const BookListItemWrapper = styled.div`
   ${tw`px-2`}
 `;
 
-const BookImage = styled.div`
+const BookImage = styled.img`
   ${tw`z-0 absolute transition rounded duration-300 ease-in-out shadow-lg hover:opacity-20 hover:scale-110`}
   ${(props) =>
     css`
       background-image: url(${props.imgSrc});
-      background-size: cover;
+      background-size: contain;
     `}
 `;
 
@@ -45,27 +45,21 @@ function BookListItem({ width, height, book, incomplete }) {
   // console.log(book);
   return (
     <BookListItemWrapper>
-      {incompleted === true ? (
-        <BookImage
-          onMouseOver={() => handleHover(true)}
-          onMouseOut={() => handleHover(false)}
-          onClick={() => navigate(`/incompletebook/${userId}/${book.bookId}`)}
-          imgSrc={book.bookImgUrl}
-          className={`${width} ${height}`}
-        />
-      ) : (
-        <BookImage
-          onMouseOver={() => handleHover(true)}
-          onMouseOut={() => handleHover(false)}
-          onClick={() => navigate(`/books/${userId}/${book.bookId}`)}
-          imgSrc={book.bookImgUrl}
-          className={`${width} ${height}`}
-        />
-      )}
+      <BookImage
+        onMouseOver={() => handleHover(true)}
+        onMouseOut={() => handleHover(false)}
+        onClick={() => navigate(`/books/${userId}/${book.bookId}`)}
+        src={book.bookImgUrl}
+        className={`image-upload-preview ${width} ${height}`}
+        alt="upload-preview"
+      />
+
       <BookInfoWrapper>
         <BookInfo
           title={book.bookTitle}
           artist={book.artistNickname}
+          profileImgURL={book.profileImgURL}
+          artistId={book.artistId}
           likes={book.numOfLike}
           comments={book.numOfComment}
           width={width}

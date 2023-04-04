@@ -7,6 +7,7 @@ import Button from './Button';
 import CommentItem from './CommentItem';
 import requests from 'api/config';
 import { defaultApi, authApi } from 'api/axios';
+import { userStore } from 'store/userStore';
 
 const CommentContainer = styled.div`
   ${tw`flex flex-col-reverse`}
@@ -41,9 +42,34 @@ function CommentForm({ bookComments }) {
   const navigate = useNavigate();
   const params = useParams();
   const userId = Number(localStorage.getItem('userId'));
+  const userNickname = localStorage.getItem('userNickname');
+  const [userImg, setUserImg] = useState();
   const [comments, setComments] = useState(bookComments);
   const [commentContent, setCommentContent] = useState('');
+  const [username, setUsername] = useState('');
   // console.log(params);
+  useEffect(() => {
+    userStore.subscribe((state) => setUserImg(state.userImg));
+    const fetchData = async () => {
+      try {
+        await authApi
+          .get(requests.GET_PROFILE(localStorage.getItem('userId')))
+          .then((res) => {
+            setUserImg(res.data.profile.profileImgURL);
+          });
+      } catch (error) {}
+    };
+    fetchData();
+  }, [userImg]);
+  useEffect(() => {
+    const maxLength = 8;
+    if (userNickname.length > maxLength) {
+      const truncatedString = userNickname.slice(0, maxLength) + '...';
+      setUsername(truncatedString);
+    } else {
+      setUsername(username);
+    }
+  }, []);
   const submitHandler = () => {
     //댓글 등록 API 호출
     const post_comment = async () => {
@@ -72,9 +98,9 @@ function CommentForm({ bookComments }) {
         <Comment>댓글</Comment>
         <CommentFormcontainer>
           <UserInfoContainer>
-            <ProfileImg />
+            <ProfileImg userId={userId} userImg={userImg} />
 
-            <Username>닉네임</Username>
+            <Username>{username}</Username>
           </UserInfoContainer>
           <div>
             <form action="submit">

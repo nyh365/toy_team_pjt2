@@ -4,20 +4,22 @@ import tw, { styled, css } from 'twin.macro';
 import UserIcon from 'assets/images/UserIcon.svg';
 
 const Avatar = styled.div`
-  ${tw`bg-primary border-b rounded-full w-6 h-6 bg-cover bg-center`}
-  ${(props) =>
-    props.img
-      ? css`
-          background-image: url(${props.img});
-        `
-      : tw`bg-primary`}
+  ${tw`bg-primary border-b rounded-full bg-cover bg-center`}
+  background-image: url(${(props) => props.img || UserIcon});
+  width: ${(props) => props.width || '3rem'};
+  height: ${(props) => props.height || '3rem'};
 `;
-
-function ProfileImg({ userImg }) {
+function ProfileImg({ userImg, userId, height, width }) {
+  const navigate = useNavigate();
+  const handleClick = () => {
+    if (userId) {
+      navigate(`/myprofile/${userId}`);
+    }
+  };
   return (
-    <div>
+    <div onClick={handleClick}>
       <div>
-        {userImg ? <Avatar img={userImg} /> : <Avatar img={UserIcon} />}
+        <Avatar img={userImg} height={height} width={width} />
       </div>
     </div>
   );
