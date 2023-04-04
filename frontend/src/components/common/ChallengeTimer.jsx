@@ -21,7 +21,6 @@ function ChallengeTimer({ endDate }) {
 
   return (
     <TimerWrapper>
-      <p>남은 시간</p>
       <FlipClockCountdown
         to={date}
         showLabels={false}

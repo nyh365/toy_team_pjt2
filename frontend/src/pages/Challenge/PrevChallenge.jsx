@@ -24,7 +24,6 @@ function PrevChallenge() {
       try {
         await authApi(requests.GET_LAST_CHALLENGES()).then((response) => {
           setPrevChallenges(response.data);
-          console.log(response);
         });
       } catch (error) {}
     };
