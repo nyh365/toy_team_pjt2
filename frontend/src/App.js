@@ -13,6 +13,7 @@ import NavBar from 'components/common/NavBar';
 
 // component
 import Home from './pages/Home/Home';
+import Profile from 'pages/MyProfile/Profile';
 import MyProfile from 'pages/MyProfile/MyProfile';
 import MyProfileEdit from 'pages/MyProfile/MyProfileEdit';
 import NicknameEdit from 'pages/MyProfile/NicknameEdit';
@@ -65,6 +66,7 @@ function App() {
               <Route path="/oauth" element={<SocialLogin />} />
               <Route path="/notice" element={<Notice />} />
               <Route path="/myprofile" element={<MyProfile />} />
+              <Route path="/profile/:userId" element={<Profile />} />
               <Route path="/myprofile/edit" element={<MyProfileEdit />} />
               <Route
                 path="/myprofile/edit/nickname"

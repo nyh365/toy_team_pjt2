@@ -9,17 +9,27 @@ const Avatar = styled.div`
   width: ${(props) => props.width || '3rem'};
   height: ${(props) => props.height || '3rem'};
 `;
-function ProfileImg({ userImg, userId, height, width }) {
+function ProfileImg({ userImg, userId, height, width, onClick }) {
   const navigate = useNavigate();
   const handleClick = () => {
     if (userId) {
-      navigate(`/myprofile/${userId}`);
+      navigate(`/profile/${userId}`);
     }
   };
   return (
-    <div onClick={handleClick}>
+    <div>
       <div>
-        <Avatar img={userImg} height={height} width={width} />
+        {userImg ? (
+          <Avatar
+            img={userImg}
+            height={height}
+            width={width}
+            onClick={handleClick}
+            style={{ cursor: 'pointer' }}
+          />
+        ) : (
+          <Avatar img={UserIcon} height={height} width={width} />
+        )}
       </div>
     </div>
   );
