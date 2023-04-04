@@ -39,6 +39,7 @@ import SocialLogin from 'pages/Login/SocialLogin';
 import ChallengeDetail from 'pages/Challenge/ChallengeDetail';
 import FlipViewer from 'pages/Book/FlipViewer';
 import NewHome from 'pages/Home/NewHome';
+import NewPrevChallenge from 'pages/Challenge/NewPrevChallenge';
 const queryClient = new QueryClient();
 function App() {
   const [userId, setUserId] = useState();
@@ -68,7 +69,7 @@ function App() {
                 path="/myprofile/edit/nickname"
                 element={<NicknameEdit />}
               />
-              <Route path="/prevchallenge" element={<PrevChallenge />} />
+              <Route path="/prevchallenge" element={<NewPrevChallenge />} />
               <Route
                 path="/challenge/:challengeId"
                 element={<ChallengeDetail />}
