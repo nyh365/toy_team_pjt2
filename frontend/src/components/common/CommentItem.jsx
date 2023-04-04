@@ -31,10 +31,10 @@ const InputContainer = styled.textarea`
 `;
 
 const CommentContentContainer = styled.span`
-  ${tw` flex flex-wrap justify-between my-1 w-[900px] text-[25px]`}
+  ${tw` flex flex-wrap justify-between my-1 w-[900px] text-xl pr-3`}
 `;
 const ButtonContainer = styled.div`
-  ${tw`flex justify-end items-center my-1`}
+  ${tw`flex justify-end items-center my-1 pr-3`}
 `;
 const Username = styled.span`
   ${tw`text-[16px] text-center w-[6rem]`}
