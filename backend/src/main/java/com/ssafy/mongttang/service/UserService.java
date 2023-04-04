@@ -67,7 +67,8 @@ public class UserService {
         User user = userRepository.findByUserId(userId);
         if(user == null) return null;
         if(!(" ".equals(user.getUserPrivateKey()))) return null;
-        user.changeWallet(aes256Util.encrypt(reqWalletInfoDto.getWallet()));
+        //user.changeWallet(aes256Util.encrypt(reqWalletInfoDto.getWallet()));
+        user.changeWallet(reqWalletInfoDto.getWallet());
         return userRepository.save(user);
     }
 }
