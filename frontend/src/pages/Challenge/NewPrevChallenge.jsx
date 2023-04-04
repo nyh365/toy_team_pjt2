@@ -19,7 +19,7 @@ const CTWrapper = styled.div`
 `;
 
 const ChallengeContainer = styled.div`
-  ${tw`pt-[10%]`}
+  ${tw``}
 `;
 
 const TitleContainer = styled.div`
@@ -42,7 +42,6 @@ function NewPrevChallenge() {
       try {
         await authApi(requests.GET_LAST_CHALLENGES()).then((response) => {
           setPrevChallenges(response.data);
-          console.log(response);
         });
       } catch (error) {}
     };
@@ -59,7 +58,6 @@ function NewPrevChallenge() {
       <ChallengeContainer>
         {prevChallenges
           ? prevChallenges.totalChallenges.map((challenge, index) => {
-              // console.log(challenge);
               return (
                 <div key={index}>
                   <TitleContainer>

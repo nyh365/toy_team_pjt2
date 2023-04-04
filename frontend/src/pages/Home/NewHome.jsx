@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom';
 import BookSwiper from 'components/common/BookSwiper';
 
 const CTWrapper = styled.div`
-  ${tw`flex justify-center m-0 mt-[2%]`}
+  ${tw`flex justify-center m-0 my-[2%]`}
 `;
 
 const BodyContainer = styled.div`
@@ -23,7 +23,7 @@ const BodyContainer = styled.div`
 `;
 
 const DiscountContainer = styled.div`
-  ${tw``}
+  ${tw`pt-[2%]`}
 `;
 
 const ChallengeContainer = styled.div`
@@ -56,7 +56,6 @@ function NewHome() {
     getData();
   }, []);
 
-  console.log(challenges);
   return (
     <div>
       <BodyContainer>

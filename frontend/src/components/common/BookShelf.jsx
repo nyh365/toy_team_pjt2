@@ -25,13 +25,21 @@ const ShelfWrapper = styled.div`
   ${tw``}
 `;
 
-function BookShelf({ books, width, height, challenge, size }) {
+function BookShelf({ books, width, height, size }) {
   return (
     <ShelfContainer>
       <ChallengeContainer>
         <div className={`${ShelfSize[size]}`}>
-          {challenge ? <ChallengeInfo challenge={challenge} /> : null}
-          <BookList books={books} width={width} height={height} />
+          {books.map((book, index) => {
+            return (
+              <BookListItem
+                key={index}
+                book={book}
+                width={width}
+                height={height}
+              />
+            );
+          })}
         </div>
         <ShelfWrapper>
           <img src={shelf} alt="shelf" />

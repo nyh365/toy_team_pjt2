@@ -10,22 +10,24 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import BookListItem from 'components/common/BookListItem';
 import BookBadge from 'components/common/BookBadge';
+import shelf from '../../assets/images/Shelf.svg';
+import BookShelf from 'components/common/BookShelf';
 
 const BodyContainer = styled.div`
   ${tw`flex flex-col items-center pt-[5%]`}
 `;
 
 const BookTitleWrapper = styled.p`
-  ${tw`text-3xl pl-[2%] pt-[5%] pb-[2%]`}
+  ${tw`text-3xl pl-[2%] pt-[5%]`}
 `;
 const ChallengeInfoContainer = styled.div`
   ${tw`flex flex-col flex-wrap w-2/3`}
 `;
 const BookContainer = styled.div`
-  ${tw`p-48`}
+  ${tw`p-48 pt-8`}
 `;
 const BestBookContainer = styled.div`
-  ${tw`flex items-center justify-center mb-10`}
+  ${tw`flex items-center justify-center`}
 `;
 const RecentBookContainer = styled.div`
   ${tw`flex flex-wrap`}
@@ -83,7 +85,6 @@ function ChallengeDetail() {
           </LinkWrapper>
         </ChallengeInfoContainer>
       ) : null}
-
       {challengeDetails ? (
         <BookContainer>
           {/* <BookTitleWrapper>베스트 동화</BookTitleWrapper> */}
@@ -137,16 +138,12 @@ function ChallengeDetail() {
           </BestBookContainer>
           <BookTitleWrapper>관련 동화</BookTitleWrapper>
           <RecentBookContainer>
-            {challengeDetails.recent.map((book) => {
-              return (
-                <BookListItem
-                  key={book.bookId}
-                  book={book}
-                  width="w-40"
-                  height="h-48"
-                />
-              );
-            })}
+            <BookShelf
+              books={challengeDetails.recent}
+              width="w-40"
+              height="h-48"
+              size="b-16"
+            />
           </RecentBookContainer>
         </BookContainer>
       ) : null}

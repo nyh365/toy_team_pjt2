@@ -35,20 +35,20 @@ const FirstBadge = styled(Badge)(
     position: absolute;
     top: 0;
     right: 15px;
-    min-width: 50px;
-    height: 50px;
+    min-width: 60px;
+    height: 60px;
     line-height: 35px;
     // font-family: 'Noto Sans KR', sans-serif;
     color: #4A4950;
-    font-weight: 800;
-    font-size: 15px;
+    font-weight: 900;
+    font-size: 20px;
     white-space: nowrap;
     text-align: center;
     border-radius: 40px;
     border: 7px;
     border-style: solid;
-    border-color: #A9DCCD;
-    background: #FAF7F5;
+    border-color: #E28080;
+    background: #FFFEF1;
     box-shadow: 0px 4px 16px ${
       theme.palette.mode === 'dark' ? grey[900] : grey[300]
     };
