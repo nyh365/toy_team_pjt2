@@ -9,6 +9,8 @@ import java.util.ArrayList;
 @Getter
 public class ResponseBookEditDto {
     @NotNull
+    private int challengeId;
+    @NotNull
     private int bookId;
     @NotNull
     private String bookTitle;
@@ -21,6 +23,7 @@ public class ResponseBookEditDto {
     private ArrayList<IllustInfo> illusts;
 
     public ResponseBookEditDto(Book book, ArrayList<IllustInfo> illusts) {
+        this.challengeId = book.getBookChallengeId().getChallengeId();
         this.bookId = book.getBookId();
         this.bookTitle = book.getBookTitle();
         this.bookSummary = book.getBookSummary();
