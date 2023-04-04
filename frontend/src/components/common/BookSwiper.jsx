@@ -4,9 +4,12 @@ import 'swiper/css'; //basic
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import '../../components/common/swiperStyles.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import tw, { styled } from 'twin.macro';
+import { authApi } from 'api/axios';
+import requests from 'api/config';
+import { useNavigate } from 'react-router-dom';
 
 const ImgWrapper = styled.div`
   ${tw`w-fit h-fit`}
@@ -16,12 +19,20 @@ const ImgWrapper = styled.div`
 
 export default function BookSwiper({ width, height }) {
   const [books, setBooks] = useState([]);
+  const navigate = useNavigate();
+  const userId = localStorage.getItem('userId');
 
-  fetch('https://jsonplaceholder.typicode.com/photos')
-    .then((response) => response.json())
-    .then((json) => {
-      setBooks(json.slice(0, 50));
-    });
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        await authApi(requests.GET_CHALLENGES()).then((response) => {
+          setBooks(response.data.discountBooks);
+        });
+      } catch (error) {}
+    };
+    getData();
+  });
+
   return (
     <Swiper
       effect={'coverflow'}
@@ -52,11 +63,13 @@ export default function BookSwiper({ width, height }) {
           <SwiperSlide key={index}>
             <ImgWrapper>
               <img
-                src={book.url}
+                src={book.coverImg}
                 alt=""
                 style={{
                   borderRadius: 10,
+                  height: '400px',
                 }}
+                onClick={() => navigate(`/books/${userId}/${book.bookId}`)}
               />
             </ImgWrapper>
           </SwiperSlide>

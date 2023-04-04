@@ -34,7 +34,7 @@ function BookList({ width, height, books, fromHome }) {
               return (
                 <FirstItemContainer key={book.bookId}>
                   <BookBadge book={book} index={index}>
-                    <BookListItem book={book} width="w-80" height="h-72" />
+                    <BookListItem book={book} width="w-64" height="h-80" />
                   </BookBadge>
                   <BookIndex book={book} margin="10px" />
                 </FirstItemContainer>

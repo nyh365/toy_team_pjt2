@@ -13,9 +13,15 @@ const Avatar = styled.div`
       : tw`bg-primary`}
 `;
 
-function ProfileImg({ userImg }) {
+function ProfileImg({ userImg, onClick }) {
   return (
-    <div>{userImg ? <Avatar img={userImg} /> : <Avatar img={UserIcon} />}</div>
+    <div>
+      {userImg ? (
+        <Avatar img={userImg} onClick={onClick} style={{ cursor: 'pointer' }} />
+      ) : (
+        <Avatar img={UserIcon} />
+      )}
+    </div>
   );
 }
 
