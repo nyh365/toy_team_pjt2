@@ -60,16 +60,17 @@ function SocialLogin() {
 
     //지갑 저장
     if (userWallet === ' ') {
-      console.log('없음');
-      // web3.eth.accounts.create();
+      // console.log('없음');
       const wallet = web3.eth.accounts.create();
-      setUserWallet(wallet);
-      console.log(wallet);
+      setUserWallet(wallet.privateKey);
+      // console.log(wallet);
       authApi.post(requests.POST_WALLET(userId), {
         wallet: wallet.privateKey,
       });
     } else {
       setUserWallet(userWallet);
+      // console.log('로그인 성공');
+      // console.log(userWallet);
     }
 
     navigate('/home');
