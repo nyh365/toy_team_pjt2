@@ -7,8 +7,8 @@ const requests = {
 
   //카카오 소셜로그인 URL
   KAKAO_LOGIN:
-    'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=https://j8a308.p.ssafy.io/oauth',
-  // 'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=http://localhost:3000/oauth',
+    // 'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=https://j8a308.p.ssafy.io/oauth',
+    'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=http://localhost:3000/oauth',
 
   //구글 소셜로그인 URL
   GOOGLE_LOGIN:
@@ -80,6 +80,10 @@ const requests = {
   //동화 상세정보 조회
   GET_BOOK_DETAIL(userId, bookId) {
     return `/api/book/${userId}/${bookId}`;
+  },
+  //동화 상세정보 조회 in Editor
+  GET_BOOK_DETAIL_EDIT(userId, bookId) {
+    return `/api/book/edit/${userId}/${bookId}`;
   },
 
   //동화 구매내역 저장

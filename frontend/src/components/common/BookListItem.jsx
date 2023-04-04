@@ -1,7 +1,7 @@
 /**
  * 메인화면 및 챌린지화면에 들어갈 동화 상세로 이어질 컴포넌트
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
 import { userStore } from 'store/userStore';
@@ -26,12 +26,14 @@ const BookInfoWrapper = styled.div`
 `;
 
 //props로 가져와야하는 정보 : 책 아이디(경로지정용), 책 이미지, 책 정보들(책 제목, 작가명, 댓글 수, 좋아요 수), 책 링크
-function BookListItem({ width, height, book }) {
+function BookListItem({ width, height, book, incomplete }) {
   const userId = localStorage.getItem('userId');
-
+  const [incompleted, setIncompleted] = useState(false);
   const [isHover, setIsHover] = useState(false); //마우스가 올라가있는지
   // const bookImg = 'https://tecdn.b-cdn.net/img/new/fluid/city/113.webp'; //더미데이터
-
+  useEffect(() => {
+    setIncompleted(incomplete);
+  });
   const navigate = useNavigate();
 
   const handleHover = (props) => {
@@ -43,13 +45,23 @@ function BookListItem({ width, height, book }) {
   // console.log(book);
   return (
     <BookListItemWrapper>
-      <BookImage
-        onMouseOver={() => handleHover(true)}
-        onMouseOut={() => handleHover(false)}
-        onClick={() => navigate(`/books/${userId}/${book.bookId}`)}
-        imgSrc={book.bookImgUrl}
-        className={`${width} ${height}`}
-      />
+      {incompleted === true ? (
+        <BookImage
+          onMouseOver={() => handleHover(true)}
+          onMouseOut={() => handleHover(false)}
+          onClick={() => navigate(`/incompletebook/${userId}/${book.bookId}`)}
+          imgSrc={book.bookImgUrl}
+          className={`${width} ${height}`}
+        />
+      ) : (
+        <BookImage
+          onMouseOver={() => handleHover(true)}
+          onMouseOut={() => handleHover(false)}
+          onClick={() => navigate(`/books/${userId}/${book.bookId}`)}
+          imgSrc={book.bookImgUrl}
+          className={`${width} ${height}`}
+        />
+      )}
       <BookInfoWrapper>
         <BookInfo
           title={book.bookTitle}
