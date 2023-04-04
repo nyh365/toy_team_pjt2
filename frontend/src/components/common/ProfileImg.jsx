@@ -11,8 +11,11 @@ const Avatar = styled.div`
 `;
 function ProfileImg({ userImg, userId, height, width, onClick }) {
   const navigate = useNavigate();
+  const userIdx = localStorage.getItem('userId');
   const handleClick = () => {
-    if (userId) {
+    if (userId === userIdx) {
+      navigate('/myprofile');
+    } else {
       navigate(`/profile/${userId}`);
     }
   };
