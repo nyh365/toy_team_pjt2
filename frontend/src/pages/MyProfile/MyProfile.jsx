@@ -33,17 +33,31 @@ const Follower = styled.span`
 const UserInfo = styled.span`
   ${tw`text-[35px] pt-2`}
 `;
-const CompletedBookList = styled.div`
-  ${tw`px-10`}
+
+const CompletedBookContainer = styled.div`
+  ${tw`flex flex-col px-48`}
 `;
+
+const CompletedBookList = styled.div`
+  ${tw`flex py-2`}
+`;
+
 const InCompleteBookList = styled.div`
-  ${tw`px-10`}
+  ${tw`flex`}
+`;
+
+const LikedBookContainer = styled.div`
+  ${tw`flex flex-col px-48`}
 `;
 const LikedBookList = styled.div`
-  ${tw`px-10`}
+  ${tw`flex py-2`}
+`;
+
+const PurchasedBookContainer = styled.div`
+  ${tw`flex flex-col px-48`}
 `;
 const PurchasedBookList = styled.div`
-  ${tw`px-10`}
+  ${tw`flex py-2`}
 `;
 
 function MyProfile() {
@@ -113,23 +127,26 @@ function MyProfile() {
         ) : (
           <UserInfo>소개를 작성해 주세요</UserInfo>
         )}
-        <NickName onClick={openWallet}>지갑보러가기</NickName>
+        {/* <NickName onClick={openWallet}>지갑보러가기</NickName> */}
       </ProfileContainer>
-      <CompletedBookList>
+      <CompletedBookContainer>
         <span className="text-[40px]">완성한 동화</span>
-        {myBooks.length !== 0
-          ? myBooks.map((book) => {
-              return (
-                <BookListItem
-                  key={book.bookId}
-                  width="w-[180px]"
-                  height="h-[240px]"
-                  book={book}
-                />
-              );
-            })
-          : null}
-      </CompletedBookList>
+        <CompletedBookList>
+          {myBooks.length !== 0
+            ? myBooks.map((book) => {
+                return (
+                  <BookListItem
+                    key={book.bookId}
+                    width="w-[180px]"
+                    height="h-[240px]"
+                    book={book}
+                  />
+                );
+              })
+            : null}
+        </CompletedBookList>
+      </CompletedBookContainer>
+
       {/* <InCompleteBookList>
         <span className="text-[40px]">작업중인 동화</span>
         {inCompleteBooks.length !== 0
@@ -146,36 +163,40 @@ function MyProfile() {
             })
           : null}
       </InCompleteBookList> */}
-      <LikedBookList>
+      <LikedBookContainer>
         <span className="text-[40px]">관심목록</span>
-        {interestBooks.length !== 0
-          ? interestBooks.map((book) => {
-              return (
-                <BookListItem
-                  key={book.bookId}
-                  width="w-[180px]"
-                  height="h-[250px]"
-                  book={book}
-                />
-              );
-            })
-          : null}
-      </LikedBookList>
-      <PurchasedBookList>
-        <span className="text-[40px]">구매목록</span>
-        {paidBooks.length !== 0
-          ? paidBooks.map((book) => {
-              return (
-                <BookListItem
-                  key={book.bookId}
-                  width="w-[180px]"
-                  height="h-[250px]"
-                  book={book}
-                />
-              );
-            })
-          : null}
-      </PurchasedBookList>
+        <LikedBookList>
+          {interestBooks.length !== 0
+            ? interestBooks.map((book) => {
+                return (
+                  <BookListItem
+                    key={book.bookId}
+                    width="w-[180px]"
+                    height="h-[250px]"
+                    book={book}
+                  />
+                );
+              })
+            : null}
+        </LikedBookList>
+      </LikedBookContainer>
+      <PurchasedBookContainer>
+        <PurchasedBookList>
+          <span className="text-[40px]">구매목록</span>
+          {paidBooks.length !== 0
+            ? paidBooks.map((book) => {
+                return (
+                  <BookListItem
+                    key={book.bookId}
+                    width="w-[180px]"
+                    height="h-[250px]"
+                    book={book}
+                  />
+                );
+              })
+            : null}
+        </PurchasedBookList>
+      </PurchasedBookContainer>
     </div>
   );
 }

@@ -13,6 +13,11 @@ function ProfileImg({ userImg, userId, height, width, onClick }) {
   const navigate = useNavigate();
   const userIdx = localStorage.getItem('userId');
   const handleClick = () => {
+    if (onClick) {
+      onClick();
+      return;
+    }
+
     if (userId === userIdx) {
       navigate('/myprofile');
     } else {
