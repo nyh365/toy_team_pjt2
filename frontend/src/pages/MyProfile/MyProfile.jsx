@@ -10,6 +10,7 @@ import ProfileImg2 from 'components/common/ProfileImg2';
 import BookList from 'components/common/BookList';
 import EditProfileIcon from 'assets/icons/pencil03.svg';
 import BookListItem from 'components/common/BookListItem';
+import { userStore } from 'store/userStore';
 
 const ProfileContainer = styled.div`
   ${tw`flex flex-col items-center justify-center w-full z-10 pt-[80px]`}
@@ -58,10 +59,11 @@ function MyProfile() {
   const [inCompleteBooks, setInCompleteBooks] = useState('');
   const [interestBooks, setInterestBooks] = useState('');
   const [paidBooks, setPaidBooks] = useState('');
+  const wallet = userStore((state) => state.userWallet);
 
   const openWallet = () => {
     window.open(
-      'http://localhost:8080/?key=0x6f2cf4943d60081bdd8179bde2996d83446ab2d0eccca90782ac91cb535e699a',
+      `http://j8a308.p.ssafy.io:3333/?key=${wallet}`,
       'MyWallet',
       'toolbar=no, menubar=no, width=550, height=780',
     );
