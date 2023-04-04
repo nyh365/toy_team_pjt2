@@ -9,12 +9,14 @@ export const userStore = create(
     userImg: '', //유저 프로필 사진URL
     userRole: 'reader', //역할
     accessToken: '', //액세스 토큰
+    userWallet: '', //지갑주소
 
     setUserId: (userId) => set({ userId: userId }),
     setUserNickname: (userNickname) => set({ userNickname: userNickname }),
     setUserImg: (userImg) => set({ userImg: userImg }),
     setUserRole: (userRole) => set({ userRole: userRole }),
     setToken: (accessToken) => set({ accessToken: accessToken }),
+    setUserWallet: (userWallet) => set({ userWallet: userWallet }),
     resetUser: () =>
       set({
         userId: '',
@@ -22,6 +24,7 @@ export const userStore = create(
         userImg: '',
         userRole: 'reader',
         accessToken: '',
+        userWallet: '',
       }),
   })),
 );

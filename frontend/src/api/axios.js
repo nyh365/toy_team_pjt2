@@ -70,16 +70,15 @@ authApi.interceptors.response.use(
             config.headers.Authorization = `Bearer ${accessToken}`;
 
             //새로 받은 토큰으로 로그인 재요청
-            // console.log(config);
+            console.log(config);
             return authApi(config);
-          } else if (response.status === 404) {
-            //리프레시 토큰 재발급마저 안된 경우
-            console.log(response);
-            localStorage.clear();
-            removeCookie('refreshToken');
           }
         })
-        .finally(() => {
+        .catch((err) => {
+          //리프레시 토큰 재발급마저 안된 경우
+          console.log(err);
+          localStorage.clear();
+          removeCookie('refreshToken');
           window.location.href = '/';
         });
     }

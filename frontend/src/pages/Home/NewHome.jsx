@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import BookList from 'components/common/BookList';
 import { Link } from 'react-router-dom';
+import BookSwiper from 'components/common/BookSwiper';
 
 const CTWrapper = styled.div`
   ${tw`flex justify-center m-0 mt-[2%]`}
@@ -19,6 +20,10 @@ const CTWrapper = styled.div`
 
 const BodyContainer = styled.div`
   ${tw`flex flex-col justify-center pt-[5%] p-48`}
+`;
+
+const DiscountContainer = styled.div`
+  ${tw``}
 `;
 
 const ChallengeContainer = styled.div`
@@ -51,6 +56,7 @@ function NewHome() {
     getData();
   }, []);
 
+  // console.log(challenges);
   return (
     <div>
       <BodyContainer>
@@ -62,7 +68,19 @@ function NewHome() {
             endDate={challenges.thisWeekChallenge[0].challengeEndDate}
           />
         ) : null}
-        {/* 여기에 할인정보 */}
+        {/* <DiscountContainer>
+          <TitleContainer>
+            <TitleWrapper>50% 할인 동화</TitleWrapper>
+          </TitleContainer>
+          {challenges ? (
+            <BookSwiper
+              // books={challenges.discountBooks}
+              books={challenges.thisWeekChallenge[0].bookList}
+              width="w-40"
+              height="h-48"
+            />
+          ) : null}
+        </DiscountContainer> */}
         <ChallengeContainer>
           {challenges
             ? challenges.thisWeekChallenge.map((challenge, index) => {

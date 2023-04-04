@@ -25,10 +25,11 @@ const BookContainer = styled.div`
   ${tw`p-48`}
 `;
 const BestBookContainer = styled.div`
-  ${tw``}
+  ${tw`flex items-center justify-center mb-10`}
 `;
-const LikedBookContainer = styled.div``;
-const RecentBookContainer = styled.div``;
+const RecentBookContainer = styled.div`
+  ${tw`flex flex-wrap`}
+`;
 
 const TitleWrapper = styled.p`
   ${tw`text-5xl m-0 pb-2 pt-[10%]`}
@@ -52,7 +53,7 @@ function ChallengeDetail() {
       try {
         authApi(requests.GET_CHALLENGE(id)).then((response) => {
           setChallengeDetails(response.data);
-          console.log(response.data);
+          // console.log(response.data);
         });
 
         //url의 challengeId를 바탕으로 해당 challege에 대한 정보를 가져온다
@@ -85,18 +86,57 @@ function ChallengeDetail() {
 
       {challengeDetails ? (
         <BookContainer>
+          {/* <BookTitleWrapper>베스트 동화</BookTitleWrapper> */}
           <BestBookContainer>
-            <BookTitleWrapper>베스트 동화</BookTitleWrapper>
-            {challengeDetails.detailChallenge.bookList.map((book, index) => {
+            {/* {challengeDetails.detailChallenge.bookList.map((book, index) => {
               return (
                 <BookBadge book={book} key={book.bookId} index={index}>
                   <BookListItem book={book} width="w-40" height="h-48" />
                 </BookBadge>
               );
-            })}
+            })} */}
+            {challengeDetails.detailChallenge.bookList[1] ? (
+              <BookBadge
+                book={challengeDetails.detailChallenge.bookList[1]}
+                key={challengeDetails.detailChallenge.bookList[1].bookId}
+                index={1}
+              >
+                <BookListItem
+                  book={challengeDetails.detailChallenge.bookList[1]}
+                  width="w-40"
+                  height="h-48"
+                />
+              </BookBadge>
+            ) : null}
+            {challengeDetails.detailChallenge.bookList[0] ? (
+              <BookBadge
+                book={challengeDetails.detailChallenge.bookList[0]}
+                key={challengeDetails.detailChallenge.bookList[0].bookId}
+                index={0}
+              >
+                <BookListItem
+                  book={challengeDetails.detailChallenge.bookList[0]}
+                  width="w-60"
+                  height="h-72"
+                />
+              </BookBadge>
+            ) : null}
+            {challengeDetails.detailChallenge.bookList[2] ? (
+              <BookBadge
+                book={challengeDetails.detailChallenge.bookList[2]}
+                key={challengeDetails.detailChallenge.bookList[2].bookId}
+                index={2}
+              >
+                <BookListItem
+                  book={challengeDetails.detailChallenge.bookList[2]}
+                  width="w-40"
+                  height="h-48"
+                />
+              </BookBadge>
+            ) : null}
           </BestBookContainer>
-          <LikedBookContainer>
-            <BookTitleWrapper>관련 동화</BookTitleWrapper>
+          <BookTitleWrapper>관련 동화</BookTitleWrapper>
+          <RecentBookContainer>
             {challengeDetails.recent.map((book) => {
               return (
                 <BookListItem
@@ -107,7 +147,7 @@ function ChallengeDetail() {
                 />
               );
             })}
-          </LikedBookContainer>
+          </RecentBookContainer>
         </BookContainer>
       ) : null}
     </BodyContainer>

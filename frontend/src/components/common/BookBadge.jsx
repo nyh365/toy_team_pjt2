@@ -76,7 +76,7 @@ const StyledBadge = styled(Badge)(
     z-index: auto;
     position: absolute;
     top: 0;
-    right: 170px;
+    right: 15px;
     min-width: 50px;
     height: 50px;
     line-height: 35px;
@@ -122,5 +122,8 @@ export default function BookBadge({ children, book, index }) {
 
   if (index === 0)
     return <FirstBadge badgeContent={'1등'}>{children}</FirstBadge>;
-  else return <StyledBadge badgeContent={rankBadge}>{children}</StyledBadge>;
+  else
+    return (
+      <StyledBadge badgeContent={`${index + 1}등`}>{children}</StyledBadge>
+    );
 }

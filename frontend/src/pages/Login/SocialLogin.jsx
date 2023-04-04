@@ -6,11 +6,21 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom/dist';
 import { setCookie } from 'utils/Cookie';
 import { userStore } from 'store/userStore';
+import Web3 from 'web3';
+import { authApi, defaultApi } from 'api/axios';
+import requests from 'api/config';
 
 function SocialLogin() {
+  const web3 = new Web3();
   const navigate = useNavigate();
-  const { setUserId, setUserNickname, setUserImg, setUserRole, setToken } =
-    userStore((state) => state);
+  const {
+    setUserId,
+    setUserNickname,
+    setUserImg,
+    setUserRole,
+    setToken,
+    setUserWallet,
+  } = userStore((state) => state);
 
   const userId = new URL(window.location.href).searchParams.get('userId');
   const userNickname = new URL(window.location.href).searchParams.get(
@@ -29,6 +39,10 @@ function SocialLogin() {
   );
   //첫 로그인(회원가입)이라면 닉네임 설정 페이지로?
 
+  const userWallet = new URL(window.location.href).searchParams.get(
+    'userWallet',
+  );
+
   //리다이렉트
   useEffect(() => {
     //로컬스토리지에 저장
@@ -43,11 +57,22 @@ function SocialLogin() {
     setUserImg(profileImg);
     setUserRole('reader');
     setToken(accessToken);
-    if (userNickname === '' || userNickname === undefined) {
-      navigate('/myprofile/edit/nickname');
+
+    //지갑 저장
+    if (userWallet === ' ') {
+      console.log('없음');
+      // web3.eth.accounts.create();
+      const wallet = web3.eth.accounts.create();
+      setUserWallet(wallet);
+      console.log(wallet);
+      authApi.post(requests.POST_WALLET(userId), {
+        wallet: wallet.privateKey,
+      });
     } else {
-      navigate('/home');
+      setUserWallet(userWallet);
     }
+
+    navigate('/home');
   }, []);
 }
 

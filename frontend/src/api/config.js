@@ -197,6 +197,11 @@ const requests = {
     return `/api/admin/challenge`;
   },
 
+  //지갑 등록
+  POST_WALLET(userId) {
+    return `/api/user/wallet/${userId}`;
+  },
+
   //챌린지 등록
   POST_CHALLENGE_ADMIN() {
     return `/api/admin/challenge`;

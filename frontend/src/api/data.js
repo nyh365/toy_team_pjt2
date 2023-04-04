@@ -161,8 +161,7 @@ export const books = [
   },
   {
     bookId: 12,
-    bookImgUrl:
-      'https://bagguimgbucket.s3.ap-northeast-2.amazonaws.com/item/e57fdfa1-804e-43c4-98c5-9d98b91f090d.png',
+    bookImgUrl: 'https://tecdn.b-cdn.net/img/new/fluid/city/113.webp',
     artistId: 12,
     artistNickname: 'string type value',
     bookTitle: 'string type value',
@@ -173,8 +172,7 @@ export const books = [
   },
   {
     bookId: 11,
-    bookImgUrl:
-      'https://bagguimgbucket.s3.ap-northeast-2.amazonaws.com/item/e57fdfa1-804e-43c4-98c5-9d98b91f090d.png',
+    bookImgUrl: 'https://tecdn.b-cdn.net/img/new/fluid/city/113.webp',
     artistId: 12,
     artistNickname: 'string type value',
     bookTitle: 'string type value',
