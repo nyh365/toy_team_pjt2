@@ -27,6 +27,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Pretendard', 'sans-serif'],
+        edu: ['GangwonEduAll'],
       },
       fontSize: {
         // headings

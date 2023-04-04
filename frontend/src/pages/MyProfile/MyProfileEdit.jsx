@@ -97,8 +97,10 @@ function MyProfileEdit() {
   const submitHandler = () => {
     if (file !== null) {
       formData.append('userImg', file);
+      console.log(file);
     } else {
       formData.append('userImg', UserIcon, 'image.png');
+      console.log(file);
     }
 
     const patch_profile_image = async () => {

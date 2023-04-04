@@ -13,7 +13,7 @@ import LikeButtonEmpty from 'assets/icons/LikeButtonEmpty.svg';
 import pencil from 'assets/icons/pencil03.svg';
 import trashCan from 'assets/icons/trashCan.svg';
 const UserInfoContainer = styled.div`
-  ${tw`flex flex-col mx-2`}
+  ${tw`flex flex-col mx-2 items-center`}
 `;
 const CommentFormcontainer = styled.div`
   ${tw`flex flex-nowrap items-center justify-center border-b-2`}
@@ -37,7 +37,7 @@ const ButtonContainer = styled.div`
   ${tw`flex justify-end items-center my-1`}
 `;
 const Username = styled.span`
-  ${tw`text-[22px]`}
+  ${tw`text-[16px] text-center w-[6rem]`}
 `;
 const CreaetTime = styled.span`
   ${tw`text-[14px]`}
@@ -50,11 +50,21 @@ function CommentItem({ comment, comments, setComments }) {
   const userId = Number(localStorage.getItem('userId'));
   const params = useParams();
   const formatDate = useFormatDate(comment.updatedTime);
+  const [commentUsername, setCommentUsername] = useState('');
   const [numOfLike, setNumOfLike] = useState(comment.numOfLike);
   const [isLiked, setIsLiked] = useState(comment.isLiked);
   const [editComment, setEditComment] = useState(false);
   const [commentContent, setCommentContent] = useState('');
-
+  useEffect(() => {
+    const username = comment.commentUserNickname;
+    const maxLength = 8;
+    if (username.length > maxLength) {
+      const truncatedString = username.slice(0, maxLength) + '...';
+      setCommentUsername(truncatedString);
+    } else {
+      setCommentUsername(username);
+    }
+  }, []);
   const cancleLike = () => {
     setIsLiked(!isLiked);
     setNumOfLike(numOfLike - 1);
@@ -111,8 +121,11 @@ function CommentItem({ comment, comments, setComments }) {
   return (
     <CommentFormcontainer>
       <UserInfoContainer>
-        <ProfileImg />
-        <Username>{comment.commentUserNickname}</Username>
+        <ProfileImg
+          userId={comment.commentUserId}
+          userImg={comment.userProfileImg}
+        />
+        <Username>{commentUsername}</Username>
         <CreaetTime>{formatDate}</CreaetTime>
       </UserInfoContainer>
       {editComment ? (

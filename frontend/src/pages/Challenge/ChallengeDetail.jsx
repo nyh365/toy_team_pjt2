@@ -44,7 +44,7 @@ const LinkWrapper = styled.div`
 function ChallengeDetail() {
   const [challengeDetails, setChallengeDetails] = useState();
   const [challengeInfo, setChallengeInfo] = useState();
-
+  const userId = localStorage.getItem('userId');
   const params = useParams();
   const id = params.challengeId;
 
@@ -77,7 +77,7 @@ function ChallengeDetail() {
           <TitleWrapper>{challengeInfo.challengeTitle}</TitleWrapper>
           <ContentWrapper>{challengeInfo.challengeSummary}</ContentWrapper>
           <LinkWrapper>
-            <Link>
+            <Link to={`/newbook/${id}/${userId}`}>
               <Button title="동화 만들기 →" buttonType="mint" />
             </Link>
           </LinkWrapper>

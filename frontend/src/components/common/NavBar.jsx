@@ -9,6 +9,7 @@ import LogoutModal from 'pages/Logout/LogoutModal';
 import { userStore } from 'store/userStore';
 import { authApi } from 'api/axios';
 import requests from 'api/config';
+import ProfileModal from './ProfileModal';
 // Styled Component
 
 const Container = styled.div`
@@ -29,9 +30,14 @@ function NavBar() {
   const [userNickname, setUserNickname] = useState();
   const [userImg, setUserImg] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  const onClose = () => {
+  const onLogoutClose = () => {
     setIsModalOpen(false);
+  };
+
+  const onProfileClose = () => {
+    setIsProfileOpen(false);
   };
 
   useEffect(() => {
@@ -40,7 +46,7 @@ function NavBar() {
     });
     setUserId(localStorage.getItem('userId'));
     setUserNickname(localStorage.getItem('userNickname'));
-  }, [userId, userNickname, isModalOpen]);
+  }, [userId, userNickname, isModalOpen, isProfileOpen]);
 
   useEffect(() => {
     userStore.subscribe((state) => setUserImg(state.userImg));
@@ -126,12 +132,16 @@ function NavBar() {
               />
             </Link>
           )}
-          <Link to="/myprofile">
-            <ProfileImg userImg={userImg} className="justify-end" />
-          </Link>
+
+          <ProfileImg
+            userImg={userImg}
+            className="justify-end"
+            onClick={() => setIsProfileOpen(true)}
+          />
         </IconWrapper>
       </Container>
-      {isModalOpen ? <LogoutModal onClose={onClose} /> : null}
+      {isModalOpen ? <LogoutModal onClose={onLogoutClose} /> : null}
+      {isProfileOpen ? <ProfileModal onClose={onProfileClose} /> : null}
     </div>
   );
 }

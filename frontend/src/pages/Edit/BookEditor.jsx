@@ -68,62 +68,86 @@ const DrawingForm = styled.div`
     height: calc(100vh - 120px);
   `}
 `;
-function NewBookEditor() {
+function BookEditor() {
+  const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
   const params = useParams();
-  const challengeId = params.challengeId;
   const bookId = params.bookId;
+  const [challengeId, setChallengeId] = useState('');
+
   const [pages, setPages] = useState('');
   const [bookTitle, setBookTitle] = useState('');
   const [bookSummary, setBookSummary] = useState('');
   const [bookContent, setBookContent] = useState('');
   const [images, setImages] = useState([{ id: uuidv4(), file: null }]);
-  const navigate = useNavigate();
+  const [illusts, setIllusts] = useState([]);
+  useEffect(() => {
+    const get_book_detail_edit = async () => {
+      try {
+        const response = await authApi.get(
+          requests.GET_BOOK_DETAIL_EDIT(userId, bookId),
+        );
+        setBookContent(response.data.bookEdit.bookContent);
+        setBookSummary(response.data.bookEdit.bookSummary);
+        setChallengeId(response.data.bookEdit.challengeId);
+        setBookTitle(response.data.bookEdit.bookTitle);
+        setIllusts(response.data.bookEdit.illusts);
+        console.log(illusts);
+
+        return console.log(response.data.bookEdit);
+      } catch (error) {
+        throw error;
+      }
+    };
+    get_book_detail_edit();
+    for (let i = 0; i < illusts.length; i++) {
+      let illustePath = illusts[i].illustePath;
+    }
+  }, [bookId, userId]);
+
   const goToList = () => {
-    navigate(`/challenge/${challengeId}`);
+    navigate(`/challenge/${bookId}`);
   };
-  // const tempSaveBook = () => {
-  //   const formData = new FormData();
-  //   const bookData = {
-  //     challengeId: challengeId,
-  //     bookId: bookId,
-  //     bookTitle: bookTitle,
-  //     bookSummary: bookSummary,
-  //     bookContent: bookContent,
-  //     isComplete: 'temporary',
-  //   };
-  //   formData.append(
-  //     'BookContent',
-  //     new Blob([JSON.stringify(bookData)], { type: 'application/json' }),
-  //   );
+  const tempSaveBook = () => {
+    const formData = new FormData();
+    const bookData = {
+      challengeId: challengeId,
+      bookTitle: bookTitle,
+      bookSummary: bookSummary,
+      bookContent: bookContent,
+      isComplete: 'temporary',
+    };
+    formData.append(
+      'BookContent',
+      new Blob([JSON.stringify(bookData)], { type: 'application/json' }),
+    );
 
-  //   images.forEach((img) => {
-  //     formData.append('imgList', img.file);
-  //   });
-  //   const post_book = async () => {
-  //     try {
-  //       const response = await authApi.post(
-  //         requests.POST_BOOK(userId),
-  //         formData,
-  //         {
-  //           headers: {
-  //             'Content-Type': 'multipart/form-data',
-  //           },
-  //         },
-  //       );
+    images.forEach((img) => {
+      formData.append('imgList', img.file);
+    });
+    const post_book = async () => {
+      try {
+        const response = await authApi.post(
+          requests.POST_BOOK(userId),
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          },
+        );
 
-  //       return console.log(response);
-  //     } catch (error) {
-  //       throw error;
-  //     }
-  //   };
-  //   post_book();
-  // };
+        return console.log(response);
+      } catch (error) {
+        throw error;
+      }
+    };
+    post_book();
+  };
   const saveBook = () => {
     const formData = new FormData();
     const bookData = {
       challengeId: challengeId,
-      bookId: bookId,
       bookTitle: bookTitle,
       bookSummary: bookSummary,
       bookContent: bookContent,
@@ -153,10 +177,9 @@ function NewBookEditor() {
       }
     };
     post_book();
-    navigate(`/challenge/${challengeId}`);
   };
   // const deleteBook = () => {
-  //   const delete_book_temp = async () => {
+  //   const post_book = async () => {
   //     try {
   //       const response = await authApi.delete(
   //         requests.DELETE_BOOK_TEMP(userId),
@@ -170,7 +193,7 @@ function NewBookEditor() {
   //       throw error;
   //     }
   //   };
-  //   delete_book_temp();
+  //   post_book();
   // };
   const handleImageSelect = (id, file) => {
     setImages((prevImages) =>
@@ -228,10 +251,10 @@ function NewBookEditor() {
           <ButtonContainer>
             <div className="mx-1">
               <Button
-                title="완료하기"
+                title="삭제하기"
                 buttonType="mint"
                 className=""
-                onClick={saveBook}
+                onClick={goToList}
               />
             </div>
             <div>
@@ -243,7 +266,7 @@ function NewBookEditor() {
               />
             </div>
           </ButtonContainer>
-          {/* <ButtonContainer>
+          <ButtonContainer>
             <div className="mx-1">
               <Button
                 title="임시저장"
@@ -257,10 +280,10 @@ function NewBookEditor() {
                 title="완료하기"
                 buttonType="mint"
                 className=""
-                onClick={deletebook}
+                onClick={saveBook}
               />
             </div>
-          </ButtonContainer> */}
+          </ButtonContainer>
         </CreateForm>
         <DrawingForm>
           <form onSubmit={handleSubmit}>
@@ -304,4 +327,4 @@ function NewBookEditor() {
   );
 }
 
-export default NewBookEditor;
+export default BookEditor;

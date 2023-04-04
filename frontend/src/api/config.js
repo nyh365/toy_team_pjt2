@@ -81,6 +81,10 @@ const requests = {
   GET_BOOK_DETAIL(userId, bookId) {
     return `/api/book/${userId}/${bookId}`;
   },
+  //동화 상세정보 조회 in Editor
+  GET_BOOK_DETAIL_EDIT(userId, bookId) {
+    return `/api/book/edit/${userId}/${bookId}`;
+  },
 
   //동화 구매내역 저장
   POST_BOOK_PAYLIST(userId, bookId) {

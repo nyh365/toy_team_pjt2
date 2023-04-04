@@ -13,6 +13,7 @@ import NavBar from 'components/common/NavBar';
 
 // component
 import Home from './pages/Home/Home';
+import Profile from 'pages/MyProfile/Profile';
 import MyProfile from 'pages/MyProfile/MyProfile';
 import MyProfileEdit from 'pages/MyProfile/MyProfileEdit';
 import NicknameEdit from 'pages/MyProfile/NicknameEdit';
@@ -34,12 +35,14 @@ import UserLogin from 'pages/Login/UserLogin';
 import Notice from 'pages/Notice/Notice';
 import BookDetail from 'pages/Book/BookDetail';
 import NewBookEditor from 'pages/Edit/NewBookEditor';
+import BookEditor from 'pages/Edit/BookEditor';
 import { userStore } from 'store/userStore';
 import SocialLogin from 'pages/Login/SocialLogin';
 import ChallengeDetail from 'pages/Challenge/ChallengeDetail';
 import FlipViewer from 'pages/Book/FlipViewer';
 import NewHome from 'pages/Home/NewHome';
 import NewPrevChallenge from 'pages/Challenge/NewPrevChallenge';
+import ErrorPage from 'pages/Error/ErrorPage';
 const queryClient = new QueryClient();
 function App() {
   const [userId, setUserId] = useState();
@@ -64,6 +67,7 @@ function App() {
               <Route path="/oauth" element={<SocialLogin />} />
               <Route path="/notice" element={<Notice />} />
               <Route path="/myprofile" element={<MyProfile />} />
+              <Route path="/profile/:userId" element={<Profile />} />
               <Route path="/myprofile/edit" element={<MyProfileEdit />} />
               <Route
                 path="/myprofile/edit/nickname"
@@ -96,7 +100,15 @@ function App() {
               />
               <Route path="/books/viewer/:bookId" element={<FlipViewer />} />
               <Route path="/books/:userId/:bookId" element={<BookDetail />} />
-              <Route path="/newbook/:userId" element={<NewBookEditor />} />
+              <Route
+                path="/newbook/:challengeId/:userId"
+                element={<NewBookEditor />}
+              />
+              <Route
+                path="/incompletebook/:userId/:bookId"
+                element={<BookEditor />}
+              />
+              <Route path="/*" element={<ErrorPage />} />
             </Routes>
           </BrowserRouter>
         </QueryClientProvider>

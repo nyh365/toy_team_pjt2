@@ -56,7 +56,7 @@ function NewHome() {
     getData();
   }, []);
 
-  // console.log(challenges);
+  console.log(challenges);
   return (
     <div>
       <BodyContainer>
@@ -68,19 +68,19 @@ function NewHome() {
             endDate={challenges.thisWeekChallenge[0].challengeEndDate}
           />
         ) : null}
-        {/* <DiscountContainer>
+        <DiscountContainer>
           <TitleContainer>
             <TitleWrapper>50% 할인 동화</TitleWrapper>
           </TitleContainer>
           {challenges ? (
             <BookSwiper
-              // books={challenges.discountBooks}
-              books={challenges.thisWeekChallenge[0].bookList}
+              books={challenges.discountBooks}
+              // books={challenges.thisWeekChallenge[0].bookList}
               width="w-40"
               height="h-48"
             />
           ) : null}
-        </DiscountContainer> */}
+        </DiscountContainer>
         <ChallengeContainer>
           {challenges
             ? challenges.thisWeekChallenge.map((challenge, index) => {
