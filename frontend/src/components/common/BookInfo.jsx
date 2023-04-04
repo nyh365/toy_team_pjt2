@@ -2,7 +2,7 @@ import React from 'react';
 import tw, { styled, css } from 'twin.macro';
 
 import ProfileIcon from '../../assets/icons/UserIcon01.svg';
-import ReviewIcon from '../../assets/icons/ReviewIcon.svg';
+import CommentIcon from '../../assets/icons/ReviewIcon.svg';
 import LikeIcon from '../../assets/icons/LikeButtonFill.svg';
 
 const BookInfoWrapper = styled.div`
@@ -42,13 +42,26 @@ function BookInfo({ title, artist, likes, comments, width, height }) {
           {artist}
         </Artist>
         <SubInfoWrapper>
-          <Likes>
-            <img src={ReviewIcon} width={20} height={20} alt="" /> {likes}
-          </Likes>
           <Comments>
-            <img src={LikeIcon} width={20} height={20} alt="" />
+            <img
+              src={CommentIcon}
+              width={20}
+              height={20}
+              alt=""
+              style={{ marginRight: 3 }}
+            />
             {comments}
           </Comments>
+          <Likes>
+            <img
+              src={LikeIcon}
+              width={20}
+              height={20}
+              alt=""
+              style={{ marginRight: 3 }}
+            />
+            {likes}
+          </Likes>
         </SubInfoWrapper>
       </SubInfoContainer>
     </BookInfoWrapper>

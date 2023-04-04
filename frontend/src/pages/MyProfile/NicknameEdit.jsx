@@ -50,6 +50,7 @@ function NicknameEdit() {
   const [isNicknameValid, setIsNicknameValid] = useState(false);
   const [verifyMessage, setVerifyMessage] = useState('');
   const { setUserNickname } = userStore((state) => state);
+  const [isChanged, setIsChanged] = useState(false);
   const onChangeNicknameInput = useCallback((e) => {
     setNickname(e.target.value);
     setIsNicknameTouched(true);
@@ -78,6 +79,7 @@ function NicknameEdit() {
         );
         if (response.data.message === 'success') {
           setVerify('success');
+          setIsChanged(true);
         } else if (response.status === 400) {
           setVerify('fail');
           setVerifyMessage('이미 사용중인 닉네임입니다.');
@@ -110,7 +112,7 @@ function NicknameEdit() {
     } else if (verify === 'fail') {
       setVerifyMessage('중복확인이 실패했습니다');
     }
-  }, [verify]);
+  }, [verify, isChanged]);
   const submitHandler = () => {
     //닉네임 변경 API 추가
     if (verify === 'success') {
@@ -127,7 +129,7 @@ function NicknameEdit() {
         }
       };
       patch_user_nickname();
-      navigate('/myprofile/edit');
+      navigate('/myprofile');
     }
   };
   const isValidName = isNicknameTouched && isNicknameValid;
@@ -147,6 +149,7 @@ function NicknameEdit() {
             onChange={onChangeNicknameInput}
             placeholder={userNickname}
             name="Username"
+            disabled={isChanged}
           />
           <p>{nicknameMessage}</p>
           <ButtonContainer onClick={onClickVerifyingHandler}>

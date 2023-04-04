@@ -94,7 +94,7 @@ function IntroductionEdit() {
 
   useEffect(() => {
     if (isSuccess === 'success') {
-      navigate('/myprofile/edit');
+      navigate('/myprofile');
     }
   }, [isSuccess]);
   const isValidIntroduction = isIntroductionTouched && isIntroductionValid;
