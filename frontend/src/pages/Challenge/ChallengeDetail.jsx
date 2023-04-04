@@ -25,7 +25,7 @@ const BookContainer = styled.div`
   ${tw`p-48`}
 `;
 const BestBookContainer = styled.div`
-  ${tw`flex items-baseline mb-10`}
+  ${tw`flex items-center justify-center mb-10`}
 `;
 const RecentBookContainer = styled.div`
   ${tw`flex flex-wrap`}
@@ -86,8 +86,8 @@ function ChallengeDetail() {
 
       {challengeDetails ? (
         <BookContainer>
+          {/* <BookTitleWrapper>베스트 동화</BookTitleWrapper> */}
           <BestBookContainer>
-            {/* <BookTitleWrapper>베스트 동화</BookTitleWrapper> */}
             {/* {challengeDetails.detailChallenge.bookList.map((book, index) => {
               return (
                 <BookBadge book={book} key={book.bookId} index={index}>
@@ -135,8 +135,8 @@ function ChallengeDetail() {
               </BookBadge>
             ) : null}
           </BestBookContainer>
+          <BookTitleWrapper>관련 동화</BookTitleWrapper>
           <RecentBookContainer>
-            <BookTitleWrapper>관련 동화</BookTitleWrapper>
             {challengeDetails.recent.map((book) => {
               return (
                 <BookListItem
