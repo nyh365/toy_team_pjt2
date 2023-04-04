@@ -13,11 +13,11 @@ import EditBtn from '../../assets/icons/EditBtn.svg';
 import useOutsideClick from 'hooks/useOutsideClick';
 
 const ModalOverlay = styled.div`
-  ${tw`flex items-center justify-end z-50 h-2/3 w-full top-[8vh] right-[2vw] fixed`}
+  ${tw`flex items-center justify-end z-50 h-3/5 w-full top-[8vh] right-[2vw] fixed`}
 `;
 
 const ModalWrapper = styled.div`
-  ${tw`bg-white flex flex-col items-center absolute border-solid rounded-2xl h-auto w-auto shadow mt-[50%] mb-[50%] font-sans`}
+  ${tw`bg-white flex flex-col items-center absolute border-solid rounded-2xl h-auto shadow mt-[50%] mb-[50%] font-sans`}
 `;
 
 const ContentContainer = styled.div`
@@ -79,9 +79,9 @@ function ProfileModal({ onClose }) {
   useOutsideClick(modalRef, handleClose);
 
   useEffect(() => {
-    const $body = document.querySelector('body');
-    const overflow = $body.style.overflow;
-    $body.style.overflow = 'hidden';
+    // const $body = document.querySelector('body');
+    // const overflow = $body.style.overflow;
+    // $body.style.overflow = 'hidden';
 
     authApi(requests.GET_PROFILE(userId)).then((response) => {
       if (response.status === 200) {
@@ -93,9 +93,9 @@ function ProfileModal({ onClose }) {
       }
     });
 
-    return () => {
-      $body.style.overflow = overflow;
-    };
+    // return () => {
+    //   $body.style.overflow = overflow;
+    // };
   }, []);
 
   const logout = () => {

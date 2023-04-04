@@ -17,6 +17,7 @@ import LikeBtnFill from '../../assets/icons/LikeButtonFill.svg';
 import LikeBtnEmpty from '../../assets/icons/LikeButtonEmpty.svg';
 import CloseBtn from '../../assets/icons/CloseApp.svg';
 import FirstPageBtn from '../../assets/icons/GotoFirst.svg';
+import ProfileImg from 'components/common/ProfileImg';
 
 // import { bookImg } from 'api/data';
 
@@ -30,6 +31,14 @@ const ViewContainer = styled.div`
 const PageWrapper = styled.div`
   // ${tw``}
 `;
+const TitleContainer = styled.div`
+  ${tw`flex justify-between items-center space-x-2 text-xl`}
+`;
+const TitleWrapper = styled.div``;
+const ArtistWrapper = styled.div`
+  ${tw`flex`}
+`;
+const ArtistImgWrapper = styled.div``;
 
 const BarWrapper = styled.div`
   ${tw`m-0 fixed bottom-0 w-2/3 h-16 flex justify-center items-center`}
@@ -43,7 +52,7 @@ const BtnWrapper = styled.div`
 `;
 
 const PageHeader = styled.div`
-  ${tw`w-full h-16 bg-red-50 border-4 m-0 p-0 opacity-0 hover:opacity-100 transition-opacity`}
+  ${tw`flex justify-center w-full h-16 bg-white border-b-4 m-0 p-0 opacity-0 hover:opacity-100 transition-opacity`}
 `;
 const PageFooter = styled.div`
   ${tw`flex justify-center w-full bg-white border-t-4 h-20 m-0 opacity-0 hover:opacity-100 transition-opacity`}
@@ -53,6 +62,10 @@ function FlipViewer() {
   const [bookImg, setBookImg] = useState();
   const [currentPage, setCurrentPage] = useState(1);
   const [allPage, setAllPage] = useState();
+
+  const [bookTitle, setBookTitle] = useState();
+  const [artistNickname, setArtistNickname] = useState();
+  const [artistProfileImg, setArtistProfileImg] = useState();
   const bookRef = useRef(null);
 
   const params = useParams();
@@ -87,7 +100,6 @@ function FlipViewer() {
 
   const interestBook = async () => {
     setIsInterested(!isInterested);
-    console.log(isInterested);
     //관심목록 추가 API 호출
     try {
       if (isInterested === true) {
@@ -95,7 +107,6 @@ function FlipViewer() {
           .post(requests.POST_INTEREST(userId, bookId))
           .then((res) => {
             if (res.data.message === 'success') {
-              console.log('관심목록 추가됨');
               alert('관심목록에 추가되었습니다');
             }
           });
@@ -104,7 +115,6 @@ function FlipViewer() {
           .delete(requests.DELETE_INTEREST(userId, bookId))
           .then((res) => {
             if (res.data.message === 'success') {
-              console.log('관심목록 제거됨');
               alert('관심목록에서 제거되었습니다');
             }
           });
@@ -148,15 +158,30 @@ function FlipViewer() {
 
     authApi(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
       setIsLiked(res.data.bookDetail.liked);
+      setBookTitle(res.data.bookDetail.bookTitle);
+      setArtistNickname(res.data.bookDetail.artistNickname);
+      setArtistProfileImg(res.data.bookDetail.artistProfileImg);
     });
-  }, [bookId, isInterested, isLiked]);
+  }, [
+    userId,
+    bookId,
+    isInterested,
+    isLiked,
+    bookTitle,
+    artistNickname,
+    artistProfileImg,
+  ]);
 
   return (
     <PageContainer>
-      <PageHeader />
+      <PageHeader>
+        <TitleContainer>
+          <TitleWrapper>{bookTitle}</TitleWrapper>
+        </TitleContainer>
+      </PageHeader>
       <ViewContainer>
-        <button onClick={handleFlipPrev} style={{ paddingRight: 100 }}>
-          <img src={BeforePage} alt="beforePage" />
+        <button onClick={handleFlipPrev} style={{ paddingRight: 90 }}>
+          <img src={BeforePage} alt="beforePage" width="50%" />
         </button>
         <HTMLFlipBook
           width={window.innerWidth * 0.3}
@@ -179,7 +204,7 @@ function FlipViewer() {
             ))}
         </HTMLFlipBook>
         <button onClick={handleFlipNext} style={{ paddingLeft: 90 }}>
-          <img src={NextPage} alt="nextPage" />
+          <img src={NextPage} alt="nextPage" width="50%" />
         </button>
       </ViewContainer>
       <PageFooter>
@@ -208,7 +233,6 @@ function FlipViewer() {
               height: 40,
               zIndex: 50,
               marginTop: 10,
-              // marginLeft: 1200,
             }}
             onClick={() => turnPage(0)}
           >
@@ -220,7 +244,6 @@ function FlipViewer() {
               height: 40,
               zIndex: 50,
               marginTop: 10,
-              // marginLeft: 1200,
             }}
             onClick={interestBook}
           >
@@ -233,7 +256,6 @@ function FlipViewer() {
                 height: 40,
                 zIndex: 50,
                 marginTop: 10,
-                // marginLeft: 1300,
               }}
               onClick={dislikeBook}
             >
@@ -246,7 +268,6 @@ function FlipViewer() {
                 height: 40,
                 zIndex: 50,
                 marginTop: 10,
-                // marginLeft: 1300,
               }}
               onClick={likeBook}
             >
@@ -259,7 +280,6 @@ function FlipViewer() {
               height: 40,
               zIndex: 50,
               marginTop: 10,
-              // marginLeft: 1400,
             }}
             onClick={closeApp}
           >

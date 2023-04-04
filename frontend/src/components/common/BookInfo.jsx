@@ -14,11 +14,11 @@ const Title = styled.div`
 `;
 
 const SubInfoContainer = styled.div`
-  ${tw`flex justify-between flex-wrap text-[1rem] m-1`}
+  ${tw`flex justify-between items-end flex-wrap text-[1rem] m-1`}
 `;
 
 const Artist = styled.div`
-  ${tw`flex-wrap flex-row`}
+  ${tw`flex flex-col items-center`}
 `;
 
 const SubInfoWrapper = styled.div`
@@ -48,7 +48,7 @@ function BookInfo({
       <SubInfoContainer className={`${width}-1`}>
         <Artist>
           <ProfileImg userImg={profileImgURL} userId={artistId} />
-          {artist}
+          <div>{artist}</div>
         </Artist>
         <SubInfoWrapper>
           <Comments>

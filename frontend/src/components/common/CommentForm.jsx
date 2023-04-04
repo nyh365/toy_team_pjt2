@@ -9,6 +9,10 @@ import requests from 'api/config';
 import { defaultApi, authApi } from 'api/axios';
 import { userStore } from 'store/userStore';
 
+const BodyContainer = styled.div`
+  ${tw`pt-[5%]`}
+`;
+
 const CommentContainer = styled.div`
   ${tw`flex flex-col-reverse`}
 `;
@@ -19,8 +23,12 @@ const CommentFormcontainer = styled.div`
   ${tw`flex items-center border-y-2 justify-center mb-2`}
 `;
 
+const FormContainer = styled.div`
+  ${tw``}
+`;
+
 const InputContainer = styled.textarea`
-  ${tw` flex flex-wrap px-2 rounded-lg mt-4 p-1 w-[900px] h-[80px] border-1 border-black font-[20px] text-main break-all`}
+  ${tw`flex flex-wrap p-1 px-2 rounded-lg mt-4 w-[900px] h-[80px] border-1 border-black font-[20px] text-main break-all`}
   ${(props) =>
     props.isValid
       ? tw`focus:outline focus:outline-primary`
@@ -36,7 +44,7 @@ const Username = styled.span`
   ${tw`text-[20px]`}
 `;
 const Comment = styled.span`
-  ${tw`text-[50px]`}
+  ${tw`text-3xl`}
 `;
 function CommentForm({ bookComments }) {
   const navigate = useNavigate();
@@ -93,47 +101,44 @@ function CommentForm({ bookComments }) {
     //댓글목록 받은거 setComments로 넣어주기
   };
   return (
-    <div>
-      <Comment>
-        <Comment>댓글</Comment>
-        <CommentFormcontainer>
-          <UserInfoContainer>
-            <ProfileImg userId={userId} userImg={userImg} />
-
-            <Username>{username}</Username>
-          </UserInfoContainer>
-          <div>
-            <form action="submit">
-              <InputContainer
-                type="text"
-                value={commentContent}
-                onChange={(e) => setCommentContent(e.target.value)}
-                placeholder="감상을 적어주세요"
-                name="Comment Content"
-              />
-            </form>
-            <ButtonContainer>
-              <div onClick={submitHandler}>
-                <Button title="등록" buttonType="black" className="" />
+    <BodyContainer>
+      <Comment>댓글</Comment>
+      <CommentFormcontainer>
+        <UserInfoContainer>
+          <ProfileImg userId={userId} userImg={userImg} />
+          <Username>{username}</Username>
+        </UserInfoContainer>
+        <FormContainer>
+          <form action="submit">
+            <InputContainer
+              type="text"
+              value={commentContent}
+              onChange={(e) => setCommentContent(e.target.value)}
+              placeholder="감상을 적어주세요"
+              name="Comment Content"
+            />
+          </form>
+          <ButtonContainer>
+            <div onClick={submitHandler}>
+              <Button title="등록" buttonType="black" className="" />
+            </div>
+          </ButtonContainer>
+        </FormContainer>
+      </CommentFormcontainer>
+      <CommentContainer>
+        {comments
+          ? comments.map((comment) => (
+              <div key={comment.commentId}>
+                <CommentItem
+                  comment={comment}
+                  comments={comments}
+                  setComments={setComments}
+                />
               </div>
-            </ButtonContainer>
-          </div>
-        </CommentFormcontainer>
-        <CommentContainer>
-          {comments
-            ? comments.map((comment) => (
-                <div key={comment.commentId}>
-                  <CommentItem
-                    comment={comment}
-                    comments={comments}
-                    setComments={setComments}
-                  />
-                </div>
-              ))
-            : null}
-        </CommentContainer>
-      </Comment>
-    </div>
+            ))
+          : null}
+      </CommentContainer>
+    </BodyContainer>
   );
 }
 

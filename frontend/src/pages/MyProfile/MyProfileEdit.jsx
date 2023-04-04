@@ -50,6 +50,7 @@ function MyProfileEdit() {
   const [userImage, setUserImage] = useState(UserIcon); //미리보기 이미지
 
   const [formData, setFormData] = useState(new FormData());
+  const [isChanged, setIsChanged] = useState(false);
   const [file, setFile] = useState(null);
   const fileInput = useRef(null);
   const { setUserImg } = userStore();
@@ -89,6 +90,8 @@ function MyProfileEdit() {
       }
     };
     reader.readAsDataURL(e.target.files[0]);
+
+    setIsChanged(true);
   };
   const changeToDefaultImg = () => {
     setUserImage(UserIcon);
@@ -143,12 +146,14 @@ function MyProfileEdit() {
       />
       <ProfileContainer>
         <ButtonContainer>
-          <div className="mx-2" onClick={changeToDefaultImg}>
+          {/* <div className="mx-2" onClick={changeToDefaultImg}>
             <Button title="기본사진" buttonType="black" className="" />
-          </div>
-          <div className="mx-2" onClick={submitHandler}>
-            <Button title="저장" buttonType="black" className="" />
-          </div>
+          </div> */}
+          {isChanged ? (
+            <div className="mx-2" onClick={submitHandler}>
+              <Button title="저장" buttonType="black" className="" />
+            </div>
+          ) : null}
         </ButtonContainer>
       </ProfileContainer>
       <input
