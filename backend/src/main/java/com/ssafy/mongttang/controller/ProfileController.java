@@ -116,7 +116,7 @@ public class ProfileController{
             status = HttpStatus.BAD_REQUEST;
         }else{
             resultMap.put(MESSAGE,SUCCESS);
-            resultMap.put("followings",followers);
+            resultMap.put("followers",followers);
             status = HttpStatus.OK;
         }
 
