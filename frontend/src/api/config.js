@@ -6,13 +6,13 @@ const requests = {
   base_url: 'https://j8a308.p.ssafy.io',
   //카카오 소셜로그인 URL
   KAKAO_LOGIN:
-    'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=https://j8a308.p.ssafy.io/oauth',
-  // 'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=http://localhost:3000/oauth',
+    // 'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=https://j8a308.p.ssafy.io/oauth',
+    'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=http://localhost:3000/oauth',
 
   //구글 소셜로그인 URL
   GOOGLE_LOGIN:
-    'https://j8a308.p.ssafy.io/api/oauth2/authorize/google?redirect_uri=https://j8a308.p.ssafy.io/oauth',
-  // 'https://j8a308.p.ssafy.io/api/oauth2/authorize/google?redirect_uri=http://localhost:3000/oauth',
+    // 'https://j8a308.p.ssafy.io/api/oauth2/authorize/google?redirect_uri=https://j8a308.p.ssafy.io/oauth',
+    'https://j8a308.p.ssafy.io/api/oauth2/authorize/google?redirect_uri=http://localhost:3000/oauth',
 
   //회원정보 수정
   PATCH_USER_NICKNAME(userId, code) {
@@ -83,6 +83,9 @@ const requests = {
   //동화 상세정보 조회
   GET_BOOK_DETAIL(userId, bookId) {
     return `/api/book/${userId}/${bookId}`;
+  },
+  GET_BOOK_EDIT_DETAIL(userId, challengeId) {
+    return `/api/book/edit/${userId}/${challengeId}`;
   },
   //동화 상세정보 조회 in Editor
   GET_BOOK_DETAIL_EDIT(userId, bookId) {

@@ -6,6 +6,7 @@ import requests from 'api/config';
 import { defaultApi, authApi } from 'api/axios';
 import ImageItem from './ImageItem';
 import Button from 'components/common/Button';
+import SaveBookModal from './SaveBookModal';
 
 const BarWrapper = styled.div`
   ${tw`m-0 w-full h-16 flex justify-center items-center`}
@@ -77,13 +78,50 @@ function NewBookEditor() {
   const [bookTitle, setBookTitle] = useState('');
   const [bookSummary, setBookSummary] = useState('');
   const [bookContent, setBookContent] = useState('');
+  const [defaultContent, setDefaultContent] = useState('');
+  const [defaultSummary, setDefaultSummary] = useState('');
+  const [defaultTitle, setDefaultTitle] = useState('');
   const [images, setImages] = useState([{ id: uuidv4(), file: null }]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [warningMessage, setWarningMessage] = useState(
+    '동화 작성을 완료하시겠어요? 완료버튼을 누르시면 수정은 불가능합니다.',
+  );
   const navigate = useNavigate();
+  const onSaveBookClose = () => {
+    setWarningMessage(
+      '동화 작성을 완료하시겠어요? 완료버튼을 누르시면 수정은 불가능합니다.',
+    );
+    setIsModalOpen(false);
+  };
+  useEffect(() => {
+    const get_book_edit_detail = async () => {
+      try {
+        const response = await authApi.get(
+          requests.GET_BOOK_EDIT_DETAIL(userId, challengeId),
+        );
+        setDefaultTitle(response.data.bookEdit.challengeTitle);
+        setDefaultSummary(response.data.bookEdit.challengeSummary);
+        setDefaultContent(response.data.bookEdit.challengeContent);
+
+        return console.log(response);
+      } catch (error) {
+        throw error;
+      }
+    };
+    get_book_edit_detail();
+  });
+
   const goToList = () => {
     navigate(`/challenge/${challengeId}`);
   };
 
   const saveBook = () => {
+    if (images.some((img) => img.file === null)) {
+      setWarningMessage(
+        '이미지를 업로드해 주세요! 혹은 비어있는 템플렛이 있을 수 있습니다!',
+      );
+      return;
+    }
     const formData = new FormData();
     const bookData = {
       challengeId: challengeId,
@@ -152,6 +190,7 @@ function NewBookEditor() {
               value={bookTitle}
               onChange={(e) => setBookTitle(e.target.value)}
               name="Book Title"
+              placeholder={defaultTitle}
             />
           </form>
 
@@ -162,6 +201,7 @@ function NewBookEditor() {
               value={bookSummary}
               onChange={(e) => setBookSummary(e.target.value)}
               name="Book Summary"
+              placeholder={defaultSummary}
             />
           </form>
           <Title>스토리 편집</Title>
@@ -171,6 +211,7 @@ function NewBookEditor() {
               value={bookContent}
               onChange={(e) => setBookContent(e.target.value)}
               name="Book Content"
+              placeholder={defaultContent}
             />
           </form>
           <ButtonContainer>
@@ -179,7 +220,7 @@ function NewBookEditor() {
                 title="완료하기"
                 buttonType="mint"
                 className=""
-                onClick={saveBook}
+                onClick={() => setIsModalOpen(true)}
               />
             </div>
             <div>
@@ -191,24 +232,6 @@ function NewBookEditor() {
               />
             </div>
           </ButtonContainer>
-          {/* <ButtonContainer>
-            <div className="mx-1">
-              <Button
-                title="임시저장"
-                buttonType="mint"
-                className=""
-                onClick={tempSaveBook}
-              />
-            </div>
-            <div>
-              <Button
-                title="완료하기"
-                buttonType="mint"
-                className=""
-                onClick={deletebook}
-              />
-            </div>
-          </ButtonContainer> */}
         </CreateForm>
         <DrawingForm>
           <form onSubmit={handleSubmit}>
@@ -244,10 +267,17 @@ function NewBookEditor() {
                 />
               </div>
             </ButtonContainer>
-            <button type="submit">Submit</button>
           </form>
         </DrawingForm>
       </BookContentWrapper>
+      {isModalOpen ? (
+        <SaveBookModal
+          onClose={onSaveBookClose}
+          saveFunc={saveBook}
+          message={warningMessage}
+          setMessage={setWarningMessage}
+        />
+      ) : null}
     </div>
   );
 }

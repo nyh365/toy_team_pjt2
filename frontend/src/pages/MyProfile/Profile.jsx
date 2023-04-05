@@ -160,7 +160,7 @@ function Profile() {
     get_following();
     get_follower();
     get_user();
-  }, [userImg]);
+  }, [userId]);
   useEffect(() => {
     const get_follower = async () => {
       try {
@@ -173,7 +173,7 @@ function Profile() {
       }
     };
     get_follower();
-  }, [isFollow]);
+  }, []);
   return (
     <div>
       <ProfileContainer>
