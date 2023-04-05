@@ -75,6 +75,7 @@ function CommentItem({ comment, comments, setComments }) {
     setNumOfLike(numOfLike + 1);
     //좋아요 API 호출
   };
+
   const patchCommentHandler = () => {
     //댓글 등록 API 호출
     const patch_comment = async () => {
