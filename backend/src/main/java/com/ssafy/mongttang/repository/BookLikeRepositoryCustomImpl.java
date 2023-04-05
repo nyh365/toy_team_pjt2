@@ -30,7 +30,6 @@ public class BookLikeRepositoryCustomImpl implements BookLikeRepositoryCustom{
                 .where(bookLike.booklikeChallengId.eq(challengeId), bookLike.booklikeBookId.bookStatus.eq("complete"))
                 .groupBy(bookLike.booklikeBookId)
                 .orderBy(bookLike.booklikeBookId.count().desc(), bookLike.createdTime.asc())
-                .limit(5)
                 .fetch();
     }
 
@@ -40,7 +39,6 @@ public class BookLikeRepositoryCustomImpl implements BookLikeRepositoryCustom{
                 .where(bookLike.booklikeChallengId.eq(challengeId), bookLike.booklikeBookId.bookStatus.eq("complete"), bookLike.createdTime.after(LocalDateTime.now().minusDays(3)))
                 .groupBy(bookLike.booklikeBookId)
                 .orderBy(bookLike.booklikeBookId.count().desc(), bookLike.createdTime.asc())
-                .limit(5)
                 .fetch();
     }
 }
