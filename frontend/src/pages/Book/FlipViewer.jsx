@@ -59,7 +59,7 @@ const PageFooter = styled.div`
 `;
 
 function FlipViewer() {
-  const [bookImg, setBookImg] = useState();
+  const [bookImg, setBookImg] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [allPage, setAllPage] = useState();
 
@@ -82,7 +82,7 @@ function FlipViewer() {
     setCurrentPage(bookRef.current.pageFlip().getCurrentPageIndex());
     const dir = bookRef.current.pageFlip().getPageCount();
     setAllPage(dir);
-  });
+  }, []);
 
   const handleFlipNext = () => {
     bookRef.current.pageFlip().flipNext();
@@ -145,32 +145,19 @@ function FlipViewer() {
   };
 
   useEffect(() => {
-    const fetchBookImg = async () => {
-      try {
-        await authApi
-          .get(requests.GET_BOOK_IMAGES(bookId))
-          .then((res) => setBookImg(res.data.illustes));
-      } catch (error) {
-        throw error;
-      }
-    };
-    fetchBookImg();
-
-    authApi(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
-      setIsLiked(res.data.bookDetail.liked);
-      setBookTitle(res.data.bookDetail.bookTitle);
-      setArtistNickname(res.data.bookDetail.artistNickname);
-      setArtistProfileImg(res.data.bookDetail.artistProfileImg);
-    });
-  }, [
-    userId,
-    bookId,
-    isInterested,
-    isLiked,
-    bookTitle,
-    artistNickname,
-    artistProfileImg,
-  ]);
+    if (bookImg === null) {
+      authApi.get(requests.GET_BOOK_IMAGES(bookId)).then((res) => {
+        setBookImg(res.data.illustes);
+        console.log('뷰어 호출');
+        authApi.get(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
+          setIsLiked(res.data.bookDetail.liked);
+          setBookTitle(res.data.bookDetail.bookTitle);
+          setArtistNickname(res.data.bookDetail.artistNickname);
+          setArtistProfileImg(res.data.bookDetail.artistProfileImg);
+        });
+      });
+    }
+  }, []);
 
   return (
     <PageContainer>

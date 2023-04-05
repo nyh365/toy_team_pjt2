@@ -4,7 +4,6 @@
 const requests = {
   //기본 URL 주소
   base_url: 'https://j8a308.p.ssafy.io',
-
   //카카오 소셜로그인 URL
   KAKAO_LOGIN:
     'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=https://j8a308.p.ssafy.io/oauth',
@@ -67,6 +66,10 @@ const requests = {
     return `/api/book/search?bookTitle=${bookTitle}`;
   },
 
+  //정렬기준으로 동화 조회
+  GET_BOOK_ORDER(challengeId, order) {
+    return `/api/challenge/order/${challengeId}?order=${order}`;
+  },
   //동화 접근권한 체크
   GET_BOOK_AUTH(userId, bookId) {
     return `/api/book/check/${userId}?bookId=${bookId}`;
