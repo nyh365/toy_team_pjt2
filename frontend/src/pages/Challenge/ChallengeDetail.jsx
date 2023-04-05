@@ -116,7 +116,7 @@ function ChallengeDetail() {
             {challengeDetails.detailChallenge.challengeSummary}
           </ContentWrapper>
           <LinkWrapper>
-            {challengeInfo ? (
+            {challengeInfo && userId ? (
               <Link to={`/newbook/${id}/${userId}`}>
                 <Button title="동화 만들기 →" buttonType="mint" />
               </Link>
