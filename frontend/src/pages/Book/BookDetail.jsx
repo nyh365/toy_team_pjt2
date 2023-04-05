@@ -150,6 +150,10 @@ function BookDetail() {
     navigate(`/challenge/${book.challengeId}`);
   };
 
+  const onClose = () => {
+    setIsOpen(false);
+  };
+
   return (
     <BodyContainer>
       {book ? (
@@ -210,7 +214,7 @@ function BookDetail() {
                   buttonType="mint"
                   onClick={gotoViewer}
                 />
-                {/* <button onClick={() => setIsOpen(true)}>구매</button> */}
+                <button onClick={() => setIsOpen(true)}>구매</button>
               </LinkWrapper>
             </ServiceContainer>
           </MainInfoContainer>
@@ -221,7 +225,7 @@ function BookDetail() {
           <CommentForm bookComments={book.comments} />
         </CommentContainer>
       ) : null}
-      {/* {isOpen ? <TransactionModal /> : null} */}
+      {isOpen ? <TransactionModal bookId={bookId} onClose={onClose} /> : null}
     </BodyContainer>
   );
 }
