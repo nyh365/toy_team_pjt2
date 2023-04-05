@@ -212,9 +212,8 @@ function BookDetail() {
                 <Button
                   title="동화 보러가기 →"
                   buttonType="mint"
-                  onClick={gotoViewer}
+                  onClick={() => setIsOpen(true)}
                 />
-                <button onClick={() => setIsOpen(true)}>구매</button>
               </LinkWrapper>
             </ServiceContainer>
           </MainInfoContainer>

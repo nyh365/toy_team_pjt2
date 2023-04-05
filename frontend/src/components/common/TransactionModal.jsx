@@ -70,8 +70,8 @@ export default function TransactionModal({ bookId, onClose }) {
     //구매요청 -> 블록체인 네트워크
     //구매요청 -> 백엔드
     //정상적으로 처리가 되면 viewer로 이동
-    // alert('작품 구매가 완료되었습니다.');
-    // navigate(`/books/viewer/${bookId}`);
+    alert('작품 구매가 완료되었습니다.');
+    navigate(`/books/viewer/${bookId}`);
   };
 
   return (
