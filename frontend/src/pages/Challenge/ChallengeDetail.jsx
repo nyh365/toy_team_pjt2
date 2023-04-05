@@ -76,13 +76,13 @@ function ChallengeDetail() {
   useEffect(() => {
     const getData = async () => {
       try {
-        authApi(requests.GET_CHALLENGE(id)).then((response) => {
+        await authApi(requests.GET_CHALLENGE(id)).then((response) => {
           setChallengeDetails(response.data);
           if (books === '') setBooks(response.data.recent);
         });
 
         //url의 challengeId를 바탕으로 해당 challege에 대한 정보를 가져온다
-        authApi(requests.GET_CHALLENGES()).then((response) =>
+        await authApi(requests.GET_CHALLENGES()).then((response) =>
           response.data.thisWeekChallenge.map((challenge) => {
             if (challenge.challengeId === Number.parseInt(id)) {
               setChallengeInfo(challenge);
@@ -91,7 +91,7 @@ function ChallengeDetail() {
         );
 
         //정렬기준 재설정
-        authApi(requests.GET_BOOK_ORDER(id, sort)).then((response) => {
+        await authApi(requests.GET_BOOK_ORDER(id, sort)).then((response) => {
           if (response.status === 200) {
             setBooks(response.data.detailChallenges);
           }
@@ -189,9 +189,9 @@ function ChallengeDetail() {
                 label="Sort"
                 onChange={handleChange}
               >
-                <MenuItem value={'lates'}>최신순</MenuItem>
-                <MenuItem value={'like'}>좋아요순</MenuItem>
-                <MenuItem value={'view'}>댓글순</MenuItem>
+                <MenuItem value="lates">최신순</MenuItem>
+                <MenuItem value="like">좋아요순</MenuItem>
+                <MenuItem value="view">조회순</MenuItem>
               </Select>
             </FormControl>
           </BookTitleContainer>

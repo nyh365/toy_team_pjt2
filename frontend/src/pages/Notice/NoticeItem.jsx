@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import FormatDate from 'utils/FormatDate';
 
 import tw, { styled, css } from 'twin.macro';
 import upToggleBtn from '../../assets/icons/upToggle.svg';
 import downToggleBtn from '../../assets/icons/downToggle.svg';
 import Button from 'components/common/Button';
+import { authApi } from 'api/axios';
+import requests from 'api/config';
 
 const TitleContainer = styled.div`
   display: flex;
@@ -43,8 +45,9 @@ const Content = styled.section`
   align-items: center;
 `;
 
-function NoticeListItem({ title, content, createdTime }) {
+function NoticeListItem({ title, id, content, createdTime }) {
   const [isRead, setIsRead] = useState(true);
+
   const { year, month, day, hour, minute } = FormatDate(createdTime);
 
   const readContent = () => {
