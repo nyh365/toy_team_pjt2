@@ -6,8 +6,8 @@ const requests = {
   base_url: 'https://j8a308.p.ssafy.io',
   //카카오 소셜로그인 URL
   KAKAO_LOGIN:
-    // 'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=https://j8a308.p.ssafy.io/oauth',
-    'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=http://localhost:3000/oauth',
+    'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=https://j8a308.p.ssafy.io/oauth',
+  // 'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=http://localhost:3000/oauth',
 
   //구글 소셜로그인 URL
   GOOGLE_LOGIN:
@@ -77,7 +77,7 @@ const requests = {
 
   //동화 뷰어(동화 그림 조회)
   GET_BOOK_IMAGES(bookId) {
-    return `/api/book/${bookId}`;
+    return `/api/book/viewer/${bookId}`;
   },
 
   //동화 상세정보 조회

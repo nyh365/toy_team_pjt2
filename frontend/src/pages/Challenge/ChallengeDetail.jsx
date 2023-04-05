@@ -59,7 +59,7 @@ function chunkArray(array, chunkSize) {
   return chunks;
 }
 
-function ChallengeDetail() {
+function ChallengeDetail({ searchKeyword }) {
   const [challengeDetails, setChallengeDetails] = useState();
   const [challengeInfo, setChallengeInfo] = useState();
   const [books, setBooks] = useState('');
@@ -100,6 +100,24 @@ function ChallengeDetail() {
     };
     getData();
   }, [sort]);
+
+  //검색어에 따른 필터링
+  useEffect(() => {
+    if (searchKeyword !== '') {
+      authApi(requests.GET_CHALLENGE(id)).then((response) => {
+        // setChallengeDetails(response.data);
+        const result = response.data.recent;
+        const filteredBooks = result.filter((book) =>
+          book.bookTitle.includes(searchKeyword),
+        );
+        setBooks(filteredBooks);
+      });
+    } else {
+      authApi(requests.GET_CHALLENGE(id)).then((response) => {
+        setBooks(response.data.recent);
+      });
+    }
+  }, [searchKeyword]);
 
   const chunkedBooks = chunkArray(books, 5);
 

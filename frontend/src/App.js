@@ -42,10 +42,25 @@ import FlipViewer from 'pages/Book/FlipViewer';
 import NewHome from 'pages/Home/NewHome';
 import NewPrevChallenge from 'pages/Challenge/NewPrevChallenge';
 import ErrorPage from 'pages/Error/ErrorPage';
+import { authApi } from 'api/axios';
+import requests from 'api/config';
 const queryClient = new QueryClient();
 function App() {
   const [userId, setUserId] = useState();
+  const [searchResult, setSearchResult] = useState([]);
+  const [searchKeyword, setSearchKeyword] = useState('');
+
   const id = userStore((state) => state.userId);
+
+  const handleSearch = (keyword) => {
+    // console.log('검색한값: ', keyword);
+    // authApi.put(requests.PUT_SEARCH_BOOKS(keyword)).then((res) => {
+    //   console.log(res);
+    //   setSearchResult(res);
+    // });
+    setSearchKeyword(keyword);
+  };
+
   useEffect(() => {
     userStore.subscribe((state) => setUserId(state.userId));
     if (id === '') setUserId(localStorage.getItem('userId'));
@@ -57,7 +72,7 @@ function App() {
       <CookiesProvider>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter className="App">
-            <NavBar />
+            <NavBar onSearch={handleSearch} />
             <AdminNavBar />
             <Routes>
               <Route path="/" element={<NewHome />} />
@@ -75,7 +90,7 @@ function App() {
               <Route path="/prevchallenge" element={<NewPrevChallenge />} />
               <Route
                 path="/challenge/:challengeId"
-                element={<ChallengeDetail />}
+                element={<ChallengeDetail searchKeyword={searchKeyword} />}
               />
               <Route
                 path="/myprofile/edit/introduction"

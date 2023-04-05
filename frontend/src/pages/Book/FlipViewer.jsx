@@ -145,18 +145,22 @@ function FlipViewer() {
   };
 
   useEffect(() => {
-    if (bookImg === null) {
+    const fetchData = async () => {
       authApi.get(requests.GET_BOOK_IMAGES(bookId)).then((res) => {
         setBookImg(res.data.illustes);
-        console.log('뷰어 호출');
-        authApi.get(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
+      });
+
+      await authApi
+        .get(requests.GET_BOOK_DETAIL(userId, bookId))
+        .then((res) => {
           setIsLiked(res.data.bookDetail.liked);
           setBookTitle(res.data.bookDetail.bookTitle);
           setArtistNickname(res.data.bookDetail.artistNickname);
           setArtistProfileImg(res.data.bookDetail.artistProfileImg);
         });
-      });
-    }
+    };
+
+    fetchData();
   }, []);
 
   return (
