@@ -341,9 +341,8 @@ public class BookService {
         Book book = bookRepository.findByBookId(bookId);
         if(book == null) return null;
 
-        log.info("[getBookIllust] 동화 뷰어 호출");
         book.addViews();
-        log.info("[getBookIllust] 프동화 뷰어 호출 완료 : {}", book.getBookViews());
+        log.info("[getBookIllust] 동화 뷰어 호출 완료 : {}", book.getBookViews());
         bookRepository.save(book);
 
         ArrayList<IllustInfo> illustInfos = new ArrayList<>();

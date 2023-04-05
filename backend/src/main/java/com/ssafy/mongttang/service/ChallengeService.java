@@ -10,12 +10,14 @@ import com.ssafy.mongttang.entity.BookLike;
 import com.ssafy.mongttang.entity.Challenge;
 import com.ssafy.mongttang.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChallengeService {
@@ -94,6 +96,9 @@ public class ChallengeService {
 
     public List<ResponseChallengeBookInfoDto> getBooksByOrder(int challengeId, int userId, String order) {
         List<Book> bookList = null;
+
+
+        log.info("[getBooksByOrder] 동화 정렬 호출 완료 : {}", order);
         if("lates".equals(order)){
             bookList = bookRepository.findLatesBooks(challengeId);
         } else if("view".equals(order)){
