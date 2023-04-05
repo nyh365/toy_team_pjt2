@@ -8,18 +8,24 @@ const FollowerContainer = styled.div`
 `;
 function FollowerList({ followers }) {
   return (
-    <FollowerContainer>
-      {followers !== []
-        ? [...followers].map((follower) => (
-            <FollowerListItem
-              key={follower.userId}
-              userId={follower.userId}
-              nickname={follower.userNickname}
-              profileImg={follower.profileImgURL}
-            />
-          ))
-        : ''}
-    </FollowerContainer>
+    <div>
+      {followers.length !== 0 ? (
+        <FollowerContainer>
+          {followers !== null
+            ? [...followers].map((follower) => (
+                <FollowerListItem
+                  key={follower.userId}
+                  userId={follower.userId}
+                  nickname={follower.userNickname}
+                  profileImg={follower.profileImgURL}
+                />
+              ))
+            : ''}
+        </FollowerContainer>
+      ) : (
+        '팔로워가 없어요'
+      )}
+    </div>
   );
 }
 

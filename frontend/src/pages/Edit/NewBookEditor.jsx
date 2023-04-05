@@ -82,43 +82,7 @@ function NewBookEditor() {
   const goToList = () => {
     navigate(`/challenge/${challengeId}`);
   };
-  // const tempSaveBook = () => {
-  //   const formData = new FormData();
-  //   const bookData = {
-  //     challengeId: challengeId,
-  //     bookId: bookId,
-  //     bookTitle: bookTitle,
-  //     bookSummary: bookSummary,
-  //     bookContent: bookContent,
-  //     isComplete: 'temporary',
-  //   };
-  //   formData.append(
-  //     'BookContent',
-  //     new Blob([JSON.stringify(bookData)], { type: 'application/json' }),
-  //   );
 
-  //   images.forEach((img) => {
-  //     formData.append('imgList', img.file);
-  //   });
-  //   const post_book = async () => {
-  //     try {
-  //       const response = await authApi.post(
-  //         requests.POST_BOOK(userId),
-  //         formData,
-  //         {
-  //           headers: {
-  //             'Content-Type': 'multipart/form-data',
-  //           },
-  //         },
-  //       );
-
-  //       return console.log(response);
-  //     } catch (error) {
-  //       throw error;
-  //     }
-  //   };
-  //   post_book();
-  // };
   const saveBook = () => {
     const formData = new FormData();
     const bookData = {
@@ -155,23 +119,7 @@ function NewBookEditor() {
     post_book();
     navigate(`/challenge/${challengeId}`);
   };
-  // const deleteBook = () => {
-  //   const delete_book_temp = async () => {
-  //     try {
-  //       const response = await authApi.delete(
-  //         requests.DELETE_BOOK_TEMP(userId),
-  //         {
-  //           bookId: bookId,
-  //         },
-  //       );
 
-  //       return console.log(response);
-  //     } catch (error) {
-  //       throw error;
-  //     }
-  //   };
-  //   delete_book_temp();
-  // };
   const handleImageSelect = (id, file) => {
     setImages((prevImages) =>
       prevImages.map((img) => (img.id === id ? { ...img, file } : img)),

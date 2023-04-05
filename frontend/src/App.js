@@ -35,7 +35,6 @@ import UserLogin from 'pages/Login/UserLogin';
 import Notice from 'pages/Notice/Notice';
 import BookDetail from 'pages/Book/BookDetail';
 import NewBookEditor from 'pages/Edit/NewBookEditor';
-import BookEditor from 'pages/Edit/BookEditor';
 import { userStore } from 'store/userStore';
 import SocialLogin from 'pages/Login/SocialLogin';
 import ChallengeDetail from 'pages/Challenge/ChallengeDetail';
@@ -103,10 +102,6 @@ function App() {
               <Route
                 path="/newbook/:challengeId/:userId"
                 element={<NewBookEditor />}
-              />
-              <Route
-                path="/incompletebook/:userId/:bookId"
-                element={<BookEditor />}
               />
               <Route path="/*" element={<ErrorPage />} />
             </Routes>

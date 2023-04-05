@@ -146,7 +146,7 @@ function MyProfile() {
     get_following();
     get_follower();
     get_user();
-  }, [userImg]);
+  }, []);
 
   return (
     <div>
