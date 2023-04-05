@@ -4,6 +4,7 @@ import com.ssafy.mongttang.dto.*;
 import com.ssafy.mongttang.entity.*;
 import com.ssafy.mongttang.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.Charsets;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BookService {
@@ -339,7 +341,9 @@ public class BookService {
         Book book = bookRepository.findByBookId(bookId);
         if(book == null) return null;
 
+        log.info("[getBookIllust] 동화 뷰어 호출");
         book.addViews();
+        log.info("[getBookIllust] 프동화 뷰어 호출 완료 : {}", book.getBookViews());
         bookRepository.save(book);
 
         ArrayList<IllustInfo> illustInfos = new ArrayList<>();
@@ -413,17 +417,12 @@ public class BookService {
 
     }
 
-    public ResponseBookEditDto getBookEdit(int userId, int bookId) {
+    public ResponseBookEditDto getBookEdit(int userId, int challengeId) {
         //동화 기본 정보
-        Book book = bookRepository.findByBookId(bookId);
-        if(book == null || book.getBookUserId().getUserId() != userId || book.getBookStatus().equals("complete")) return null;
+        Challenge challenge = challengeRepository.findByChallengeId(challengeId);
+        if(challenge == null) return null;
 
-        ArrayList<IllustInfo> illustInfos = new ArrayList<>();
-        ArrayList<Illust> illusts = illustRepository.findByIllustBookId(book);
 
-        for (Illust illust : illusts) {
-            illustInfos.add(new IllustInfo(illust));
-        }
-        return new ResponseBookEditDto(book, illustInfos);
+        return new ResponseBookEditDto(userId,challenge);
     }
 }

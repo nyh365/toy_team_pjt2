@@ -438,9 +438,9 @@ public class BookController {
     }
 
     @ApiOperation(value = "동화 상세 정보 조회 + 이미지", notes = "동화 상세정보 및 그림를 조회한다.", response = Map.class)
-    @GetMapping("/edit/{userId}/{bookId}")
+    @GetMapping("/edit/{userId}/{challengeId}")
     public ResponseEntity<Map<String,Object>> getBookEdit(@ApiParam(value = "회원 아이디", required = true, example = "0") @PathVariable int userId,
-                                                            @ApiParam(value = "동화 아이디", required = true, example = "0") @PathVariable int bookId,Principal principal){
+                                                            @ApiParam(value = "동화 아이디", required = true, example = "0") @PathVariable int challengeId,Principal principal){
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = null;
 
@@ -449,7 +449,7 @@ public class BookController {
             return new ResponseEntity<>(resultMap, status);
         }
 
-        ResponseBookEditDto responseBookEditDto = bookService.getBookEdit(userId, bookId);
+        ResponseBookEditDto responseBookEditDto = bookService.getBookEdit(userId, challengeId);
 
         if(responseBookEditDto == null){
             resultMap.put(MESSAGE, FAIL);
