@@ -4,7 +4,6 @@
 const requests = {
   //기본 URL 주소
   base_url: 'https://j8a308.p.ssafy.io',
-
   //카카오 소셜로그인 URL
   KAKAO_LOGIN:
     'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=https://j8a308.p.ssafy.io/oauth',
