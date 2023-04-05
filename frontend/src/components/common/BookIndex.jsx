@@ -26,6 +26,8 @@ const TextWrapper = styled('div')(({ margin }) => ({
 }));
 
 function BookIndex({ book, margin }) {
+  const total = book.numOfViews + book.numOfLike + book.numOfComment;
+
   return (
     <div>
       <Box width={150}>
@@ -33,21 +35,30 @@ function BookIndex({ book, margin }) {
           <p>조회수</p>
           <p>{book.numOfViews}</p>
         </TextWrapper>
-        <BorderLinearProgress variant="determinate" value={book.numOfViews} />
+        <BorderLinearProgress
+          variant="determinate"
+          value={(book.numOfViews / total) * 100}
+        />
       </Box>
       <Box width={150}>
         <TextWrapper margin={margin}>
           <p>좋아요 수</p>
           <p>{book.numOfLike}</p>
         </TextWrapper>
-        <BorderLinearProgress variant="determinate" value={book.numOfLike} />
+        <BorderLinearProgress
+          variant="determinate"
+          value={(book.numOfLike / total) * 100}
+        />
       </Box>
       <Box width={150}>
         <TextWrapper margin={margin}>
           <p>댓글 수</p>
           <p>{book.numOfComment}</p>
         </TextWrapper>
-        <BorderLinearProgress variant="determinate" value={book.numOfComment} />
+        <BorderLinearProgress
+          variant="determinate"
+          value={(book.numOfComment / total) * 100}
+        />
       </Box>
       <Box width={150}>
         <TextWrapper margin={margin}>

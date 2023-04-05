@@ -34,6 +34,8 @@ export default function TransactionModal({ bookId, onClose }) {
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
   const wallet = userStore((state) => state.userWallet);
+  const [price, setPrice] = useState(1);
+  const [balance, setBalance] = useState(0);
 
   const modalRef = useRef(null);
   const handleClose = () => {
@@ -64,14 +66,17 @@ export default function TransactionModal({ bookId, onClose }) {
   const buyBook = () => {
     //현재 잔액과 작품 구독비 비교
     //잔액이 모자랄 시 구매버튼 누르면 거래소로 안내
-    // if (window.confirm('잔액이 부족합니다. 거래소로 이동하시겠습니까?')) {
-    //   openWallet();
-    // }
-    //구매요청 -> 블록체인 네트워크
-    //구매요청 -> 백엔드
-    //정상적으로 처리가 되면 viewer로 이동
-    alert('작품 구매가 완료되었습니다.');
-    navigate(`/books/viewer/${bookId}`);
+    if (balance < price) {
+      if (window.confirm('잔액이 부족합니다. 거래소로 이동하시겠습니까?')) {
+        openWallet();
+      }
+    } else {
+      //구매요청 -> 블록체인 네트워크
+      //구매요청 -> 백엔드(구매목록에 추가하는 API 호출)
+      //정상적으로 처리가 되면 viewer로 이동
+      alert('작품 구매가 완료되었습니다.');
+      navigate(`/books/viewer/${bookId}`);
+    }
   };
 
   return (
@@ -88,12 +93,11 @@ export default function TransactionModal({ bookId, onClose }) {
             <img src={Coin} alt="coin" />
             코인 차감 안내
           </PriceWrapper>
-          <div>현재 보유 코인 : 1.739 MTT</div>
-          <div>구매 후 코인 : 0.739 MTT</div>
+          <div>현재 보유 코인 : {balance} MTT</div>
+          <div>구매에 필요한 코인 : {price} MTT</div>
         </ContentContainer>
 
         <BtnContainer>
-          {/* 잔액 부족하면 구매버튼 비활성화 */}
           <BtnWrapper>
             <button onClick={buyBook}>구매</button>
           </BtnWrapper>
