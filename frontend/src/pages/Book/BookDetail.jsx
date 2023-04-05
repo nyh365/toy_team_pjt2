@@ -11,6 +11,7 @@ import { userStore } from 'store/userStore';
 import LikeButtonFill from 'assets/icons/LikeButtonFill.svg';
 import LikeButtonEmpty from 'assets/icons/LikeButtonEmpty.svg';
 import ProfileImg from 'components/common/ProfileImg';
+import TransactionModal from 'components/common/TransactionModal';
 
 const BodyContainer = styled.div`
   ${tw`flex flex-col items-center pt-[5%]`}
@@ -80,6 +81,7 @@ function BookDetail() {
   const bookId = params.bookId;
   const navigate = useNavigate();
   const [book, setBook] = useState();
+  const [isOpen, setIsOpen] = useState(false);
   const userId = localStorage.getItem('userId');
 
   useEffect(() => {
@@ -138,6 +140,7 @@ function BookDetail() {
   const gotoViewer = async () => {
     try {
       // console.log('userID: ', userId, 'bookId; ', bookId);
+      console.log('뷰어 호출');
       await authApi(requests.GET_BOOK_AUTH(userId, bookId)).then((res) => {
         navigate(`/books/viewer/${bookId}`);
         // console.log(res);
@@ -198,6 +201,7 @@ function BookDetail() {
                   buttonType="mint"
                   onClick={gotoViewer}
                 />
+                <button onClick={() => setIsOpen(true)}>구매</button>
               </LinkWrapper>
             </ServiceContainer>
           </MainInfoContainer>
@@ -208,6 +212,7 @@ function BookDetail() {
           <CommentForm bookComments={book.comments} />
         </CommentContainer>
       ) : null}
+      {isOpen ? <TransactionModal /> : null}
     </BodyContainer>
   );
 }
