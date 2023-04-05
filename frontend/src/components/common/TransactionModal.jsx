@@ -46,7 +46,7 @@ export default function TransactionModal({ onClose }) {
   const openWallet = () => {
     onClose();
     window.open(
-      `http://j8a308.p.ssafy.io:3333/?key=${wallet}`,
+      `http://j8a308.p.ssafy.io:3333/trade/?key=${wallet}`,
       'MyWallet',
       'toolbar=no, menubar=no, width=550, height=780',
     );
@@ -67,6 +67,9 @@ export default function TransactionModal({ onClose }) {
            *  구매 후 남는 코인
            *  지갑 또는 거래소 이동 버튼
            */}
+          <p>코인 차감 안내</p>
+          <p>현재 보유 코인</p>
+          <p>구매 후 남는 코인</p>
         </ContentContainer>
 
         <BtnWrapper>

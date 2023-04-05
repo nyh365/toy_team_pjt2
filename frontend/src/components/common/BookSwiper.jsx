@@ -31,7 +31,7 @@ export default function BookSwiper({ width, height }) {
       } catch (error) {}
     };
     getData();
-  });
+  }, []);
 
   return (
     <Swiper
