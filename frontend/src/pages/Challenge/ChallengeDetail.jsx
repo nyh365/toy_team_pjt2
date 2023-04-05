@@ -10,11 +10,19 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import BookListItem from 'components/common/BookListItem';
 import BookBadge from 'components/common/BookBadge';
-import shelf from '../../assets/images/Shelf.svg';
 import BookShelf from 'components/common/BookShelf';
+
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 
 const BodyContainer = styled.div`
   ${tw`flex flex-col items-center pt-[5%]`}
+`;
+
+const BookTitleContainer = styled.div`
+  ${tw`flex items-baseline`}
 `;
 
 const BookTitleWrapper = styled.p`
@@ -43,19 +51,34 @@ const LinkWrapper = styled.div`
   ${tw`flex justify-end text-base m-0`}
 `;
 
+function chunkArray(array, chunkSize) {
+  const chunks = [];
+  for (let i = 0; i < array.length; i += chunkSize) {
+    chunks.push(array.slice(i, i + chunkSize));
+  }
+  return chunks;
+}
+
 function ChallengeDetail() {
   const [challengeDetails, setChallengeDetails] = useState();
   const [challengeInfo, setChallengeInfo] = useState();
+  const [books, setBooks] = useState('');
   const userId = localStorage.getItem('userId');
   const params = useParams();
   const id = params.challengeId;
+
+  const [sort, setSort] = useState('lates');
+
+  const handleChange = (event) => {
+    setSort(event.target.value);
+  };
 
   useEffect(() => {
     const getData = async () => {
       try {
         authApi(requests.GET_CHALLENGE(id)).then((response) => {
           setChallengeDetails(response.data);
-          // console.log(response.data);
+          if (books === '') setBooks(response.data.recent);
         });
 
         //url의 challengeId를 바탕으로 해당 challege에 대한 정보를 가져온다
@@ -63,25 +86,41 @@ function ChallengeDetail() {
           response.data.thisWeekChallenge.map((challenge) => {
             if (challenge.challengeId === Number.parseInt(id)) {
               setChallengeInfo(challenge);
-              // console.log(challenge);
             }
           }),
         );
+
+        //정렬기준 재설정
+        authApi(requests.GET_BOOK_ORDER(id, sort)).then((response) => {
+          if (response.status === 200) {
+            setBooks(response.data.detailChallenges);
+          }
+        });
       } catch (error) {}
     };
     getData();
-  }, []);
+  }, [sort]);
 
+  const chunkedBooks = chunkArray(books, 5);
+
+  // console.log(sort);
+  // console.log(chunkedBooks);
   return (
     <BodyContainer>
-      {challengeInfo ? (
+      {challengeDetails ? (
         <ChallengeInfoContainer>
-          <TitleWrapper>{challengeInfo.challengeTitle}</TitleWrapper>
-          <ContentWrapper>{challengeInfo.challengeSummary}</ContentWrapper>
+          <TitleWrapper>
+            {challengeDetails.detailChallenge.challengeTitle}
+          </TitleWrapper>
+          <ContentWrapper>
+            {challengeDetails.detailChallenge.challengeSummary}
+          </ContentWrapper>
           <LinkWrapper>
-            <Link to={`/newbook/${id}/${userId}`}>
-              <Button title="동화 만들기 →" buttonType="mint" />
-            </Link>
+            {challengeInfo ? (
+              <Link to={`/newbook/${id}/${userId}`}>
+                <Button title="동화 만들기 →" buttonType="mint" />
+              </Link>
+            ) : null}
           </LinkWrapper>
         </ChallengeInfoContainer>
       ) : null}
@@ -136,14 +175,39 @@ function ChallengeDetail() {
               </BookBadge>
             ) : null}
           </BestBookContainer>
-          <BookTitleWrapper>관련 동화</BookTitleWrapper>
+          <BookTitleContainer>
+            <BookTitleWrapper>관련 동화</BookTitleWrapper>
+            <FormControl
+              sx={{ m: 1, minWidth: 80, fontSize: '10px' }}
+              size="small"
+            >
+              <InputLabel id="demo-select-small">정렬</InputLabel>
+              <Select
+                labelId="demo-select-small"
+                id="demo-select-small"
+                value={sort}
+                label="Sort"
+                onChange={handleChange}
+              >
+                <MenuItem value={'lates'}>최신순</MenuItem>
+                <MenuItem value={'like'}>좋아요순</MenuItem>
+                <MenuItem value={'view'}>댓글순</MenuItem>
+              </Select>
+            </FormControl>
+          </BookTitleContainer>
+
           <RecentBookContainer>
-            <BookShelf
-              books={challengeDetails.recent}
-              width="w-40"
-              height="h-48"
-              size="b-16"
-            />
+            {chunkedBooks.map((chunkedBook, index) => {
+              return (
+                <BookShelf
+                  key={index}
+                  books={chunkedBook}
+                  width="w-40"
+                  height="h-48"
+                  size="b-16"
+                />
+              );
+            })}
           </RecentBookContainer>
         </BookContainer>
       ) : null}
