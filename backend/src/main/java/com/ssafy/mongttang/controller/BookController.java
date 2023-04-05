@@ -394,7 +394,7 @@ public class BookController {
     }
 
     @ApiOperation(value = "동화 뷰어 조회", notes = "동화 그림을 조회한다.", response = Map.class)
-    @GetMapping("/{bookId}")
+    @GetMapping("/viewer/{bookId}")
     public ResponseEntity<Map<String,Object>> getBookIllust(@ApiParam(value = "동화 아이디", required = true, example = "0") @PathVariable int bookId){
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = null;
