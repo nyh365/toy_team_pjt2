@@ -13,7 +13,7 @@ import BookListItem from 'components/common/BookListItem';
 import { userStore } from 'store/userStore';
 
 const ProfileContainer = styled.div`
-  ${tw`flex flex-col items-center justify-center w-full z-10 pt-[80px]`}
+  ${tw`flex flex-col items-center justify-center w-full pt-[80px]`}
 `;
 const NickNameWrapper = styled.div`
   ${tw`flex items-center pt-2`}
@@ -45,26 +45,22 @@ const UserInfo = styled.span`
 `;
 
 const CompletedBookContainer = styled.div`
-  ${tw`flex flex-col px-48`}
+  ${tw`flex flex-col px-48 h-[350px] w-[1200px]`}
 `;
 
 const CompletedBookList = styled.div`
   ${tw`flex py-2`}
 `;
 
-const InCompleteBookList = styled.div`
-  ${tw`flex`}
-`;
-
 const LikedBookContainer = styled.div`
-  ${tw`flex flex-col px-48`}
+  ${tw`flex flex-col px-48 h-[350px] w-[1200px]`}
 `;
 const LikedBookList = styled.div`
   ${tw`flex py-2`}
 `;
 
 const PurchasedBookContainer = styled.div`
-  ${tw`flex flex-col px-48`}
+  ${tw`flex flex-col px-48 h-[350px] w-[1200px]`}
 `;
 const PurchasedBookList = styled.div`
   ${tw`flex py-2`}
@@ -182,53 +178,65 @@ function MyProfile() {
       <CompletedBookContainer>
         <span className="text-[40px]">완성한 동화</span>
         <CompletedBookList>
-          {myBooks.length !== 0
-            ? myBooks.map((book) => {
-                return (
-                  <BookListItem
-                    key={book.bookId}
-                    width="w-[180px]"
-                    height="h-[240px]"
-                    book={book}
-                  />
-                );
-              })
-            : null}
+          {myBooks.length !== 0 ? (
+            myBooks.map((book) => {
+              return (
+                <BookListItem
+                  key={book.bookId}
+                  width="w-[180px]"
+                  height="h-[240px]"
+                  book={book}
+                />
+              );
+            })
+          ) : (
+            <div>
+              <p>완성한 동화가 없어요!</p>
+            </div>
+          )}
         </CompletedBookList>
       </CompletedBookContainer>
 
       <LikedBookContainer>
         <span className="text-[40px]">관심목록</span>
         <LikedBookList>
-          {interestBooks.length !== 0
-            ? interestBooks.map((book) => {
-                return (
-                  <BookListItem
-                    key={book.bookId}
-                    width="w-[180px]"
-                    height="h-[250px]"
-                    book={book}
-                  />
-                );
-              })
-            : null}
+          {interestBooks.length !== 0 ? (
+            interestBooks.map((book) => {
+              return (
+                <BookListItem
+                  key={book.bookId}
+                  width="w-[180px]"
+                  height="h-[250px]"
+                  book={book}
+                />
+              );
+            })
+          ) : (
+            <div>
+              <p>관심목록에 등록한 동화가 없어요</p>
+            </div>
+          )}
         </LikedBookList>
       </LikedBookContainer>
       <PurchasedBookContainer>
+        <div className="text-[40px]">구매목록</div>
         <PurchasedBookList>
-          <span className="text-[40px]">구매목록</span>
-          {paidBooks.length !== 0
-            ? paidBooks.map((book) => {
-                return (
-                  <BookListItem
-                    key={book.bookId}
-                    width="w-[180px]"
-                    height="h-[250px]"
-                    book={book}
-                  />
-                );
-              })
-            : null}
+          {paidBooks.length !== 0 ? (
+            paidBooks.map((book) => {
+              return (
+                <BookListItem
+                  key={book.bookId}
+                  width="w-[180px]"
+                  height="h-[250px]"
+                  book={book}
+                />
+              );
+            })
+          ) : (
+            <div>
+              <p>구매한 동화가 없어요</p>
+            </div>
+          )}
         </PurchasedBookList>
       </PurchasedBookContainer>
     </div>

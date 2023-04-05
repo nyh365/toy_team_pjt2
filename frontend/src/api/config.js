@@ -84,6 +84,9 @@ const requests = {
   GET_BOOK_DETAIL(userId, bookId) {
     return `/api/book/${userId}/${bookId}`;
   },
+  GET_BOOK_EDIT_DETAIL(userId, challengeId) {
+    return `/api/book/edit/${userId}/${challengeId}`;
+  },
   //동화 상세정보 조회 in Editor
   GET_BOOK_DETAIL_EDIT(userId, bookId) {
     return `/api/book/edit/${userId}/${bookId}`;

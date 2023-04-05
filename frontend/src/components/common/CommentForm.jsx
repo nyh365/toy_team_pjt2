@@ -17,7 +17,7 @@ const CommentContainer = styled.div`
   ${tw`flex flex-col-reverse`}
 `;
 const UserInfoContainer = styled.div`
-  ${tw`flex flex-col mx-2`}
+  ${tw`flex flex-col items-center mx-2`}
 `;
 const CommentFormcontainer = styled.div`
   ${tw`flex items-center border-y-2 justify-center mb-2`}
@@ -106,7 +106,7 @@ function CommentForm({ bookComments }) {
       <CommentFormcontainer>
         <UserInfoContainer>
           <ProfileImg userId={userId} userImg={userImg} />
-          <Username>{username}</Username>
+          <Username>{userNickname}</Username>
         </UserInfoContainer>
         <FormContainer>
           <form action="submit">
