@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
 import requests from 'api/config';
 import { defaultApi, authApi } from 'api/axios';
+// import { userStore } from 'store/userStore';
 import ImageItem from './ImageItem';
 import Button from 'components/common/Button';
 import SaveBookModal from './SaveBookModal';
@@ -70,6 +71,7 @@ const DrawingForm = styled.div`
   `}
 `;
 function NewBookEditor() {
+  // const wallet = userStore((state) => state.userWallet);
   const userId = localStorage.getItem('userId');
   const params = useParams();
   const challengeId = params.challengeId;
@@ -123,6 +125,7 @@ function NewBookEditor() {
       return;
     }
     const formData = new FormData();
+    // const nftFormData = new FormData();
     const bookData = {
       challengeId: challengeId,
       bookId: bookId,
@@ -135,8 +138,11 @@ function NewBookEditor() {
       'BookContent',
       new Blob([JSON.stringify(bookData)], { type: 'application/json' }),
     );
-
+    // nftFormData.append('privateKey', wallet.privateKey);
+    // nftFormData.append('title', bookTitle);
+    // nftFormData.append('summary', bookSummary);
     images.forEach((img) => formData.append('imgList', img.file));
+    // images.forEach((img) => nftFormData.append('images', img.file));
     const post_book = async () => {
       try {
         const response = await authApi.post(
@@ -148,6 +154,18 @@ function NewBookEditor() {
             },
           },
         );
+        //     nftFormData.append('bookId', response.data.bookId);
+        //     return console.log(response);
+        //   } catch (error) {
+        //     throw error;
+        //   }
+        // };
+        // const post_create_nft = async () => {
+        //   try {
+        //     const response = await authApi.post(
+        //       requests.POST_CREATE_NFT(),
+        //       nftFormData,
+        //     );
 
         return console.log(response);
       } catch (error) {
@@ -155,6 +173,7 @@ function NewBookEditor() {
       }
     };
     post_book();
+    // post_create_nft();
     navigate(`/challenge/${challengeId}`);
   };
 
