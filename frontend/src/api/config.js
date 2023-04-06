@@ -112,6 +112,11 @@ const requests = {
     return `/api/book/draw/${userId}`;
   },
 
+  //동화 구매내역 저장
+  POST_BOOK_PAYLIST(userId, bookId) {
+    return `/api/book/pay/${userId}?bookId=${bookId}`;
+  },
+
   //작가 동화 임시저장본 삭제
   DELETE_BOOK_TEMP(userId) {
     return `/api/book/draw/${userId}`;
