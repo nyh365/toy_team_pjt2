@@ -427,13 +427,13 @@ public class BookService {
         return new ResponseBookEditDto(userId,challenge);
     }
 
-    public Book saveNftId(int bookId, int nftId) {
-        Book book = bookRepository.findByBookId(bookId);
+    public Book saveNftId(ReqNftIdDto reqNftIdDto) {
+        Book book = bookRepository.findByBookId(reqNftIdDto.getBookId());
         if(book == null) return null;
 
-        book.addToken(nftId);
+        book.addToken(reqNftIdDto.getNftId());
 
-        log.info("[saveNftId] nftId 저장 호출 Service : {}" , nftId);
+        log.info("[saveNftId] nftId 저장 호출 Service : {}" , reqNftIdDto.getNftId());
         return bookRepository.save(book);
     }
 }
