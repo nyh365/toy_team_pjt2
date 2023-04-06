@@ -11,7 +11,7 @@ import googleBtn from '../../assets/images/google_login_en.svg';
 import Leaves from '../../components/common/Leaves';
 
 const Wrapper = styled.div`
-  ${tw`flex flex-col items-center h-full w-full pt-40`}
+  ${tw`flex flex-col justify-center items-center h-full w-full`}
 
   & {
     .logo {

@@ -52,10 +52,10 @@ const BtnWrapper = styled.div`
 `;
 
 const PageHeader = styled.div`
-  ${tw`flex justify-center w-full h-16 bg-white border-b-4 m-0 p-0 opacity-0 hover:opacity-100 transition-opacity`}
+  ${tw`flex justify-center w-full h-16 bg-white border-b-4 m-0 p-0 opacity-100`}
 `;
 const PageFooter = styled.div`
-  ${tw`flex justify-center w-full bg-white border-t-4 h-20 m-0 opacity-0 hover:opacity-100 transition-opacity`}
+  ${tw`flex justify-center w-full bg-white border-t-4 h-20 m-0 opacity-100`}
 `;
 
 function FlipViewer() {
@@ -182,6 +182,10 @@ function FlipViewer() {
           onFlip={onFlip}
           onInit={onInit}
           showCover={true}
+          style={{
+            boxShadow: '10px 12px 5px 1px rgba(0, 0, 0, 0.5)',
+            borderRadius: '5px 5px 5px 10px',
+          }}
         >
           {bookImg &&
             bookImg.map((img) => (

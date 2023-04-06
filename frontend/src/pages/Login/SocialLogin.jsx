@@ -65,7 +65,7 @@ function SocialLogin() {
       setUserWallet(wallet.privateKey);
       // console.log(wallet);
       authApi.post(requests.POST_WALLET(userId), {
-        wallet: encodeURIComponent(wallet.privateKey),
+        wallet: wallet.privateKey,
       });
     } else {
       setUserWallet(userWallet);

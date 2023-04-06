@@ -19,7 +19,7 @@ const CTWrapper = styled.div`
 `;
 
 const BodyContainer = styled.div`
-  ${tw`flex flex-col justify-center pt-[5%] p-48`}
+  ${tw`flex flex-col justify-center pt-[5%] p-[13%]`}
 `;
 
 const DiscountContainer = styled.div`
@@ -35,7 +35,7 @@ const TitleContainer = styled.div`
 `;
 
 const TitleWrapper = styled.p`
-  ${tw`text-3xl font-bold py-2`}
+  ${tw`text-3xl font-extrabold py-2`}
 `;
 
 const LinkWrapper = styled.div`

@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
 import requests from 'api/config';
 import { defaultApi, authApi } from 'api/axios';
+// import { userStore } from 'store/userStore';
 import ImageItem from './ImageItem';
 import Button from 'components/common/Button';
 import SaveBookModal from './SaveBookModal';
@@ -14,6 +15,19 @@ const BarWrapper = styled.div`
 
 const BookContentWrapper = styled.div`
   ${tw`flex justify-center w-full mt-[80px]`}
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #b79f93;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: #ebded3;
+    border-radius: 0 10px 10px 0;
+  }
 `;
 
 const PageTitle = styled.div`
@@ -64,12 +78,13 @@ const ButtonContainer = styled.div`
 `;
 
 const DrawingForm = styled.div`
-  ${tw`w-[50vw] flex-col justify-center overflow-auto`}
+  ${tw`w-[50vw] flex-col justify-center overflow-auto overflow-x-hidden`}
   ${css`
-    height: calc(100vh - 120px);
+    height: calc(90vh);
   `}
 `;
 function NewBookEditor() {
+  // const wallet = userStore((state) => state.userWallet);
   const userId = localStorage.getItem('userId');
   const params = useParams();
   const challengeId = params.challengeId;
@@ -123,6 +138,7 @@ function NewBookEditor() {
       return;
     }
     const formData = new FormData();
+    // const nftFormData = new FormData();
     const bookData = {
       challengeId: challengeId,
       bookId: bookId,
@@ -135,8 +151,11 @@ function NewBookEditor() {
       'BookContent',
       new Blob([JSON.stringify(bookData)], { type: 'application/json' }),
     );
-
+    // nftFormData.append('privateKey', wallet.privateKey);
+    // nftFormData.append('title', bookTitle);
+    // nftFormData.append('summary', bookSummary);
     images.forEach((img) => formData.append('imgList', img.file));
+    // images.forEach((img) => nftFormData.append('images', img.file));
     const post_book = async () => {
       try {
         const response = await authApi.post(
@@ -148,6 +167,18 @@ function NewBookEditor() {
             },
           },
         );
+        //     nftFormData.append('bookId', response.data.bookId);
+        //     return console.log(response);
+        //   } catch (error) {
+        //     throw error;
+        //   }
+        // };
+        // const post_create_nft = async () => {
+        //   try {
+        //     const response = await authApi.post(
+        //       requests.POST_CREATE_NFT(),
+        //       nftFormData,
+        //     );
 
         return console.log(response);
       } catch (error) {
@@ -155,6 +186,7 @@ function NewBookEditor() {
       }
     };
     post_book();
+    // post_create_nft();
     navigate(`/challenge/${challengeId}`);
   };
 
