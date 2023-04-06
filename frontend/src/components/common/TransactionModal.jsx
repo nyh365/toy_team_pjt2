@@ -75,7 +75,7 @@ export default function TransactionModal({
   const openWallet = () => {
     onClose();
     window.open(
-      `http://j8a308.p.ssafy.io:3333/trade/?key=${wallet}`,
+      `${requests.wallet_url}/trade/?key=${wallet}`,
       'MyWallet',
       'toolbar=no, menubar=no, width=550, height=780',
     );
