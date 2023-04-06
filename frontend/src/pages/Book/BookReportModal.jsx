@@ -16,7 +16,7 @@ const ButtonWrapper = styled.div`
   ${tw`flex flex-row m-1 mt-2 space-x-2 justify-around border-none text-sm`}
 `;
 
-function CommentReportModal({ onClose, reportCommentId }) {
+function BookReportModal({ onClose, bookId }) {
   const userId = localStorage.getItem('userId');
   const [reason, setReason] = useState('');
   const [reasonDetail, setReasonDetail] = useState('');
@@ -28,10 +28,10 @@ function CommentReportModal({ onClose, reportCommentId }) {
   };
 
   const submitHandler = () => {
-    const post_report_comment = async () => {
+    const post_report_book = async () => {
       try {
         const response = await authApi.post(
-          requests.POST_REPORT_COMMENT(userId, reportCommentId),
+          requests.POST_REPORT_BOOK(userId, bookId),
           {
             reportContent: reasonDetail,
             reportCategory: reason,
@@ -43,7 +43,7 @@ function CommentReportModal({ onClose, reportCommentId }) {
         throw error;
       }
     };
-    post_report_comment();
+    post_report_book();
     onClose();
   };
   return (
@@ -105,4 +105,4 @@ function CommentReportModal({ onClose, reportCommentId }) {
   );
 }
 
-export default CommentReportModal;
+export default BookReportModal;

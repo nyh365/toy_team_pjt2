@@ -46,7 +46,12 @@ const Username = styled.span`
 const Comment = styled.span`
   ${tw`text-3xl`}
 `;
-function CommentForm({ bookComments }) {
+function CommentForm({
+  bookComments,
+  setReportCommentId,
+  setCommentReportModalOpen,
+  onReportModalOpen,
+}) {
   const navigate = useNavigate();
   const params = useParams();
   const userId = Number(localStorage.getItem('userId'));
@@ -130,9 +135,12 @@ function CommentForm({ bookComments }) {
           ? comments.map((comment) => (
               <div key={comment.commentId}>
                 <CommentItem
+                  commentId={comment.commentId}
                   comment={comment}
                   comments={comments}
                   setComments={setComments}
+                  setReportCommentId={setReportCommentId}
+                  setCommentReportModalOpen={setCommentReportModalOpen}
                 />
               </div>
             ))

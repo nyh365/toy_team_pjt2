@@ -109,7 +109,7 @@ function NewBookEditor() {
       }
     };
     get_book_edit_detail();
-  });
+  }, []);
 
   const goToList = () => {
     navigate(`/challenge/${challengeId}`);
