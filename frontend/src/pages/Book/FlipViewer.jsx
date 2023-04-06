@@ -55,7 +55,7 @@ const PageHeader = styled.div`
   ${tw`flex justify-center w-full h-16 bg-white border-b-4 m-0 p-0 opacity-100`}
 `;
 const PageFooter = styled.div`
-  ${tw`flex justify-center w-full bg-white border-t-4 h-20 m-0 opacity-100`}
+  ${tw`flex justify-center w-full bg-white border-t-4 h-20 mt-2 opacity-100`}
 `;
 
 function FlipViewer() {

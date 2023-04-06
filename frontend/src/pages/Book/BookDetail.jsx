@@ -94,7 +94,13 @@ function BookDetail() {
 
   useEffect(() => {
     authApi.get(requests.GET_PROFILE(userId)).then((res) => {
-      res.data.profile.paidBooks.forEach((book) => {
+      res.data.profile.paidBooks?.forEach((book) => {
+        if (book.bookId === Number.parseInt(bookId)) {
+          setIspaid(true);
+        }
+      });
+
+      res.data.profile.myBooks?.forEach((book) => {
         if (book.bookId === Number.parseInt(bookId)) {
           setIspaid(true);
         }
