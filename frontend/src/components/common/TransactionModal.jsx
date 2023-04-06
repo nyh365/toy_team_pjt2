@@ -45,6 +45,7 @@ export default function TransactionModal({
   const wallet = localStorage.getItem('privateKey');
   const [price, setPrice] = useState(0);
   const [balance, setBalance] = useState(0);
+  const [isPaid, setIspaid] = useState(false);
 
   const modalRef = useRef(null);
   const handleClose = () => {
@@ -54,6 +55,14 @@ export default function TransactionModal({
 
   useEffect(() => {
     setPrice(bookPrice);
+
+    authApi.get(requests.GET_PROFILE(userId)).then((res) => {
+      data.profile.paidBooks.forEach((book) => {
+        if (book.id === bookId) {
+          setIspaid(true);
+        }
+      });
+    });
 
     transactionApi
       .get(`/token/mtt/?key=${encodedWallet}`)
