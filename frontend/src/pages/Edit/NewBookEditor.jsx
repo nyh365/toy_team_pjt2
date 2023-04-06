@@ -89,7 +89,7 @@ function NewBookEditor() {
   const userId = localStorage.getItem('userId');
   const params = useParams();
   const challengeId = params.challengeId;
-  const bookId = params.bookId;
+  const [bookId, setBookId] = useState('');
   const [pages, setPages] = useState('');
   const [bookTitle, setBookTitle] = useState('');
   const [bookSummary, setBookSummary] = useState('');
@@ -126,7 +126,30 @@ function NewBookEditor() {
     };
     get_book_edit_detail();
   }, []);
-
+  useEffect(() => {
+    if (bookId !== '') {
+      const nftFormData = new FormData();
+      nftFormData.append('privateKey', privateKey);
+      nftFormData.append('title', bookTitle);
+      nftFormData.append('summary', bookSummary);
+      images.forEach((img) => nftFormData.append('images', img.file));
+      nftFormData.append('bookId', bookId);
+      const post_create_nft = async () => {
+        try {
+          const response = await transactionApi.post(
+            requests.POST_CREATE_NFT(),
+            nftFormData,
+          );
+          console.log(bookId);
+          return console.log(response);
+        } catch (error) {
+          throw error;
+        }
+      };
+      post_create_nft();
+      navigate(`/challenge/${challengeId}`);
+    }
+  }, [bookId]);
   const goToList = () => {
     navigate(`/challenge/${challengeId}`);
   };
@@ -139,10 +162,9 @@ function NewBookEditor() {
       return;
     }
     const formData = new FormData();
-    const nftFormData = new FormData();
+    // const nftFormData = new FormData();
     const bookData = {
       challengeId: challengeId,
-      bookId: bookId,
       bookTitle: bookTitle,
       bookSummary: bookSummary,
       bookContent: bookContent,
@@ -152,11 +174,11 @@ function NewBookEditor() {
       'BookContent',
       new Blob([JSON.stringify(bookData)], { type: 'application/json' }),
     );
-    nftFormData.append('privateKey', privateKey);
-    nftFormData.append('title', bookTitle);
-    nftFormData.append('summary', bookSummary);
+    // nftFormData.append('privateKey', privateKey);
+    // nftFormData.append('title', bookTitle);
+    // nftFormData.append('summary', bookSummary);
     images.forEach((img) => formData.append('imgList', img.file));
-    images.forEach((img) => nftFormData.append('images', img.file));
+    // images.forEach((img) => nftFormData.append('images', img.file));
     const post_book = async () => {
       try {
         const response = await authApi.post(
@@ -168,28 +190,27 @@ function NewBookEditor() {
             },
           },
         );
-        nftFormData.append('bookId', response.data.bookId);
+        setBookId(response.data.bookId);
         return console.log(response);
       } catch (error) {
         throw error;
       }
     };
 
-    const post_create_nft = async () => {
-      try {
-        const response = await transactionApi.post(
-          requests.POST_CREATE_NFT(),
-          nftFormData,
-        );
-
-        return console.log(response);
-      } catch (error) {
-        throw error;
-      }
-    };
+    // const post_create_nft = async () => {
+    //   try {
+    //     const response = await transactionApi.post(
+    //       requests.POST_CREATE_NFT(),
+    //       nftFormData,
+    //     );
+    //     console.log(bookId);
+    //     return console.log(response);
+    //   } catch (error) {
+    //     throw error;
+    //   }
+    // };
     post_book();
-    post_create_nft();
-    // navigate(`/challenge/${challengeId}`);
+    // post_create_nft();
   };
 
   const handleImageSelect = (id, file) => {
