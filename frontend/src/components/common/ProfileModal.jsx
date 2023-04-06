@@ -148,7 +148,7 @@ function ProfileModal({ onClose }) {
         <ContentContainer>
           <BtnContainer>
             <ProfileBtnContainer>
-              <button onClick={openProfile} stlye>
+              <button onClick={openProfile}>
                 <img src={ProfileBtn} alt="profile" />
               </button>
             </ProfileBtnContainer>

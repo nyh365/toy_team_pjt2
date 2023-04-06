@@ -91,9 +91,10 @@ export default function TransactionModal({
     });
 
     //구매요청 -> 백엔드(구매목록에 추가하는 API 호출)
-    await authApi
+    authApi
       .post(requests.POST_BOOK_PAYLIST(userId, bookId))
       .then((res) => {
+        console.log(res);
         if (res.status === 200) {
           //정상적으로 처리가 되면 viewer로 이동
           alert('작품 구매가 완료되었습니다.');
