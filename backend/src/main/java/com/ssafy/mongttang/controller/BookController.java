@@ -467,12 +467,14 @@ public class BookController {
         return new ResponseEntity<>(resultMap, status);
     }
 
-    @ApiOperation(value = "nft토큰 저장", notes = "생성된 nft토큰 번호를 저장한다.", response = Map.class)
+    @ApiOperation(value = "nftId 저장", notes = "생성된 nft토큰 번호를 저장한다.", response = Map.class)
     @PostMapping("/token")
     public ResponseEntity<Map<String,Object>> saveNftId(@ApiParam(value = "동화 아이디", required = true, example = "0") @RequestParam int bookId,
                                                         @ApiParam(value = "NFT 토큰", required = true, example = "0") @RequestParam int nftId){
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = null;
+
+        log.info("[saveNftId] nftId 저장 호출 Controller : {}" , nftId);
 
         Book book = bookService.saveNftId(bookId,nftId);
 

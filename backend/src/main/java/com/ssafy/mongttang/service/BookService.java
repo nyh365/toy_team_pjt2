@@ -433,6 +433,7 @@ public class BookService {
 
         book.addToken(nftId);
 
+        log.info("[saveNftId] nftId 저장 호출 Service : {}" , nftId);
         return bookRepository.save(book);
     }
 }
