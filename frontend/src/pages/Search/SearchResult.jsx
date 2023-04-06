@@ -34,9 +34,12 @@ const ResultWrapper = styled.div`
 
 function chunkArray(array, chunkSize) {
   const chunks = [];
-  for (let i = 0; i < array.length; i += chunkSize) {
-    chunks.push(array.slice(i, i + chunkSize));
+  if (array !== undefined) {
+    for (let i = 0; i < array.length; i += chunkSize) {
+      chunks.push(array.slice(i, i + chunkSize));
+    }
   }
+
   return chunks;
 }
 
@@ -49,15 +52,26 @@ function SearchResult() {
     searchStore.subscribe((state) => state);
   }, [searchKeyword, searchResult]);
 
-  authApi(requests.GET_CHALLENGES()).then((response) =>
-    setRecommendBooks(response.data.thisWeekChallenge?.bookList),
-  );
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        await authApi(requests.GET_CHALLENGES()).then((response) => {
+          setRecommendBooks(response.data);
+        });
+      } catch (error) {}
+    };
+    getData();
+  }, []);
+
   const books = searchResult.data?.searchList;
+  // console.log(books);
+  console.log(searchResult);
+
   const chunkedBooks = chunkArray(books, 5);
-  const chunkedRecommendBooks = chunkArray(recommendBooks, 5);
+  // console.log(chunkedRecommendBooks);
   return (
     <BodyContainer>
-      {searchResult?.length !== 0 ? (
+      {chunkedBooks?.length !== 0 ? (
         <BookContainer>
           <BookTitleContainer>
             <BookTitleWrapper>
@@ -87,18 +101,6 @@ function SearchResult() {
             </BookTitleWrapper>
           </BookTitleContainer>
           <ResultWrapper>검색결과가 없습니다.</ResultWrapper>
-          <ResultWrapper>이런 책은 어떠신가요?</ResultWrapper>
-          {chunkedRecommendBooks.map((chunkedBook, index) => {
-            return (
-              <BookShelf
-                key={index}
-                books={chunkedBook}
-                width="w-40"
-                height="h-48"
-                size="b-16"
-              />
-            );
-          })}
         </BookContainer>
       )}
     </BodyContainer>
