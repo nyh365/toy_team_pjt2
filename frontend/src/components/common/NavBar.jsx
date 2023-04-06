@@ -14,7 +14,7 @@ import SearchBar from './SearchBar';
 // Styled Component
 
 const Container = styled.div`
-  ${tw`flex items-center justify-between fixed border-b h-[80px] w-full z-10 bg-brown1`}
+  ${tw`flex items-center justify-between fixed border-b h-[80px] w-full z-10 bg-brown1 whitespace-nowrap flex-wrap`}
 `;
 const TabWrapper = styled.div`
   ${tw`flex items-center h-[80px]`}

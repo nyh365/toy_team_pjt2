@@ -14,23 +14,22 @@ import { userStore } from 'store/userStore';
 
 const Content = styled.div`
   ${tw`flex flex-col items-center p-1 text-gray-500`}
-  font-size: 0.8rem;
   text-align: center;
 `;
 const Title = styled.p`
-  ${tw`text-sm p-0.5 underline underline-offset-0`}
+  ${tw`text-base p-0.5 underline underline-offset-0`}
 `;
 
 const Text = styled.p`
-  ${tw`text-xs p-0.5`}
+  ${tw`text-base p-0.5`}
 `;
 
 const SectionBox = styled.section`
-  ${tw`border-solid border-1 rounded-lg text-red-500 w-full p-1`}
+  ${tw`text-lg border-solid border-1 rounded-lg text-red-500 w-full p-1`}
 `;
 
 const CheckBoxContainer = styled.div`
-  ${tw`flex text-xs`}
+  ${tw`flex text-base`}
 `;
 
 function WithdrawalModal({ onClose }) {
@@ -74,17 +73,15 @@ function WithdrawalModal({ onClose }) {
         <SectionBox>
           <ul>
             <li>
-              <Text>모든 개인정보가 삭제됩니다.</Text>
-              <Text>동화와 댓글은 삭제되지 않습니다.</Text>
+              <p>모든 개인정보가 삭제됩니다.</p>
+              <p>동화와 댓글은 삭제되지 않습니다.</p>
             </li>
           </ul>
         </SectionBox>
         <br />
         <CheckBoxContainer>
           <input type="checkbox" onClick={() => setIsDisabled(!isDisabled)} />
-          <span style={{ fontSize: 7 }}>
-            모든 사항을 이해하고 확인하였으며, 동의합니다.
-          </span>
+          <Text>모든 사항을 이해하고 확인하였으며, 동의합니다.</Text>
         </CheckBoxContainer>
         <br />
         <button onClick={withdrawalUser} disabled={isDisabled}>

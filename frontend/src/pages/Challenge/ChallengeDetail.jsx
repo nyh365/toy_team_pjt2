@@ -26,7 +26,7 @@ const BookTitleContainer = styled.div`
 `;
 
 const BookTitleWrapper = styled.p`
-  ${tw`text-3xl pl-[2%] pt-[5%]`}
+  ${tw`text-3xl pl-[2%] pt-[5%] whitespace-nowrap`}
 `;
 const ChallengeInfoContainer = styled.div`
   ${tw`flex flex-col flex-wrap w-2/3`}
@@ -121,8 +121,6 @@ function ChallengeDetail({ searchKeyword }) {
 
   const chunkedBooks = chunkArray(books, 5);
 
-  // console.log(sort);
-  // console.log(chunkedBooks);
   return (
     <BodyContainer>
       {challengeDetails ? (
@@ -144,15 +142,7 @@ function ChallengeDetail({ searchKeyword }) {
       ) : null}
       {challengeDetails ? (
         <BookContainer>
-          {/* <BookTitleWrapper>베스트 동화</BookTitleWrapper> */}
           <BestBookContainer>
-            {/* {challengeDetails.detailChallenge.bookList.map((book, index) => {
-              return (
-                <BookBadge book={book} key={book.bookId} index={index}>
-                  <BookListItem book={book} width="w-40" height="h-48" />
-                </BookBadge>
-              );
-            })} */}
             {challengeDetails.detailChallenge.bookList[1] ? (
               <BookBadge
                 book={challengeDetails.detailChallenge.bookList[1]}

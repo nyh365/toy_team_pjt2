@@ -13,20 +13,20 @@ import BookListItem from 'components/common/BookListItem';
 import { userStore } from 'store/userStore';
 
 const ProfileContainer = styled.div`
-  ${tw`flex flex-col items-center justify-center w-full pt-[80px]`}
+  ${tw`flex flex-col items-center justify-center w-full pt-[7%] text-[#626069]`}
 `;
 const NickNameWrapper = styled.div`
   ${tw`flex items-center pt-2`}
 `;
 
 const NickName = styled.span`
-  ${tw`text-[40px]`}
+  ${tw`text-3xl`}
 `;
 const InfoWrapper = styled.div`
-  ${tw`flex items-center justify-between`}
+  ${tw`flex items-center justify-between space-x-2 py-2`}
 `;
 const Following = styled.span`
-  ${tw`text-[30px] px-2 cursor-pointer rounded-full shadow`}
+  ${tw`text-2xl px-2 cursor-pointer rounded-full shadow`}
   ${(props) =>
     props.show === true
       ? tw`bg-btnMint text-black hover:opacity-70 transition-opacity`
@@ -34,36 +34,36 @@ const Following = styled.span`
 `;
 
 const Follower = styled.span`
-  ${tw`text-[30px] px-2 cursor-pointer rounded-full shadow`}
+  ${tw`text-2xl px-2 cursor-pointer rounded-full shadow`}
   ${(props) =>
     props.show === true
       ? tw`bg-btnMint text-black hover:opacity-70 transition-opacity`
       : tw`hover:opacity-70 transition-opacity`}
 `;
 const UserInfo = styled.span`
-  ${tw`text-[35px] pt-2`}
+  ${tw`text-2xl pt-2`}
 `;
 
 const CompletedBookContainer = styled.div`
-  ${tw`flex flex-col px-48 h-[350px] w-[1200px]`}
+  ${tw`flex flex-col px-[13%] h-[10%] w-[1200px]`}
 `;
 
 const CompletedBookList = styled.div`
-  ${tw`flex py-2`}
+  ${tw`flex py-2 text-[#626069]`}
 `;
 
 const LikedBookContainer = styled.div`
-  ${tw`flex flex-col px-48 h-[350px] w-[1200px]`}
+  ${tw`flex flex-col px-[13%] h-[10%] w-[1200px]`}
 `;
 const LikedBookList = styled.div`
-  ${tw`flex py-2`}
+  ${tw`flex py-2 text-[#626069]`}
 `;
 
 const PurchasedBookContainer = styled.div`
-  ${tw`flex flex-col px-48 h-[350px] w-[1200px]`}
+  ${tw`flex flex-col px-[13%] h-[10%] w-[1200px]`}
 `;
 const PurchasedBookList = styled.div`
-  ${tw`flex py-2`}
+  ${tw`flex py-2 text-[#626069]`}
 `;
 
 function MyProfile() {
@@ -176,7 +176,7 @@ function MyProfile() {
         {/* <NickName onClick={openWallet}>지갑보러가기</NickName> */}
       </ProfileContainer>
       <CompletedBookContainer>
-        <span className="text-[40px]">완성한 동화</span>
+        <span className="text-3xl">완성한 동화</span>
         <CompletedBookList>
           {myBooks.length !== 0 ? (
             myBooks.map((book) => {
@@ -198,7 +198,7 @@ function MyProfile() {
       </CompletedBookContainer>
 
       <LikedBookContainer>
-        <span className="text-[40px]">관심목록</span>
+        <span className="text-3xl">관심목록</span>
         <LikedBookList>
           {interestBooks.length !== 0 ? (
             interestBooks.map((book) => {
@@ -219,7 +219,7 @@ function MyProfile() {
         </LikedBookList>
       </LikedBookContainer>
       <PurchasedBookContainer>
-        <div className="text-[40px]">구매목록</div>
+        <div className="text-3xl">구매목록</div>
         <PurchasedBookList>
           {paidBooks.length !== 0 ? (
             paidBooks.map((book) => {

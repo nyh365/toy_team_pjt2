@@ -15,6 +15,19 @@ const BarWrapper = styled.div`
 
 const BookContentWrapper = styled.div`
   ${tw`flex justify-center w-full mt-[80px]`}
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #b79f93;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: #ebded3;
+    border-radius: 0 10px 10px 0;
+  }
 `;
 
 const PageTitle = styled.div`
@@ -65,9 +78,9 @@ const ButtonContainer = styled.div`
 `;
 
 const DrawingForm = styled.div`
-  ${tw`w-[50vw] flex-col justify-center overflow-auto`}
+  ${tw`w-[50vw] flex-col justify-center overflow-auto overflow-x-hidden`}
   ${css`
-    height: calc(100vh - 120px);
+    height: calc(90vh);
   `}
 `;
 function NewBookEditor() {
