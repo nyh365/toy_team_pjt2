@@ -115,7 +115,7 @@ function MyProfile() {
         setInCompleteBooks(data.profile.inCompleteBooks);
         setInterestBooks(data.profile.interestBooks);
         setPaidBooks(data.profile.paidBooks);
-        console.log(data);
+        // console.log(data);
       } catch (error) {
         throw error;
       }
@@ -124,7 +124,7 @@ function MyProfile() {
       try {
         const { data } = await authApi.get(requests.GET_FOLLOWING(userId));
         setFollowings(data.followings);
-        console.log(data);
+        // console.log(data);
       } catch (error) {
         throw error;
       }
@@ -133,7 +133,7 @@ function MyProfile() {
       try {
         const { data } = await authApi.get(requests.GET_FOLLOWER(userId));
         setFollowers(data.followers);
-        console.log(data);
+        // console.log(data);
       } catch (error) {
         throw error;
       }

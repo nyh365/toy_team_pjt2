@@ -7,6 +7,7 @@ import Coin from '../../assets/icons/Coin.svg';
 import Web3 from 'web3';
 import axios from 'axios';
 import requests from 'api/config';
+import { authApi, transactionApi } from 'api/axios';
 
 const ModalOverlay = styled.div`
   ${tw`flex items-center justify-center z-50 h-3/5 w-full h-2/3 fixed `}
@@ -48,8 +49,9 @@ export default function TransactionModal({ bookId, bookPrice, onClose }) {
 
   useEffect(() => {
     setPrice(bookPrice);
-    axios
-      .get(requests.blockchain_url + `/token/mtt/?key=${encodedWallet}`)
+
+    transactionApi
+      .get(`/token/mtt/?key=${encodedWallet}`)
       .then((res) => setBalance(res.data));
   }, []);
 
@@ -84,9 +86,19 @@ export default function TransactionModal({ bookId, bookPrice, onClose }) {
     } else {
       //구매요청 -> 블록체인 네트워크
       //구매요청 -> 백엔드(구매목록에 추가하는 API 호출)
-      //정상적으로 처리가 되면 viewer로 이동
-      alert('작품 구매가 완료되었습니다.');
-      navigate(`/books/viewer/${bookId}`);
+      authApi
+        .post(requests.POST_BOOK_PAYLIST(userId, bookId))
+        .then((res) => {
+          if (res.status === 200) {
+            //정상적으로 처리가 되면 viewer로 이동
+            alert('작품 구매가 완료되었습니다.');
+            navigate(`/books/viewer/${bookId}`);
+          }
+        })
+        .catch(() => {
+          alert('구매에 실패했습니다. 다시 시도해주세요.');
+          onClose();
+        });
     }
   };
 
