@@ -14,6 +14,8 @@ const requests = {
     'https://j8a308.p.ssafy.io/api/oauth2/authorize/google?redirect_uri=https://j8a308.p.ssafy.io/oauth',
   // 'https://j8a308.p.ssafy.io/api/oauth2/authorize/google?redirect_uri=http://localhost:3000/oauth',
 
+  blockchain_url: 'http://j8a308.p.ssafy.io:4000',
+
   //회원정보 수정
   PATCH_USER_NICKNAME(userId, code) {
     return `/api/user/${userId}?userNickname=${code}`;

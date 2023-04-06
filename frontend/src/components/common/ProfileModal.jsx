@@ -63,7 +63,7 @@ function ProfileModal({ onClose }) {
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
   const { resetUser } = userStore((state) => state);
-  const wallet = userStore((state) => state.userWallet);
+  const wallet = localStorage.getItem('privateKey');
   const encodedWallet = encodeURIComponent(wallet);
 
   const [userImg, setUserImg] = useState('');

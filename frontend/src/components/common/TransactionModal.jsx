@@ -5,6 +5,8 @@ import { userStore } from 'store/userStore';
 import useOutsideClick from 'hooks/useOutsideClick';
 import Coin from '../../assets/icons/Coin.svg';
 import Web3 from 'web3';
+import axios from 'axios';
+import requests from 'api/config';
 
 const ModalOverlay = styled.div`
   ${tw`flex items-center justify-center z-50 h-3/5 w-full h-2/3 fixed `}
@@ -30,17 +32,26 @@ const BtnWrapper = styled.div`
   ${tw`py-2`}
 `;
 
-export default function TransactionModal({ bookId, onClose }) {
+export default function TransactionModal({ bookId, bookPrice, onClose }) {
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
-  const wallet = userStore((state) => state.userWallet);
-  const [price, setPrice] = useState(1);
+  // const wallet = userStore((state) => state.userWallet);
+  const wallet = localStorage.getItem('privateKey');
+  const [price, setPrice] = useState(0);
   const [balance, setBalance] = useState(0);
 
   const modalRef = useRef(null);
   const handleClose = () => {
     onClose?.();
   };
+  const encodedWallet = encodeURIComponent(wallet);
+
+  useEffect(() => {
+    setPrice(bookPrice);
+    axios
+      .get(requests.blockchain_url + `/token/mtt/?key=${encodedWallet}`)
+      .then((res) => setBalance(res.data));
+  }, []);
 
   //모달 외부 클릭시 모달창 꺼짐
   useOutsideClick(modalRef, handleClose);

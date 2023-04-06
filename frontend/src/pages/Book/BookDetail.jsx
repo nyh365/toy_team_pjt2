@@ -255,7 +255,13 @@ function BookDetail() {
         <BookReportModal onClose={onBookReportModalClose} bookId={bookId} />
       ) : null}
 
-      {isOpen ? <TransactionModal bookId={bookId} onClose={onClose} /> : null}
+      {isOpen ? (
+        <TransactionModal
+          bookId={bookId}
+          bookPrice={book.price}
+          onClose={onClose}
+        />
+      ) : null}
     </BodyContainer>
   );
 }
