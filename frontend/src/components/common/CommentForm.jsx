@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useCallback } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import ProfileImg from './ProfileImg';
 import tw, { styled, css } from 'twin.macro';
 import Button from './Button';
 import CommentItem from './CommentItem';
 import requests from 'api/config';
-import { defaultApi, authApi } from 'api/axios';
+import { authApi } from 'api/axios';
 import { userStore } from 'store/userStore';
 
 const BodyContainer = styled.div`
   ${tw`pt-[5%]`}
 `;
-
 const CommentContainer = styled.div`
   ${tw`flex flex-col-reverse`}
 `;
@@ -22,11 +20,9 @@ const UserInfoContainer = styled.div`
 const CommentFormcontainer = styled.div`
   ${tw`flex items-center border-y-2 justify-center mb-2`}
 `;
-
 const FormContainer = styled.div`
   ${tw``}
 `;
-
 const InputContainer = styled.textarea`
   ${tw`flex flex-wrap p-1 px-2 rounded-lg mt-4 w-[900px] h-[80px] border-1 border-black font-[20px] text-main break-all`}
   ${(props) =>
@@ -46,13 +42,12 @@ const Username = styled.span`
 const Comment = styled.span`
   ${tw`text-3xl`}
 `;
+
 function CommentForm({
   bookComments,
   setReportCommentId,
   setCommentReportModalOpen,
-  onReportModalOpen,
 }) {
-  const navigate = useNavigate();
   const params = useParams();
   const userId = Number(localStorage.getItem('userId'));
   const userNickname = localStorage.getItem('userNickname');
@@ -60,7 +55,7 @@ function CommentForm({
   const [comments, setComments] = useState(bookComments);
   const [commentContent, setCommentContent] = useState('');
   const [username, setUsername] = useState('');
-  // console.log(params);
+
   useEffect(() => {
     userStore.subscribe((state) => setUserImg(state.userImg));
     const fetchData = async () => {
@@ -95,7 +90,6 @@ function CommentForm({
           })
           .then((response) => {
             setComments(response.data.comments);
-            console.log(response);
           });
       } catch (error) {
         throw error;
@@ -103,7 +97,6 @@ function CommentForm({
     };
     post_comment();
     setCommentContent('');
-    //댓글목록 받은거 setComments로 넣어주기
   };
   return (
     <BodyContainer>
