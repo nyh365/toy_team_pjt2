@@ -90,7 +90,7 @@ function ProfileModal({ onClose }) {
         setUserNickname(response.data.profile.userNickname);
         setNumOfFollower(response.data.profile.numOfFollower);
         setNumOfFollowing(response.data.profile.numOfFollowing);
-        console.log(response);
+        // console.log(response);
       }
     });
 
