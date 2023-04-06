@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
 import requests from 'api/config';
-import { defaultApi, authApi } from 'api/axios';
+import { defaultApi, authApi, transactionApi } from 'api/axios';
 import { userStore } from 'store/userStore';
 import ImageItem from './ImageItem';
 import Button from 'components/common/Button';
@@ -175,7 +175,7 @@ function NewBookEditor() {
     };
     const post_create_nft = async () => {
       try {
-        const response = await authApi.post(
+        const response = await transactionApi.post(
           requests.POST_CREATE_NFT(),
           nftFormData,
         );
@@ -187,7 +187,7 @@ function NewBookEditor() {
     };
     post_book();
     post_create_nft();
-    navigate(`/challenge/${challengeId}`);
+    // navigate(`/challenge/${challengeId}`);
   };
 
   const handleImageSelect = (id, file) => {

@@ -103,7 +103,10 @@ const requests = {
   POST_BOOK(userId) {
     return `/api/book/draw/${userId}`;
   },
-
+  //동화 작성시 NFT 생성
+  POST_CREATE_NFT() {
+    return `/nft/ipfs`;
+  },
   //동화 임시저장
   POST_BOOK_TEMP(userId) {
     return `/api/book/draw/${userId}`;
