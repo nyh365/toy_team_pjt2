@@ -19,19 +19,19 @@ const ButtonContainer = styled.div`
   ${tw`flex my-2 justify-center`}
 `;
 const InfoContainer = styled.div`
-  ${tw`flex justify-between items-center mt-2 mx-[200px] border-b-2`}
+  ${tw`flex justify-between items-center mt-2 mx-[25%] border-b-2`}
 `;
 const InfoWrapper = styled.div`
   ${tw`flex flex-col`}
 `;
 const InfoTitle = styled.span`
-  ${tw`justify-start text-[30px]`}
+  ${tw`justify-start text-2xl`}
 `;
 const InfoContent = styled.span`
-  ${tw`justify-start text-[35px]`}
+  ${tw`justify-start text-2xl text-[#626069]`}
 `;
 const ProfileImgContainer = styled.div`
-  ${tw`flex justify-center items-center pt-[80px]`}
+  ${tw`flex justify-center items-center pt-[7%]`}
 `;
 const ImgWrapper = styled.div`
   ${tw`relative`}
@@ -146,9 +146,6 @@ function MyProfileEdit() {
       />
       <ProfileContainer>
         <ButtonContainer>
-          {/* <div className="mx-2" onClick={changeToDefaultImg}>
-            <Button title="기본사진" buttonType="black" className="" />
-          </div> */}
           {isChanged ? (
             <div className="mx-2" onClick={submitHandler}>
               <Button title="저장" buttonType="black" className="" />
@@ -170,15 +167,14 @@ function MyProfileEdit() {
           <InfoContent>{userNickname}</InfoContent>
         </InfoWrapper>
         <div onClick={() => navigate('/myprofile/edit/nickname')}>
-          <img src={moveToEdit} alt="edit button" className="cursor-pointer" />
+          <img
+            src={moveToEdit}
+            alt="edit button"
+            className="cursor-pointer"
+            width="60%"
+          />
         </div>
       </InfoContainer>
-      {/* <InfoContainer>
-        <InfoWrapper>
-          <InfoTitle>이메일</InfoTitle>
-          <InfoContent>wkas1921@naver.com</InfoContent>
-        </InfoWrapper>
-      </InfoContainer> */}
       <InfoContainer>
         <InfoWrapper>
           <InfoTitle>자기소개</InfoTitle>
@@ -189,13 +185,23 @@ function MyProfileEdit() {
           )}
         </InfoWrapper>
         <div onClick={() => navigate('/myprofile/edit/introduction')}>
-          <img src={moveToEdit} alt="edit button" className="cursor-pointer" />
+          <img
+            src={moveToEdit}
+            alt="edit button"
+            className="cursor-pointer"
+            width="60%"
+          />
         </div>
       </InfoContainer>
       <InfoContainer>
         <InfoTitle>회원탈퇴</InfoTitle>
         <div onClick={() => setIsModalOpen(true)}>
-          <img src={moveToEdit} alt="edit button" className="cursor-pointer" />
+          <img
+            src={moveToEdit}
+            alt="edit button"
+            className="cursor-pointer"
+            width="60%"
+          />
         </div>
       </InfoContainer>
     </div>

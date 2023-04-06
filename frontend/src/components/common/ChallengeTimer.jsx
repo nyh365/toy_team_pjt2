@@ -17,7 +17,6 @@ const TimerWrapper = styled.div`
 
 function ChallengeTimer({ endDate }) {
   const date = new Date(`${endDate}`).getTime();
-  // const date = new Date('2023-04-07').getTime(); //더미 데이터
 
   return (
     <TimerWrapper>
@@ -28,10 +27,10 @@ function ChallengeTimer({ endDate }) {
           width: 40,
           height: 60,
           fontSize: 36,
-          backgroundColor: '#A3DCCD',
+          backgroundColor: '#B79F93',
         }}
         dividerStyle={{ color: '', height: 1 }}
-        separatorStyle={{ color: 'black', size: '4px' }}
+        separatorStyle={{ color: '#B79F93', size: '4px' }}
         duration={0.5}
         className="flip-clock"
       />

@@ -1,12 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import {
-  Route,
-  Routes,
-  BrowserRouter,
-  Navigate,
-  useNavigate,
-} from 'react-router-dom';
+import { Route, Routes, BrowserRouter } from 'react-router-dom';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import NavBar from 'components/common/NavBar';
@@ -35,18 +29,32 @@ import UserLogin from 'pages/Login/UserLogin';
 import Notice from 'pages/Notice/Notice';
 import BookDetail from 'pages/Book/BookDetail';
 import NewBookEditor from 'pages/Edit/NewBookEditor';
-import BookEditor from 'pages/Edit/BookEditor';
 import { userStore } from 'store/userStore';
+import { searchStore } from 'store/searchStore';
 import SocialLogin from 'pages/Login/SocialLogin';
 import ChallengeDetail from 'pages/Challenge/ChallengeDetail';
 import FlipViewer from 'pages/Book/FlipViewer';
 import NewHome from 'pages/Home/NewHome';
 import NewPrevChallenge from 'pages/Challenge/NewPrevChallenge';
 import ErrorPage from 'pages/Error/ErrorPage';
+import { authApi } from 'api/axios';
+import requests from 'api/config';
+import SearchResult from 'pages/Search/SearchResult';
 const queryClient = new QueryClient();
+
 function App() {
   const [userId, setUserId] = useState();
+
   const id = userStore((state) => state.userId);
+  const { setSearchKeyword, setSearchResult } = searchStore((state) => state);
+
+  const handleSearch = (keyword) => {
+    authApi.get(requests.GET_SEARCH_BOOKS(keyword)).then((res) => {
+      setSearchKeyword(keyword);
+      setSearchResult(res);
+    });
+  };
+
   useEffect(() => {
     userStore.subscribe((state) => setUserId(state.userId));
     if (id === '') setUserId(localStorage.getItem('userId'));
@@ -58,7 +66,7 @@ function App() {
       <CookiesProvider>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter className="App">
-            <NavBar />
+            <NavBar onSearch={handleSearch} />
             <AdminNavBar />
             <Routes>
               <Route path="/" element={<NewHome />} />
@@ -104,11 +112,8 @@ function App() {
                 path="/newbook/:challengeId/:userId"
                 element={<NewBookEditor />}
               />
-              <Route
-                path="/incompletebook/:userId/:bookId"
-                element={<BookEditor />}
-              />
               <Route path="/*" element={<ErrorPage />} />
+              <Route path="/search" element={<SearchResult />} />
             </Routes>
           </BrowserRouter>
         </QueryClientProvider>

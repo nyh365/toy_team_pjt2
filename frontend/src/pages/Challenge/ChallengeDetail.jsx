@@ -26,7 +26,7 @@ const BookTitleContainer = styled.div`
 `;
 
 const BookTitleWrapper = styled.p`
-  ${tw`text-3xl pl-[2%] pt-[5%]`}
+  ${tw`text-3xl pl-[2%] pt-[5%] whitespace-nowrap`}
 `;
 const ChallengeInfoContainer = styled.div`
   ${tw`flex flex-col flex-wrap w-2/3`}
@@ -59,7 +59,7 @@ function chunkArray(array, chunkSize) {
   return chunks;
 }
 
-function ChallengeDetail() {
+function ChallengeDetail({ searchKeyword }) {
   const [challengeDetails, setChallengeDetails] = useState();
   const [challengeInfo, setChallengeInfo] = useState();
   const [books, setBooks] = useState('');
@@ -76,13 +76,13 @@ function ChallengeDetail() {
   useEffect(() => {
     const getData = async () => {
       try {
-        authApi(requests.GET_CHALLENGE(id)).then((response) => {
+        await authApi(requests.GET_CHALLENGE(id)).then((response) => {
           setChallengeDetails(response.data);
           if (books === '') setBooks(response.data.recent);
         });
 
         //url의 challengeId를 바탕으로 해당 challege에 대한 정보를 가져온다
-        authApi(requests.GET_CHALLENGES()).then((response) =>
+        await authApi(requests.GET_CHALLENGES()).then((response) =>
           response.data.thisWeekChallenge.map((challenge) => {
             if (challenge.challengeId === Number.parseInt(id)) {
               setChallengeInfo(challenge);
@@ -91,7 +91,7 @@ function ChallengeDetail() {
         );
 
         //정렬기준 재설정
-        authApi(requests.GET_BOOK_ORDER(id, sort)).then((response) => {
+        await authApi(requests.GET_BOOK_ORDER(id, sort)).then((response) => {
           if (response.status === 200) {
             setBooks(response.data.detailChallenges);
           }
@@ -101,10 +101,26 @@ function ChallengeDetail() {
     getData();
   }, [sort]);
 
+  //검색어에 따른 필터링
+  useEffect(() => {
+    if (searchKeyword !== '') {
+      authApi(requests.GET_CHALLENGE(id)).then((response) => {
+        // setChallengeDetails(response.data);
+        const result = response.data.recent;
+        const filteredBooks = result.filter((book) =>
+          book.bookTitle.includes(searchKeyword),
+        );
+        setBooks(filteredBooks);
+      });
+    } else {
+      authApi(requests.GET_CHALLENGE(id)).then((response) => {
+        setBooks(response.data.recent);
+      });
+    }
+  }, [searchKeyword]);
+
   const chunkedBooks = chunkArray(books, 5);
 
-  // console.log(sort);
-  // console.log(chunkedBooks);
   return (
     <BodyContainer>
       {challengeDetails ? (
@@ -116,7 +132,7 @@ function ChallengeDetail() {
             {challengeDetails.detailChallenge.challengeSummary}
           </ContentWrapper>
           <LinkWrapper>
-            {challengeInfo ? (
+            {challengeInfo && userId ? (
               <Link to={`/newbook/${id}/${userId}`}>
                 <Button title="동화 만들기 →" buttonType="mint" />
               </Link>
@@ -126,15 +142,7 @@ function ChallengeDetail() {
       ) : null}
       {challengeDetails ? (
         <BookContainer>
-          {/* <BookTitleWrapper>베스트 동화</BookTitleWrapper> */}
           <BestBookContainer>
-            {/* {challengeDetails.detailChallenge.bookList.map((book, index) => {
-              return (
-                <BookBadge book={book} key={book.bookId} index={index}>
-                  <BookListItem book={book} width="w-40" height="h-48" />
-                </BookBadge>
-              );
-            })} */}
             {challengeDetails.detailChallenge.bookList[1] ? (
               <BookBadge
                 book={challengeDetails.detailChallenge.bookList[1]}
@@ -189,9 +197,9 @@ function ChallengeDetail() {
                 label="Sort"
                 onChange={handleChange}
               >
-                <MenuItem value={'lates'}>최신순</MenuItem>
-                <MenuItem value={'like'}>좋아요순</MenuItem>
-                <MenuItem value={'view'}>댓글순</MenuItem>
+                <MenuItem value="lates">최신순</MenuItem>
+                <MenuItem value="like">좋아요순</MenuItem>
+                <MenuItem value="view">조회순</MenuItem>
               </Select>
             </FormControl>
           </BookTitleContainer>

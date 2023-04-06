@@ -4,16 +4,19 @@
 const requests = {
   //기본 URL 주소
   base_url: 'https://j8a308.p.ssafy.io',
-
   //카카오 소셜로그인 URL
   KAKAO_LOGIN:
-    'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=https://j8a308.p.ssafy.io/oauth',
+    'https://j8a308.p.ssafy.io/api/oauth2/authsorize/kakao?redirect_uri=https://j8a308.p.ssafy.io/oauth',
   // 'https://j8a308.p.ssafy.io/api/oauth2/authorize/kakao?redirect_uri=http://localhost:3000/oauth',
 
   //구글 소셜로그인 URL
   GOOGLE_LOGIN:
     'https://j8a308.p.ssafy.io/api/oauth2/authorize/google?redirect_uri=https://j8a308.p.ssafy.io/oauth',
   // 'https://j8a308.p.ssafy.io/api/oauth2/authorize/google?redirect_uri=http://localhost:3000/oauth',
+
+  wallet_url: 'https://j8a308.p.ssafy.io/wallet',
+
+  blockchain_url: 'https://j8a308.p.ssafy.io/bc',
 
   //회원정보 수정
   PATCH_USER_NICKNAME(userId, code) {
@@ -63,10 +66,14 @@ const requests = {
   },
 
   //동화 제목 검색
-  PUT_SEARCH_BOOKS(bookTitle) {
+  GET_SEARCH_BOOKS(bookTitle) {
     return `/api/book/search?bookTitle=${bookTitle}`;
   },
 
+  //정렬기준으로 동화 조회
+  GET_BOOK_ORDER(challengeId, order) {
+    return `/api/challenge/order/${challengeId}?order=${order}`;
+  },
   //동화 접근권한 체크
   GET_BOOK_AUTH(userId, bookId) {
     return `/api/book/check/${userId}?bookId=${bookId}`;
@@ -74,12 +81,15 @@ const requests = {
 
   //동화 뷰어(동화 그림 조회)
   GET_BOOK_IMAGES(bookId) {
-    return `/api/book/${bookId}`;
+    return `/api/book/viewer/${bookId}`;
   },
 
   //동화 상세정보 조회
   GET_BOOK_DETAIL(userId, bookId) {
     return `/api/book/${userId}/${bookId}`;
+  },
+  GET_BOOK_EDIT_DETAIL(userId, challengeId) {
+    return `/api/book/edit/${userId}/${challengeId}`;
   },
   //동화 상세정보 조회 in Editor
   GET_BOOK_DETAIL_EDIT(userId, bookId) {
@@ -95,10 +105,18 @@ const requests = {
   POST_BOOK(userId) {
     return `/api/book/draw/${userId}`;
   },
-
+  //동화 작성시 NFT 생성
+  POST_CREATE_NFT() {
+    return `/nft/ipfs`;
+  },
   //동화 임시저장
   POST_BOOK_TEMP(userId) {
     return `/api/book/draw/${userId}`;
+  },
+
+  //동화 구매내역 저장
+  POST_BOOK_PAYLIST(userId, bookId) {
+    return `/api/book/pay/${userId}?bookId=${bookId}`;
   },
 
   //작가 동화 임시저장본 삭제

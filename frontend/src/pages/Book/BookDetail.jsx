@@ -12,7 +12,8 @@ import LikeButtonFill from 'assets/icons/LikeButtonFill.svg';
 import LikeButtonEmpty from 'assets/icons/LikeButtonEmpty.svg';
 import ProfileImg from 'components/common/ProfileImg';
 import TransactionModal from 'components/common/TransactionModal';
-
+import CommentReportModal from 'components/common/CommentReportModal';
+import BookReportModal from './BookReportModal';
 const BodyContainer = styled.div`
   ${tw`flex flex-col items-center pt-[5%]`}
 `;
@@ -83,22 +84,42 @@ function BookDetail() {
   const [book, setBook] = useState();
   const [isOpen, setIsOpen] = useState(false);
   const userId = localStorage.getItem('userId');
+  const [isLiked, setIsLiked] = useState(false);
+  const [isInterested, setIsInterested] = useState(false);
+  const [commentReportModalOpen, setCommentReportModalOpen] = useState(false);
+  const [bookReportModalOpen, setBookReportModalOpen] = useState(false);
+  const [reportCommentId, setReportCommentId] = useState(false);
+  const [isReported, setIsReported] = useState(false);
+  const [isPaid, setIspaid] = useState(false);
 
   useEffect(() => {
-    authApi(requests.GET_BOOK_DETAIL(userId, bookId))
+    authApi.get(requests.GET_PROFILE(userId)).then((res) => {
+      res.data.profile.paidBooks.forEach((book) => {
+        if (book.id === bookId) {
+          setIspaid(true);
+        }
+      });
+    });
+
+    authApi
+      .get(requests.GET_BOOK_DETAIL(userId, bookId))
       .then((res) => {
         setBook(res.data.bookDetail);
         setIsLiked(res.data.bookDetail.liked);
         setIsInterested(res.data.bookDetail.interested);
+        setIsReported(res.data.bookDetail.isReported);
+        console.log(res.data.bookoDetail);
       })
       .catch(() => {
         navigate('/error/400');
       });
   }, []);
-
-  const [isLiked, setIsLiked] = useState(false);
-  const [isInterested, setIsInterested] = useState(false);
-
+  const onReportModalClose = () => {
+    setCommentReportModalOpen(false);
+  };
+  const onBookReportModalClose = () => {
+    setBookReportModalOpen(false);
+  };
   const interestBook = () => {
     setIsInterested(true);
     //관심목록 추가 API 호출
@@ -137,22 +158,31 @@ function BookDetail() {
     });
   };
 
+  const payBook = () => {
+    if (isPaid) gotoViewer();
+    else setIsOpen(true);
+  };
+
   const gotoViewer = async () => {
     try {
-      // console.log('userID: ', userId, 'bookId; ', bookId);
-      console.log('뷰어 호출');
       await authApi(requests.GET_BOOK_AUTH(userId, bookId)).then((res) => {
         navigate(`/books/viewer/${bookId}`);
-        // console.log(res);
       });
     } catch (error) {}
+  };
+  const gotoChallenge = () => {
+    navigate(`/challenge/${book.challengeId}`);
+  };
+
+  const onClose = () => {
+    setIsOpen(false);
   };
 
   return (
     <BodyContainer>
       {book ? (
         <BookInfoContainer>
-          <BookImgWrapper imgSrc={book.illustPath} onClick={gotoViewer} />
+          <BookImgWrapper imgSrc={book.illustPath} onClick={payBook} />
           <MainInfoContainer>
             <TitleContainer>
               <TitleWrapper>{book.bookTitle}</TitleWrapper>
@@ -186,6 +216,19 @@ function BookDetail() {
                 )}
               </LikeWrapper>
               <LikesWrapper>{book.numOfLike}</LikesWrapper>
+              <InterestBtnWrapper>
+                {!isReported ? (
+                  <button
+                    onClick={() => {
+                      setBookReportModalOpen(true);
+                    }}
+                  >
+                    신고
+                  </button>
+                ) : (
+                  <button>이미 신고한 동화입니다</button>
+                )}
+              </InterestBtnWrapper>
             </SubInfoContainer>
             <ServiceContainer>
               <InterestBtnWrapper>
@@ -195,13 +238,20 @@ function BookDetail() {
                   <button onClick={uninterestBook}>관심 취소</button>
                 )}
               </InterestBtnWrapper>
+
+              <LinkWrapper>
+                <Button
+                  title="이번 시즌 챌린지로 →"
+                  buttonType="mint"
+                  onClick={gotoChallenge}
+                />
+              </LinkWrapper>
               <LinkWrapper>
                 <Button
                   title="동화 보러가기 →"
                   buttonType="mint"
-                  onClick={gotoViewer}
+                  onClick={payBook}
                 />
-                <button onClick={() => setIsOpen(true)}>구매</button>
               </LinkWrapper>
             </ServiceContainer>
           </MainInfoContainer>
@@ -209,10 +259,26 @@ function BookDetail() {
       ) : null}
       {book ? (
         <CommentContainer>
-          <CommentForm bookComments={book.comments} />
+          <CommentForm
+            bookComments={book.comments}
+            setReportCommentId={setReportCommentId}
+            setCommentReportModalOpen={setCommentReportModalOpen}
+          />
         </CommentContainer>
       ) : null}
-      {isOpen ? <TransactionModal /> : null}
+
+      {bookReportModalOpen ? (
+        <BookReportModal onClose={onBookReportModalClose} bookId={bookId} />
+      ) : null}
+
+      {isOpen ? (
+        <TransactionModal
+          bookId={bookId}
+          bookPrice={book.price}
+          tokenId={book.nftId}
+          onClose={onClose}
+        />
+      ) : null}
     </BodyContainer>
   );
 }

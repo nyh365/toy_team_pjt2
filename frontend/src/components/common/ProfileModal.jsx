@@ -63,7 +63,8 @@ function ProfileModal({ onClose }) {
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
   const { resetUser } = userStore((state) => state);
-  const wallet = userStore((state) => state.userWallet);
+  const wallet = localStorage.getItem('privateKey');
+  const encodedWallet = encodeURIComponent(wallet);
 
   const [userImg, setUserImg] = useState('');
   const [userNickname, setUserNickname] = useState('');
@@ -117,7 +118,7 @@ function ProfileModal({ onClose }) {
   const openWallet = () => {
     onClose();
     window.open(
-      `http://j8a308.p.ssafy.io:3333/?key=${wallet}`,
+      `${requests.wallet_url}/?key=${encodedWallet}`,
       'MyWallet',
       'toolbar=no, menubar=no, width=550, height=780',
     );

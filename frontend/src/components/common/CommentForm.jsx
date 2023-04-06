@@ -17,7 +17,7 @@ const CommentContainer = styled.div`
   ${tw`flex flex-col-reverse`}
 `;
 const UserInfoContainer = styled.div`
-  ${tw`flex flex-col mx-2`}
+  ${tw`flex flex-col items-center mx-2`}
 `;
 const CommentFormcontainer = styled.div`
   ${tw`flex items-center border-y-2 justify-center mb-2`}
@@ -46,7 +46,12 @@ const Username = styled.span`
 const Comment = styled.span`
   ${tw`text-3xl`}
 `;
-function CommentForm({ bookComments }) {
+function CommentForm({
+  bookComments,
+  setReportCommentId,
+  setCommentReportModalOpen,
+  onReportModalOpen,
+}) {
   const navigate = useNavigate();
   const params = useParams();
   const userId = Number(localStorage.getItem('userId'));
@@ -106,7 +111,7 @@ function CommentForm({ bookComments }) {
       <CommentFormcontainer>
         <UserInfoContainer>
           <ProfileImg userId={userId} userImg={userImg} />
-          <Username>{username}</Username>
+          <Username>{userNickname}</Username>
         </UserInfoContainer>
         <FormContainer>
           <form action="submit">
@@ -130,9 +135,12 @@ function CommentForm({ bookComments }) {
           ? comments.map((comment) => (
               <div key={comment.commentId}>
                 <CommentItem
+                  commentId={comment.commentId}
                   comment={comment}
                   comments={comments}
                   setComments={setComments}
+                  setReportCommentId={setReportCommentId}
+                  setCommentReportModalOpen={setCommentReportModalOpen}
                 />
               </div>
             ))

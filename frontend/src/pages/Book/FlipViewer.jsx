@@ -52,14 +52,14 @@ const BtnWrapper = styled.div`
 `;
 
 const PageHeader = styled.div`
-  ${tw`flex justify-center w-full h-16 bg-white border-b-4 m-0 p-0 opacity-0 hover:opacity-100 transition-opacity`}
+  ${tw`flex justify-center w-full h-16 bg-white border-b-4 m-0 p-0 opacity-100`}
 `;
 const PageFooter = styled.div`
-  ${tw`flex justify-center w-full bg-white border-t-4 h-20 m-0 opacity-0 hover:opacity-100 transition-opacity`}
+  ${tw`flex justify-center w-full bg-white border-t-4 h-20 m-0 opacity-100`}
 `;
 
 function FlipViewer() {
-  const [bookImg, setBookImg] = useState();
+  const [bookImg, setBookImg] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [allPage, setAllPage] = useState();
 
@@ -82,7 +82,7 @@ function FlipViewer() {
     setCurrentPage(bookRef.current.pageFlip().getCurrentPageIndex());
     const dir = bookRef.current.pageFlip().getPageCount();
     setAllPage(dir);
-  });
+  }, []);
 
   const handleFlipNext = () => {
     bookRef.current.pageFlip().flipNext();
@@ -145,32 +145,23 @@ function FlipViewer() {
   };
 
   useEffect(() => {
-    const fetchBookImg = async () => {
-      try {
-        await authApi
-          .get(requests.GET_BOOK_IMAGES(bookId))
-          .then((res) => setBookImg(res.data.illustes));
-      } catch (error) {
-        throw error;
-      }
-    };
-    fetchBookImg();
+    const fetchData = async () => {
+      authApi.get(requests.GET_BOOK_IMAGES(bookId)).then((res) => {
+        setBookImg(res.data.illustes);
+      });
 
-    authApi(requests.GET_BOOK_DETAIL(userId, bookId)).then((res) => {
-      setIsLiked(res.data.bookDetail.liked);
-      setBookTitle(res.data.bookDetail.bookTitle);
-      setArtistNickname(res.data.bookDetail.artistNickname);
-      setArtistProfileImg(res.data.bookDetail.artistProfileImg);
-    });
-  }, [
-    userId,
-    bookId,
-    isInterested,
-    isLiked,
-    bookTitle,
-    artistNickname,
-    artistProfileImg,
-  ]);
+      await authApi
+        .get(requests.GET_BOOK_DETAIL(userId, bookId))
+        .then((res) => {
+          setIsLiked(res.data.bookDetail.liked);
+          setBookTitle(res.data.bookDetail.bookTitle);
+          setArtistNickname(res.data.bookDetail.artistNickname);
+          setArtistProfileImg(res.data.bookDetail.artistProfileImg);
+        });
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <PageContainer>
@@ -191,6 +182,10 @@ function FlipViewer() {
           onFlip={onFlip}
           onInit={onInit}
           showCover={true}
+          style={{
+            boxShadow: '10px 12px 5px 1px rgba(0, 0, 0, 0.5)',
+            borderRadius: '5px 5px 5px 10px',
+          }}
         >
           {bookImg &&
             bookImg.map((img) => (

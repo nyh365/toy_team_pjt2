@@ -11,17 +11,17 @@ import ProfileImg2 from 'components/common/ProfileImg2';
 import moveToEdit from 'assets/icons/moveToEdit.svg';
 
 const ProfileContainer = styled.div`
-  ${tw`flex flex-col items-center justify-center w-full z-10 pt-[80px]`}
+  ${tw`flex flex-col items-center justify-center w-full z-10 pt-[7%]`}
 `;
 const InfoTitle = styled.span`
-  ${tw`justify-start text-[30px]`}
+  ${tw`justify-start text-2xl`}
 `;
 const InputContainer = styled.div`
-  ${tw`flex-col pt-2 pb-2 px-4 mx-[200px]`}
+  ${tw`flex-col mt-4 py-2 mx-[25%]`}
 
   & {
     input {
-      ${tw`w-full rounded-lg mb-1 p-1 box-border text-[30px] text-main`}
+      ${tw`w-full rounded-lg mb-1 p-1 box-border text-2xl text-main`}
       font-size: 30px;
       ${(props) =>
         props.isValid
@@ -34,7 +34,7 @@ const InputContainer = styled.div`
   }
 `;
 const ButtonContainer = styled.div`
-  ${tw`w-full h-[40px] my-[12px] bg-btnBlack text-whiteText rounded-lg flex justify-center items-center`}
+  ${tw`w-full h-[40px] my-[1%] bg-btnBlack text-whiteText rounded-lg flex justify-center items-center`}
 `;
 
 function NicknameEdit() {

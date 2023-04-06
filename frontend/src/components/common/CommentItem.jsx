@@ -12,6 +12,7 @@ import LikeButtonFill from 'assets/icons/LikeButtonFill.svg';
 import LikeButtonEmpty from 'assets/icons/LikeButtonEmpty.svg';
 import pencil from 'assets/icons/pencil03.svg';
 import trashCan from 'assets/icons/trashCan.svg';
+
 const UserInfoContainer = styled.div`
   ${tw`flex flex-col mx-2 items-center`}
 `;
@@ -46,7 +47,14 @@ const NumOfLike = styled.span`
   ${tw`text-[20px] mr-1`}
 `;
 
-function CommentItem({ comment, comments, setComments }) {
+function CommentItem({
+  comment,
+  comments,
+  commentId,
+  setComments,
+  setReportCommentId,
+  setCommentReportModalOpen,
+}) {
   const userId = Number(localStorage.getItem('userId'));
   const params = useParams();
   const formatDate = useFormatDate(comment.updatedTime);
@@ -55,6 +63,7 @@ function CommentItem({ comment, comments, setComments }) {
   const [isLiked, setIsLiked] = useState(comment.isLiked);
   const [editComment, setEditComment] = useState(false);
   const [commentContent, setCommentContent] = useState('');
+
   useEffect(() => {
     const username = comment.commentUserNickname;
     const maxLength = 8;
@@ -65,6 +74,7 @@ function CommentItem({ comment, comments, setComments }) {
       setCommentUsername(username);
     }
   }, []);
+
   const cancleLike = () => {
     setIsLiked(!isLiked);
     setNumOfLike(numOfLike - 1);
@@ -162,27 +172,34 @@ function CommentItem({ comment, comments, setComments }) {
               ''
             )}
           </CommentContentContainer>
-          <ButtonContainer>
-            {isLiked === true ? (
-              <img src={LikeButtonFill} alt="" onClick={cancleLike} />
-            ) : (
-              <img src={LikeButtonEmpty} alt="" onClick={pressLike} />
-            )}
-            <NumOfLike>{numOfLike}</NumOfLike>
-            {/* 나중에 local에 저장된 유저 Id와 비교 */}
-            {comment.commentUserId === userId ? (
-              <img
-                src={pencil}
-                alt=""
-                className="w-4 h-4 mr-[6px]"
-                onClick={editCommentHandler}
-              />
-            ) : (
-              <Button title="신고" buttonType="black" />
-            )}
-          </ButtonContainer>
         </form>
       )}
+      <ButtonContainer>
+        {isLiked === true ? (
+          <img src={LikeButtonFill} alt="" onClick={cancleLike} />
+        ) : (
+          <img src={LikeButtonEmpty} alt="" onClick={pressLike} />
+        )}
+        <NumOfLike>{numOfLike}</NumOfLike>
+        {/* 나중에 local에 저장된 유저 Id와 비교 */}
+        {comment.commentUserId === userId ? (
+          <img
+            src={pencil}
+            alt=""
+            className="w-4 h-4 mr-[6px]"
+            onClick={editCommentHandler}
+          />
+        ) : (
+          <Button
+            title="신고"
+            buttonType="black"
+            onClick={() => {
+              setReportCommentId(commentId);
+              setCommentReportModalOpen(true);
+            }}
+          />
+        )}
+      </ButtonContainer>
     </CommentFormcontainer>
   );
 }

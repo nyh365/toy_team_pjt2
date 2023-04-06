@@ -3,9 +3,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
 import requests from 'api/config';
-import { defaultApi, authApi } from 'api/axios';
+import { defaultApi, authApi, transactionApi } from 'api/axios';
+import { userStore } from 'store/userStore';
 import ImageItem from './ImageItem';
 import Button from 'components/common/Button';
+import SaveBookModal from './SaveBookModal';
+import { LocalParking } from '@mui/icons-material';
 
 const BarWrapper = styled.div`
   ${tw`m-0 w-full h-16 flex justify-center items-center`}
@@ -13,6 +16,19 @@ const BarWrapper = styled.div`
 
 const BookContentWrapper = styled.div`
   ${tw`flex justify-center w-full mt-[80px]`}
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #b79f93;
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: #ebded3;
+    border-radius: 0 10px 10px 0;
+  }
 `;
 
 const PageTitle = styled.div`
@@ -63,12 +79,13 @@ const ButtonContainer = styled.div`
 `;
 
 const DrawingForm = styled.div`
-  ${tw`w-[50vw] flex-col justify-center overflow-auto`}
+  ${tw`w-[50vw] flex-col justify-center overflow-auto overflow-x-hidden`}
   ${css`
-    height: calc(100vh - 120px);
+    height: calc(90vh);
   `}
 `;
 function NewBookEditor() {
+  const privateKey = localStorage.getItem('privateKey');
   const userId = localStorage.getItem('userId');
   const params = useParams();
   const challengeId = params.challengeId;
@@ -77,50 +94,52 @@ function NewBookEditor() {
   const [bookTitle, setBookTitle] = useState('');
   const [bookSummary, setBookSummary] = useState('');
   const [bookContent, setBookContent] = useState('');
+  const [defaultContent, setDefaultContent] = useState('');
+  const [defaultSummary, setDefaultSummary] = useState('');
+  const [defaultTitle, setDefaultTitle] = useState('');
   const [images, setImages] = useState([{ id: uuidv4(), file: null }]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [warningMessage, setWarningMessage] = useState(
+    '동화 작성을 완료하시겠어요? 완료버튼을 누르시면 수정은 불가능합니다.',
+  );
   const navigate = useNavigate();
+  const onSaveBookClose = () => {
+    setWarningMessage(
+      '동화 작성을 완료하시겠어요? 완료버튼을 누르시면 수정은 불가능합니다.',
+    );
+    setIsModalOpen(false);
+  };
+  useEffect(() => {
+    const get_book_edit_detail = async () => {
+      try {
+        const response = await authApi.get(
+          requests.GET_BOOK_EDIT_DETAIL(userId, challengeId),
+        );
+        setDefaultTitle(response.data.bookEdit.challengeTitle);
+        setDefaultSummary(response.data.bookEdit.challengeSummary);
+        setDefaultContent(response.data.bookEdit.challengeContent);
+
+        return console.log(response);
+      } catch (error) {
+        throw error;
+      }
+    };
+    get_book_edit_detail();
+  }, []);
+
   const goToList = () => {
     navigate(`/challenge/${challengeId}`);
   };
-  // const tempSaveBook = () => {
-  //   const formData = new FormData();
-  //   const bookData = {
-  //     challengeId: challengeId,
-  //     bookId: bookId,
-  //     bookTitle: bookTitle,
-  //     bookSummary: bookSummary,
-  //     bookContent: bookContent,
-  //     isComplete: 'temporary',
-  //   };
-  //   formData.append(
-  //     'BookContent',
-  //     new Blob([JSON.stringify(bookData)], { type: 'application/json' }),
-  //   );
 
-  //   images.forEach((img) => {
-  //     formData.append('imgList', img.file);
-  //   });
-  //   const post_book = async () => {
-  //     try {
-  //       const response = await authApi.post(
-  //         requests.POST_BOOK(userId),
-  //         formData,
-  //         {
-  //           headers: {
-  //             'Content-Type': 'multipart/form-data',
-  //           },
-  //         },
-  //       );
-
-  //       return console.log(response);
-  //     } catch (error) {
-  //       throw error;
-  //     }
-  //   };
-  //   post_book();
-  // };
   const saveBook = () => {
+    if (images.some((img) => img.file === null)) {
+      setWarningMessage(
+        '이미지를 업로드해 주세요! 혹은 비어있는 템플렛이 있을 수 있습니다!',
+      );
+      return;
+    }
     const formData = new FormData();
+    const nftFormData = new FormData();
     const bookData = {
       challengeId: challengeId,
       bookId: bookId,
@@ -133,8 +152,11 @@ function NewBookEditor() {
       'BookContent',
       new Blob([JSON.stringify(bookData)], { type: 'application/json' }),
     );
-
+    nftFormData.append('privateKey', privateKey);
+    nftFormData.append('title', bookTitle);
+    nftFormData.append('summary', bookSummary);
     images.forEach((img) => formData.append('imgList', img.file));
+    images.forEach((img) => nftFormData.append('images', img.file));
     const post_book = async () => {
       try {
         const response = await authApi.post(
@@ -146,6 +168,19 @@ function NewBookEditor() {
             },
           },
         );
+        nftFormData.append('bookId', response.data.bookId);
+        return console.log(response);
+      } catch (error) {
+        throw error;
+      }
+    };
+
+    const post_create_nft = async () => {
+      try {
+        const response = await transactionApi.post(
+          requests.POST_CREATE_NFT(),
+          nftFormData,
+        );
 
         return console.log(response);
       } catch (error) {
@@ -153,25 +188,10 @@ function NewBookEditor() {
       }
     };
     post_book();
-    navigate(`/challenge/${challengeId}`);
+    post_create_nft();
+    // navigate(`/challenge/${challengeId}`);
   };
-  // const deleteBook = () => {
-  //   const delete_book_temp = async () => {
-  //     try {
-  //       const response = await authApi.delete(
-  //         requests.DELETE_BOOK_TEMP(userId),
-  //         {
-  //           bookId: bookId,
-  //         },
-  //       );
 
-  //       return console.log(response);
-  //     } catch (error) {
-  //       throw error;
-  //     }
-  //   };
-  //   delete_book_temp();
-  // };
   const handleImageSelect = (id, file) => {
     setImages((prevImages) =>
       prevImages.map((img) => (img.id === id ? { ...img, file } : img)),
@@ -204,6 +224,7 @@ function NewBookEditor() {
               value={bookTitle}
               onChange={(e) => setBookTitle(e.target.value)}
               name="Book Title"
+              placeholder={defaultTitle}
             />
           </form>
 
@@ -214,6 +235,7 @@ function NewBookEditor() {
               value={bookSummary}
               onChange={(e) => setBookSummary(e.target.value)}
               name="Book Summary"
+              placeholder={defaultSummary}
             />
           </form>
           <Title>스토리 편집</Title>
@@ -223,6 +245,7 @@ function NewBookEditor() {
               value={bookContent}
               onChange={(e) => setBookContent(e.target.value)}
               name="Book Content"
+              placeholder={defaultContent}
             />
           </form>
           <ButtonContainer>
@@ -231,7 +254,7 @@ function NewBookEditor() {
                 title="완료하기"
                 buttonType="mint"
                 className=""
-                onClick={saveBook}
+                onClick={() => setIsModalOpen(true)}
               />
             </div>
             <div>
@@ -243,24 +266,6 @@ function NewBookEditor() {
               />
             </div>
           </ButtonContainer>
-          {/* <ButtonContainer>
-            <div className="mx-1">
-              <Button
-                title="임시저장"
-                buttonType="mint"
-                className=""
-                onClick={tempSaveBook}
-              />
-            </div>
-            <div>
-              <Button
-                title="완료하기"
-                buttonType="mint"
-                className=""
-                onClick={deletebook}
-              />
-            </div>
-          </ButtonContainer> */}
         </CreateForm>
         <DrawingForm>
           <form onSubmit={handleSubmit}>
@@ -296,10 +301,17 @@ function NewBookEditor() {
                 />
               </div>
             </ButtonContainer>
-            <button type="submit">Submit</button>
           </form>
         </DrawingForm>
       </BookContentWrapper>
+      {isModalOpen ? (
+        <SaveBookModal
+          onClose={onSaveBookClose}
+          saveFunc={saveBook}
+          message={warningMessage}
+          setMessage={setWarningMessage}
+        />
+      ) : null}
     </div>
   );
 }

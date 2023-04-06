@@ -10,10 +10,11 @@ import { userStore } from 'store/userStore';
 import { authApi } from 'api/axios';
 import requests from 'api/config';
 import ProfileModal from './ProfileModal';
+import SearchBar from './SearchBar';
 // Styled Component
 
 const Container = styled.div`
-  ${tw`flex items-center justify-between fixed border-b h-[80px] w-full z-10 bg-brown1`}
+  ${tw`flex items-center justify-between fixed border-b h-[80px] w-full z-10 bg-brown1 whitespace-nowrap flex-wrap`}
 `;
 const TabWrapper = styled.div`
   ${tw`flex items-center h-[80px]`}
@@ -25,12 +26,13 @@ const IconWrapper = styled.div`
 const Tab = styled.span`
   ${tw`text-h3 px-2 hover:text-secondary hover:underline hover:underline-offset-4 cursor-pointer`}
 `;
-function NavBar() {
+function NavBar({ onSearch }) {
   const [userId, setUserId] = useState();
   const [userNickname, setUserNickname] = useState();
   const [userImg, setUserImg] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSearch, setIsSearch] = useState(false);
 
   const onLogoutClose = () => {
     setIsModalOpen(false);
@@ -46,7 +48,7 @@ function NavBar() {
     });
     setUserId(localStorage.getItem('userId'));
     setUserNickname(localStorage.getItem('userNickname'));
-  }, [userId, userNickname, isModalOpen, isProfileOpen]);
+  }, [userId, userNickname, isModalOpen, isProfileOpen, isSearch]);
 
   useEffect(() => {
     userStore.subscribe((state) => setUserImg(state.userImg));
@@ -59,6 +61,7 @@ function NavBar() {
           });
       } catch (error) {}
     };
+
     fetchData();
   }, [userImg]);
 
@@ -72,6 +75,7 @@ function NavBar() {
   ) {
     return null;
   }
+
   return (
     <div>
       <Container>
@@ -114,6 +118,7 @@ function NavBar() {
           </Link>
         </TabWrapper>
         <IconWrapper>
+          <SearchBar onSearch={onSearch} />
           {/* 웰컴 메시지 */}
           {userNickname ? `${userNickname} 님 안녕하세요!` : null}
           {userId ? (
