@@ -8,6 +8,7 @@ import { userStore } from 'store/userStore';
 import ImageItem from './ImageItem';
 import Button from 'components/common/Button';
 import SaveBookModal from './SaveBookModal';
+import { LocalParking } from '@mui/icons-material';
 
 const BarWrapper = styled.div`
   ${tw`m-0 w-full h-16 flex justify-center items-center`}
@@ -84,7 +85,7 @@ const DrawingForm = styled.div`
   `}
 `;
 function NewBookEditor() {
-  const wallet = userStore((state) => state.userWallet);
+  const privateKey = localStorage.getItem('privateKey');
   const userId = localStorage.getItem('userId');
   const params = useParams();
   const challengeId = params.challengeId;
@@ -151,7 +152,7 @@ function NewBookEditor() {
       'BookContent',
       new Blob([JSON.stringify(bookData)], { type: 'application/json' }),
     );
-    nftFormData.append('privateKey', wallet.privateKey);
+    nftFormData.append('privateKey', privateKey);
     nftFormData.append('title', bookTitle);
     nftFormData.append('summary', bookSummary);
     images.forEach((img) => formData.append('imgList', img.file));
@@ -173,6 +174,7 @@ function NewBookEditor() {
         throw error;
       }
     };
+
     const post_create_nft = async () => {
       try {
         const response = await transactionApi.post(
