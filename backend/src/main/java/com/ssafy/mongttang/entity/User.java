@@ -22,10 +22,6 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int userId;
 
-    @Column(length = 30)
-    @NotNull
-    private String userEmail;
-
     @Column(length = 11)
     @NotNull
     private String userRole;
@@ -52,8 +48,7 @@ public class User extends BaseEntity {
     private String userPrivateKey;
 
     @Builder
-    public User(String userEmail, AuthProvider userProvider, String userProviderId ){
-        this.userEmail = userEmail;
+    public User(AuthProvider userProvider, String userProviderId ){
         this.userNickname = new StringBuilder().append(userProvider).append("_").append(System.nanoTime()).toString();
         this.userRole = "ROLE_READER";
         this.userPrivateKey = " ";

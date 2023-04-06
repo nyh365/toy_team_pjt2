@@ -44,6 +44,7 @@ public class BookController {
                                                            @PathVariable int userId, Principal principal){
         Map<String, Object> resultMap = new HashMap<>();
         HttpStatus status = null;
+        log.info("[createBook] 동화 저장 호출 Controller");
 
         if(TokenUtils.compareUserIdAndToken(userId, principal,resultMap)) {
             status = HttpStatus.BAD_REQUEST;
@@ -460,6 +461,27 @@ public class BookController {
         }else{
             resultMap.put(MESSAGE,SUCCESS);
             resultMap.put("bookEdit",responseBookEditDto);
+            status = HttpStatus.OK;
+        }
+
+        return new ResponseEntity<>(resultMap, status);
+    }
+
+    @ApiOperation(value = "nft토큰 저장", notes = "생성된 nft토큰 번호를 저장한다.", response = Map.class)
+    @PostMapping("/token")
+    public ResponseEntity<Map<String,Object>> saveNftId(@ApiParam(value = "동화 아이디", required = true, example = "0") @RequestParam int bookId,
+                                                        @ApiParam(value = "NFT 토큰", required = true, example = "0") @RequestParam int nftId){
+        Map<String, Object> resultMap = new HashMap<>();
+        HttpStatus status = null;
+
+        Book book = bookService.saveNftId(bookId,nftId);
+
+        if(book == null){
+            resultMap.put(MESSAGE, FAIL);
+            status = HttpStatus.BAD_REQUEST;
+
+        }else{
+            resultMap.put(MESSAGE,SUCCESS);
             status = HttpStatus.OK;
         }
 

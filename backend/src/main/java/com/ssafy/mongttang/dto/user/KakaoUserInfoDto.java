@@ -18,11 +18,6 @@ public class KakaoUserInfoDto implements OAuth2UserInfoDto {
     }
 
     @Override
-    public String getEmail() {
-        return (String) kakaoAccount.get("email");
-    }
-
-    @Override
     public String getProvider() {
         return "kakao";
     }
@@ -34,7 +29,6 @@ public class KakaoUserInfoDto implements OAuth2UserInfoDto {
 
     public User toEntity(OAuth2UserRequest oAuth2UserRequest){
         return User.builder()
-                .userEmail(getEmail())
                 .userProvider(AuthProvider.valueOf(getProvider()))
                 .userProviderId(getProviderId())
                 .build();
