@@ -90,14 +90,25 @@ function BookDetail() {
   const [bookReportModalOpen, setBookReportModalOpen] = useState(false);
   const [reportCommentId, setReportCommentId] = useState(false);
   const [isReported, setIsReported] = useState(false);
+  const [isPaid, setIspaid] = useState(false);
 
   useEffect(() => {
-    authApi(requests.GET_BOOK_DETAIL(userId, bookId))
+    authApi.get(requests.GET_PROFILE(userId)).then((res) => {
+      res.data.profile.paidBooks.forEach((book) => {
+        if (book.id === bookId) {
+          setIspaid(true);
+        }
+      });
+    });
+
+    authApi
+      .get(requests.GET_BOOK_DETAIL(userId, bookId))
       .then((res) => {
         setBook(res.data.bookDetail);
         setIsLiked(res.data.bookDetail.liked);
         setIsInterested(res.data.bookDetail.interested);
         setIsReported(res.data.bookDetail.isReported);
+        console.log(res.data.bookoDetail);
       })
       .catch(() => {
         navigate('/error/400');
@@ -147,6 +158,11 @@ function BookDetail() {
     });
   };
 
+  const payBook = () => {
+    if (isPaid) gotoViewer();
+    else setIsOpen(true);
+  };
+
   const gotoViewer = async () => {
     try {
       await authApi(requests.GET_BOOK_AUTH(userId, bookId)).then((res) => {
@@ -166,7 +182,7 @@ function BookDetail() {
     <BodyContainer>
       {book ? (
         <BookInfoContainer>
-          <BookImgWrapper imgSrc={book.illustPath} onClick={gotoViewer} />
+          <BookImgWrapper imgSrc={book.illustPath} onClick={payBook} />
           <MainInfoContainer>
             <TitleContainer>
               <TitleWrapper>{book.bookTitle}</TitleWrapper>
@@ -234,7 +250,7 @@ function BookDetail() {
                 <Button
                   title="동화 보러가기 →"
                   buttonType="mint"
-                  onClick={() => setIsOpen(true)}
+                  onClick={payBook}
                 />
               </LinkWrapper>
             </ServiceContainer>
