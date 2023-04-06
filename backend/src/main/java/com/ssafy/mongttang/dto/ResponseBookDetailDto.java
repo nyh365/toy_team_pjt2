@@ -13,6 +13,8 @@ public class ResponseBookDetailDto {
     @NotNull
     private int bookId;
     @NotNull
+    private int nftId;
+    @NotNull
     private String bookTitle;
     @NotNull
     private String bookSummary;
@@ -38,6 +40,7 @@ public class ResponseBookDetailDto {
 
     public ResponseBookDetailDto(Book book, String illustPath,boolean isLiked, boolean isReported,boolean isInterested,int price, int numOfLike, ArrayList<ResponseCommentDto> comments) {
         this.challengeId = book.getBookChallengeId().getChallengeId();
+        this.nftId = book.getNftId();
         this.bookId = book.getBookId();
         this.bookTitle = book.getBookTitle();
         this.bookSummary = book.getBookSummary();
