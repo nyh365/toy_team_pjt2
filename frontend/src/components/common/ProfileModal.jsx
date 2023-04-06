@@ -118,7 +118,7 @@ function ProfileModal({ onClose }) {
   const openWallet = () => {
     onClose();
     window.open(
-      `http://j8a308.p.ssafy.io:3333/?key=${encodedWallet}`,
+      `${requests.wallet_url}/?key=${encodedWallet}`,
       'MyWallet',
       'toolbar=no, menubar=no, width=550, height=780',
     );
