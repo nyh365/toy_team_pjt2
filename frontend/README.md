@@ -67,6 +67,12 @@ NFT를 그저 토큰으로 바라본 것이 아닌, 지갑으로서 활용할 �
 
     <br/>
 
+- ### 동화 뷰어
+
+  - 동화 상세 페이지에서 구매한 동화책이라면 언제든 뷰어를 통해 동화를 볼 수 있어요
+
+    </br>
+
 - ### 동화 만들기
 
   - 이번 주 챌린지의 더 많은 동화 보러가기 버튼을 클릭하여 챌린지 상세 페이지로 이동하면, 동화 만들기 버튼을 클릭하여 동화를 만들 수 있습니다.
@@ -76,7 +82,7 @@ NFT를 그저 토큰으로 바라본 것이 아닌, 지갑으로서 활용할 �
 
     </br>
 
-  ### 프로필 페이지
+- ### 프로필 페이지
 
   - 다른 유저의 프로필 이미지를 클릭하면 상대방의 프로필 페이지로 이동할 수 있습니다. 해당 유저가 작성한 동화 목록, 해당 유저가 관심있는 동화 목록, 팔로잉, 팔로워 목록등을 확인할 수 있습니다.
   - 다른 유저의 작품이 마음에 들어 이전에 만든 동화, 혹은 다음에 만들 동화가 기대된다면 팔로잉을 할 수 있습니다.
@@ -84,15 +90,9 @@ NFT를 그저 토큰으로 바라본 것이 아닌, 지갑으로서 활용할 �
 
     </br>
 
-  ### 검색
+- ### 검색
 
-  - 바꾸바꾸는 외부API를 이용하여 사용자의 위치를 저장하고, 사용자의 위치 기반으로 주변에 등록된 물건들을 보여줍니다.
-
-    </br>
-
-  ### 후기 작성 기능
-
-  - 바꾸가 완료되면 채팅창에서 바꾸상태를 변경할 수 있어요, 거래가 완료되면 버튼을 눌러 거래 완료로 변경하고 상대방에 대한 리뷰를 작성할 수 있어요! 좋은 바꾸였다면 상대방에 대한 리뷰를 남기고 나중에 다른 사용자가 상대방의 정보를 볼 때 참고할 수 있게 도와주세요!
+  - 키워드로 검색하여 완성된 동화중 키워드와 관련있는 동화 목록을 보여줍니다
 
     </br>
 
@@ -106,62 +106,82 @@ NFT를 그저 토큰으로 바라본 것이 아닌, 지갑으로서 활용할 �
 
 ---
 
-**Backend - Spring**
+# 버전
 
-- JDK 11
-- Springboot 2.7.7
-- Gradle
-- Spring Security
-- Spring Data JPA
-- Springfox Swagger UI: 2.9.2
-- Lombok
-- Logger
-- Json Web Token
+## BACKEND(Spring)
+
+- Gradle : 7.6
+- IntelliJ : 2022.3.1
+- Spring
+  - Spring Boot : 2.7.7
+  - Spring Security : 2.3.2
+  - Spring Data JPA : 2.7.6
+  - Spring Cloud Starter AWS : 2.2.1
+- Swagger2 : 2.9.2
+- Json Web Token : 0.9.1
+- jdk : zulu 8
+- MariaDB : 10.6.5
+
+## FRONTEND(React)
+
+- Node.js : v16.19.0
+- npm : v8.19.3
+- React.js : v18.2.0
+
+## BACKEND(Express.js)
+
+- H/W
+  - Raspberry Pi 4 Model B
+  - Arduino Uno Rev 3
+  - HC-06 Bluetooth Module
+  - Joystick Module
+- S/W
+  - CUPS: 2.3.3
+  - Node.js : v16.19.0
+  - npm : v8.19.3
+  - React.js : v18.2.0
+  - Electron : v26.0.5
+  - Electron Forge : v6.0.4
+
+## FRONTEND(Vue.js)
+
+- Pycharm 2022.3.2
+- Flask : 2.2.2
+- Tensorflow : 2.11.0
+- Pytorch : 1.13.1+cu117
+
+## BLOCKCHAIN
+
+- Pycharm 2022.3.2
+- Flask : 2.2.2
+- Tensorflow : 2.11.0
+- Pytorch : 1.13.1+cu117
+
+## SERVER
+
 - AWS
-- Spring data mongodb reactive
-
-**Frontend**
-
-- React 18
-- TailwindCSS
-- Styled-Component
-- Zustand
+  - S3
+  - CloudFront
+  - EC2
+    - 플랫폼: Ubuntu 20.04.5 LTS
+- Docker : 23.0.1
+- Nginx : 1.18.0(Ubuntu)
+- Jenkins : 2.375.3
+- Jupyter Notebook : 6.5.2
 
 **개발환경**
 
 - OS: window 10
 - IDE
+
   - intelliJ
   - VScode
   - Figma
-- Database
-  - DBMS: Mariadb 10
-  - NoSQL: Mongodb 5.0.14
-  - Cache: Redis 7.0.7
-  - SearchEngine: ElasricSearch
-- Server: AWS EC2
-  - OS: Ubuntu 20.04 LTS (GNU/Linux 5.4.0-1018aws x86_64)
-- File Server: AWS S3
-- CI/CD: Jenkins, Docker, Nginx
-- Server
-  - AWS EC2
-  - AWS S3
-  - AWS CloudFront
-  - Ubuntu 20.04 LTS
-  - Docker
-  - Jenkins
-  - CertBot
-- IDE
-  - HeidiSQL
-  - intelliJ IDEA
-  - VSCode
-  - VIM
+  - Remix
 
 ## ✔ 프로젝트 파일 구조
 
 ---
-
-### Back
 
 ```
 ├── backend
@@ -312,7 +332,6 @@ NFT를 그저 토큰으로 바라본 것이 아닌, 지갑으로서 활용할 �
   - 회의가 있을때마다 회의록을 기록하여 보관
   - 학습한 기술에 대한 내용을 정리하여 공유
   - 컨벤션 정리
-  - 간트차트 활용하여 개발 계획 관리
   - 스토리보드, 스퀀스다이어그램, 기능명세서 등 모두가 공유해야 하는 문서 관리
   - 백엔드와 프론트엔드 간 협업에 용이하도록 API명세서를 작성하여 관리
 

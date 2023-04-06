@@ -7,7 +7,7 @@ import requests from './config';
 import { userStore } from 'store/userStore';
 
 const BASE_URL = requests.base_url;
-
+const BLOCKCHAIN_URL = requests.blockchain_url;
 const axiosApi = (url, options) => {
   const instance = axios.create({
     baseURL: url, //URL은 입력받고
@@ -20,6 +20,8 @@ const axiosApi = (url, options) => {
 //기본 요청에 사용할 인스턴스
 export const defaultApi = axiosApi(BASE_URL);
 
+//트랜젝션 요청용 인스턴스
+export const transactionApi = axiosApi(BLOCKCHAIN_URL);
 //인증이 필요한 요청에 사용할 인스턴스
 export const authApi = axiosApi(BASE_URL);
 
