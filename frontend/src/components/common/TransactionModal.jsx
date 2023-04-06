@@ -33,7 +33,12 @@ const BtnWrapper = styled.div`
   ${tw`py-2`}
 `;
 
-export default function TransactionModal({ bookId, bookPrice, onClose }) {
+export default function TransactionModal({
+  bookId,
+  bookPrice,
+  tokenId,
+  onClose,
+}) {
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
   // const wallet = userStore((state) => state.userWallet);
@@ -76,6 +81,31 @@ export default function TransactionModal({ bookId, bookPrice, onClose }) {
     );
   };
 
+  const transaction = async () => {
+    //구매요청 -> 블록체인 네트워크
+    await transactionApi.post('/token/read', {
+      tokenId: tokenId,
+      amountToAuthor: price * 0.7,
+      amountToManager: price * 0.3,
+      privateKey: wallet,
+    });
+
+    //구매요청 -> 백엔드(구매목록에 추가하는 API 호출)
+    await authApi
+      .post(requests.POST_BOOK_PAYLIST(userId, bookId))
+      .then((res) => {
+        if (res.status === 200) {
+          //정상적으로 처리가 되면 viewer로 이동
+          alert('작품 구매가 완료되었습니다.');
+          navigate(`/books/viewer/${bookId}`);
+        }
+      })
+      .catch(() => {
+        alert('구매에 실패했습니다. 다시 시도해주세요.');
+        onClose();
+      });
+  };
+
   const buyBook = () => {
     //현재 잔액과 작품 구독비 비교
     //잔액이 모자랄 시 구매버튼 누르면 거래소로 안내
@@ -84,21 +114,7 @@ export default function TransactionModal({ bookId, bookPrice, onClose }) {
         openWallet();
       }
     } else {
-      //구매요청 -> 블록체인 네트워크
-      //구매요청 -> 백엔드(구매목록에 추가하는 API 호출)
-      authApi
-        .post(requests.POST_BOOK_PAYLIST(userId, bookId))
-        .then((res) => {
-          if (res.status === 200) {
-            //정상적으로 처리가 되면 viewer로 이동
-            alert('작품 구매가 완료되었습니다.');
-            navigate(`/books/viewer/${bookId}`);
-          }
-        })
-        .catch(() => {
-          alert('구매에 실패했습니다. 다시 시도해주세요.');
-          onClose();
-        });
+      transaction();
     }
   };
 

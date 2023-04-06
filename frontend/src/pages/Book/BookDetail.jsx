@@ -259,6 +259,7 @@ function BookDetail() {
         <TransactionModal
           bookId={bookId}
           bookPrice={book.price}
+          tokenId={book.nftId}
           onClose={onClose}
         />
       ) : null}
