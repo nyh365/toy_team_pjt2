@@ -81,9 +81,9 @@ export default function TransactionModal({
     );
   };
 
-  const transaction = async () => {
+  const transaction = () => {
     //구매요청 -> 블록체인 네트워크
-    await transactionApi.post('/token/read', {
+    transactionApi.post('/token/read', {
       tokenId: tokenId,
       amountToAuthor: price * 0.7,
       amountToManager: price * 0.3,
