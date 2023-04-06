@@ -74,12 +74,14 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         try {
             String userNickname = URLEncoder.encode(userPrincipalDto.getUser().getUserNickname(), "UTF-8");
+            String userWallet = URLEncoder.encode(userPrincipalDto.getUser().getUserPrivateKey(), "UTF-8").replaceAll("\\+", "%20");
             return UriComponentsBuilder.fromUriString(targetUrl)
                     .queryParam("userId", userPrincipalDto.getUser().getUserId())
                     .queryParam("userNickname", userNickname)
                     .queryParam("refreshToken", newRefreshToken)
                     .queryParam("profileImgURL", userPrincipalDto.getUser().getUserProfileImg())
-                    .queryParam("userWallet", userPrincipalDto.getUser().getUserPrivateKey())
+                    .queryParam("userRole", userPrincipalDto.getUser().getUserRole())
+                    .queryParam("userWallet", userWallet)
                     .queryParam("accessToken", token)
                     .queryParam("userRole", userPrincipalDto.getUser().getUserRole())
                     .build().toUriString();
