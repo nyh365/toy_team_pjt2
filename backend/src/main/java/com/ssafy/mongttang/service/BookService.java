@@ -44,6 +44,8 @@ public class BookService {
     public int createBook(int userId, ReqCreateBookDto reqCreateBookDto, List<MultipartFile> imgList) throws IOException {
         User user = userRepository.findByUserId(userId);
         Challenge challenge = challengeRepository.findByChallengeId(reqCreateBookDto.getChallengeId());
+        log.info("[createBook] 동화 저장 호출 : {}",imgList.size());
+
         if (user == null || challenge == null) return 0;
 
         Book book = bookRepository.save(new Book(challenge, user, reqCreateBookDto));
@@ -423,5 +425,14 @@ public class BookService {
 
 
         return new ResponseBookEditDto(userId,challenge);
+    }
+
+    public Book saveNftId(int bookId, int nftId) {
+        Book book = bookRepository.findByBookId(bookId);
+        if(book == null) return null;
+
+        book.addToken(nftId);
+
+        return bookRepository.save(book);
     }
 }

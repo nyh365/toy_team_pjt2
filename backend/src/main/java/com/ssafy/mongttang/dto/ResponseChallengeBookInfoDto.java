@@ -15,7 +15,7 @@ public class ResponseChallengeBookInfoDto {
     private String bookImgUrl;
     private String profileImgURL;
     private int numOfComment;
-    private int numOfViews;
+    private double numOfViews;
     private int numOfLike;
 
     private boolean isLiked;

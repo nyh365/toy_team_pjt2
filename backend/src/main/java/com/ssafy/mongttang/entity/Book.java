@@ -48,7 +48,9 @@ public class Book extends BaseEntity {
     private String bookStatus;
 
     @ColumnDefault("0")
-    private int bookViews;
+    private double bookViews;
+
+    private int nftId;
 
     @Builder
     public Book(Challenge challenge, User user, ReqCreateBookDto dto){
@@ -79,6 +81,10 @@ public class Book extends BaseEntity {
     }
 
     public void addViews() {
-        this.bookViews++;
+        this.bookViews += 0.5;
+    }
+
+    public void addToken(int nftId){
+        this.nftId = nftId;
     }
 }
