@@ -149,11 +149,8 @@ function BookDetail() {
 
   const gotoViewer = async () => {
     try {
-      // console.log('userID: ', userId, 'bookId; ', bookId);
-      console.log('뷰어 호출');
       await authApi(requests.GET_BOOK_AUTH(userId, bookId)).then((res) => {
         navigate(`/books/viewer/${bookId}`);
-        // console.log(res);
       });
     } catch (error) {}
   };

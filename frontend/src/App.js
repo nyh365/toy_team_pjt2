@@ -1,12 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import {
-  Route,
-  Routes,
-  BrowserRouter,
-  Navigate,
-  useNavigate,
-} from 'react-router-dom';
+import { Route, Routes, BrowserRouter } from 'react-router-dom';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import NavBar from 'components/common/NavBar';
@@ -36,6 +30,7 @@ import Notice from 'pages/Notice/Notice';
 import BookDetail from 'pages/Book/BookDetail';
 import NewBookEditor from 'pages/Edit/NewBookEditor';
 import { userStore } from 'store/userStore';
+import { searchStore } from 'store/searchStore';
 import SocialLogin from 'pages/Login/SocialLogin';
 import ChallengeDetail from 'pages/Challenge/ChallengeDetail';
 import FlipViewer from 'pages/Book/FlipViewer';
@@ -44,21 +39,20 @@ import NewPrevChallenge from 'pages/Challenge/NewPrevChallenge';
 import ErrorPage from 'pages/Error/ErrorPage';
 import { authApi } from 'api/axios';
 import requests from 'api/config';
+import SearchResult from 'pages/Search/SearchResult';
 const queryClient = new QueryClient();
+
 function App() {
   const [userId, setUserId] = useState();
-  const [searchResult, setSearchResult] = useState([]);
-  const [searchKeyword, setSearchKeyword] = useState('');
 
   const id = userStore((state) => state.userId);
+  const { setSearchKeyword, setSearchResult } = searchStore((state) => state);
 
   const handleSearch = (keyword) => {
-    // console.log('검색한값: ', keyword);
-    // authApi.put(requests.PUT_SEARCH_BOOKS(keyword)).then((res) => {
-    //   console.log(res);
-    //   setSearchResult(res);
-    // });
-    setSearchKeyword(keyword);
+    authApi.get(requests.GET_SEARCH_BOOKS(keyword)).then((res) => {
+      setSearchKeyword(keyword);
+      setSearchResult(res);
+    });
   };
 
   useEffect(() => {
@@ -90,7 +84,7 @@ function App() {
               <Route path="/prevchallenge" element={<NewPrevChallenge />} />
               <Route
                 path="/challenge/:challengeId"
-                element={<ChallengeDetail searchKeyword={searchKeyword} />}
+                element={<ChallengeDetail />}
               />
               <Route
                 path="/myprofile/edit/introduction"
@@ -119,6 +113,7 @@ function App() {
                 element={<NewBookEditor />}
               />
               <Route path="/*" element={<ErrorPage />} />
+              <Route path="/search" element={<SearchResult />} />
             </Routes>
           </BrowserRouter>
         </QueryClientProvider>

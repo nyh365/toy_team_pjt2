@@ -62,7 +62,7 @@ const requests = {
   },
 
   //동화 제목 검색
-  PUT_SEARCH_BOOKS(bookTitle) {
+  GET_SEARCH_BOOKS(bookTitle) {
     return `/api/book/search?bookTitle=${bookTitle}`;
   },
 

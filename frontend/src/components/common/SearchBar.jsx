@@ -3,7 +3,7 @@ import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import { useState } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
 const Search = styled('div')(({ theme }) => ({
@@ -52,6 +52,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function SearchBar({ onSearch }) {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
 
   const handleSearchChange = (event) => {
@@ -67,6 +68,7 @@ export default function SearchBar({ onSearch }) {
   const handleSearch = () => {
     // 검색 기능 구현
     onSearch(search);
+    navigate('/search');
   };
 
   const location = useLocation().pathname;
@@ -74,11 +76,6 @@ export default function SearchBar({ onSearch }) {
   useEffect(() => {
     setSearch('');
   }, [location]);
-
-  //챌린지 상세에서만 검색
-  if (!location.startsWith('/challenge')) {
-    return null;
-  }
 
   return (
     <Search>
