@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
 import tw, { styled, css } from 'twin.macro';
 import { useParams } from 'react-router-dom';
 import requests from 'api/config';
-import { defaultApi, authApi } from 'api/axios';
+import { authApi } from 'api/axios';
 
 import ProfileImg from './ProfileImg';
 import Button from './Button';
@@ -97,7 +96,6 @@ function CommentItem({
           commentContent: commentContent,
         });
         setComments(data.comments);
-        return console.log(data.comments);
       } catch (error) {
         throw error;
       }
@@ -122,7 +120,6 @@ function CommentItem({
           requests.DELETE_COMMENT(userId, comment.commentId),
         );
         setComments(data.comments);
-        return console.log(data.comments);
       } catch (error) {
         throw error;
       }
@@ -181,7 +178,6 @@ function CommentItem({
           <img src={LikeButtonEmpty} alt="" onClick={pressLike} />
         )}
         <NumOfLike>{numOfLike}</NumOfLike>
-        {/* 나중에 local에 저장된 유저 Id와 비교 */}
         {comment.commentUserId === userId ? (
           <img
             src={pencil}

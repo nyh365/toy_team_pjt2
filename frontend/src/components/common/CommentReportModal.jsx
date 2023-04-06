@@ -1,12 +1,9 @@
 import React from 'react';
 import Modal from 'components/common/Modal';
-import { useNavigate } from 'react-router-dom';
 import requests from 'api/config';
-import { defaultApi, authApi } from 'api/axios';
+import { authApi } from 'api/axios';
 import tw, { styled, css } from 'twin.macro';
-import { userStore } from 'store/userStore';
 import { useState } from 'react';
-import { useEffect } from 'react';
 
 const ContentContainer = styled.div`
   ${tw`m-4 font-bold`}
@@ -30,15 +27,13 @@ function CommentReportModal({ onClose, reportCommentId }) {
   const submitHandler = () => {
     const post_report_comment = async () => {
       try {
-        const response = await authApi.post(
+        await authApi.post(
           requests.POST_REPORT_COMMENT(userId, reportCommentId),
           {
             reportContent: reasonDetail,
             reportCategory: reason,
           },
         );
-
-        return console.log(response);
       } catch (error) {
         throw error;
       }

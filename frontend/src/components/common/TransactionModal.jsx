@@ -1,11 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import tw, { styled, css } from 'twin.macro';
 import { useNavigate } from 'react-router-dom';
-import { userStore } from 'store/userStore';
 import useOutsideClick from 'hooks/useOutsideClick';
 import Coin from '../../assets/icons/Coin.svg';
-import Web3 from 'web3';
-import axios from 'axios';
 import requests from 'api/config';
 import { authApi, transactionApi } from 'api/axios';
 
@@ -41,7 +38,6 @@ export default function TransactionModal({
 }) {
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
-  // const wallet = userStore((state) => state.userWallet);
   const wallet = localStorage.getItem('privateKey');
   const [price, setPrice] = useState(0);
   const [balance, setBalance] = useState(0);
@@ -94,7 +90,6 @@ export default function TransactionModal({
     authApi
       .post(requests.POST_BOOK_PAYLIST(userId, bookId))
       .then((res) => {
-        console.log(res);
         if (res.status === 200) {
           //정상적으로 처리가 되면 viewer로 이동
           alert('작품 구매가 완료되었습니다.');
@@ -108,7 +103,6 @@ export default function TransactionModal({
   };
 
   const buyBook = () => {
-    //현재 잔액과 작품 구독비 비교
     //잔액이 모자랄 시 구매버튼 누르면 거래소로 안내
     if (balance < price) {
       if (window.confirm('잔액이 부족합니다. 거래소로 이동하시겠습니까?')) {
@@ -123,12 +117,6 @@ export default function TransactionModal({
     <ModalOverlay>
       <ModalWrapper ref={modalRef}>
         <ContentContainer>
-          {/**
-           *  코인차감안내
-           *  현재 보유 코인
-           *  구매 후 남는 코인
-           *  지갑 또는 거래소 이동 버튼
-           */}
           <PriceWrapper>
             <img src={Coin} alt="coin" />
             코인 차감 안내
