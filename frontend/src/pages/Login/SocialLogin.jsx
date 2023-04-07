@@ -13,14 +13,8 @@ import requests from 'api/config';
 function SocialLogin() {
   const web3 = new Web3();
   const navigate = useNavigate();
-  const {
-    setUserId,
-    setUserNickname,
-    setUserImg,
-    setUserRole,
-    setToken,
-    setUserWallet,
-  } = userStore((state) => state);
+  const { setUserId, setUserNickname, setUserImg, setUserRole, setToken } =
+    userStore((state) => state);
 
   const userId = new URL(window.location.href).searchParams.get('userId');
   const userNickname = new URL(window.location.href).searchParams.get(
@@ -59,24 +53,16 @@ function SocialLogin() {
 
     //지갑 저장
     if (userWallet === ' ') {
-      // console.log('없음');
       const wallet = web3.eth.accounts.create();
-      // setUserWallet(wallet.privateKey);
-      // console.log(wallet.privateKey);
       authApi
         .post(requests.POST_WALLET(userId), {
           wallet: wallet.privateKey,
         })
         .then((res) => {
-          console.log(res.data.userWallet);
           localStorage.setItem('privateKey', res.data.userWallet);
         });
     } else {
-      // setUserWallet(userWallet);
       localStorage.setItem('privateKey', userWallet);
-
-      // console.log('로그인 성공');
-      // console.log(userWallet);
     }
 
     navigate('/home');
