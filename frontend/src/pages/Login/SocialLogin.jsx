@@ -42,7 +42,6 @@ function SocialLogin() {
   const userWallet = new URL(window.location.href).searchParams.get(
     'userWallet',
   );
-
   //리다이렉트
   useEffect(() => {
     //로컬스토리지에 저장
@@ -63,14 +62,19 @@ function SocialLogin() {
       // console.log('없음');
       const wallet = web3.eth.accounts.create();
       // setUserWallet(wallet.privateKey);
-      localStorage.setItem('privateKey', wallet.privateKey);
-      // console.log(wallet);
-      authApi.post(requests.POST_WALLET(userId), {
-        wallet: wallet.privateKey,
-      });
+      // console.log(wallet.privateKey);
+      authApi
+        .post(requests.POST_WALLET(userId), {
+          wallet: wallet.privateKey,
+        })
+        .then((res) => {
+          console.log(res.data.userWallet);
+          localStorage.setItem('privateKey', res.data.userWallet);
+        });
     } else {
       // setUserWallet(userWallet);
       localStorage.setItem('privateKey', userWallet);
+
       // console.log('로그인 성공');
       // console.log(userWallet);
     }
