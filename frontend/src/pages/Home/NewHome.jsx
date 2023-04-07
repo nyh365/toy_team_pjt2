@@ -5,6 +5,7 @@ import tw, { styled, css } from 'twin.macro';
 //Components
 import ChallengeTimer from 'components/common/ChallengeTimer';
 
+import title from '../../assets/images/title.png';
 import thisChallenge from '../../assets/images/thisChallenge.png';
 import requests from 'api/config';
 import { authApi } from 'api/axios';
@@ -60,7 +61,7 @@ function NewHome() {
     <div>
       <BodyContainer>
         <CTWrapper>
-          <img src={thisChallenge} alt="thisChallenge" />
+          <img src={title} alt="thisChallenge" />
         </CTWrapper>
         {challenges ? (
           <ChallengeTimer

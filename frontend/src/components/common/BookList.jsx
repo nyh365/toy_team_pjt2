@@ -17,7 +17,7 @@ const FirstItemContainer = styled.div`
 
 function BookList({ width, height, books, fromHome }) {
   if (books.length === 0) {
-    return <p>책 내역이 없습니다.</p>; // or return an empty component like <></>
+    return <p>책 내역이 없습니다.</p>;
   }
 
   //내림차순 정렬(높은것부터 앞으로 오도록)
@@ -25,7 +25,6 @@ function BookList({ width, height, books, fromHome }) {
     return b.total - a.total;
   });
 
-  // console.log(books);
   return (
     <BookListWrapper>
       {books

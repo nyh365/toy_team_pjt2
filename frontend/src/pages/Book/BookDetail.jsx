@@ -94,8 +94,14 @@ function BookDetail() {
 
   useEffect(() => {
     authApi.get(requests.GET_PROFILE(userId)).then((res) => {
-      res.data.profile.paidBooks.forEach((book) => {
-        if (book.id === bookId) {
+      res.data.profile.paidBooks?.forEach((book) => {
+        if (book.bookId === Number.parseInt(bookId)) {
+          setIspaid(true);
+        }
+      });
+
+      res.data.profile.myBooks?.forEach((book) => {
+        if (book.bookId === Number.parseInt(bookId)) {
           setIspaid(true);
         }
       });
@@ -108,7 +114,7 @@ function BookDetail() {
         setIsLiked(res.data.bookDetail.liked);
         setIsInterested(res.data.bookDetail.interested);
         setIsReported(res.data.bookDetail.isReported);
-        console.log(res.data.bookoDetail);
+        // console.log(res.data.bookoDetail);
       })
       .catch(() => {
         navigate('/error/400');

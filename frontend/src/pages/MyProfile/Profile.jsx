@@ -48,16 +48,16 @@ const UserInfo = styled.span`
   ${tw`text-[35px] pt-2`}
 `;
 const CompletedBookList = styled.div`
-  ${tw`px-10`}
+  ${tw`flex px-10`}
 `;
 const InCompleteBookList = styled.div`
-  ${tw`px-10`}
+  ${tw`flex px-10`}
 `;
 const LikedBookList = styled.div`
-  ${tw`px-10`}
+  ${tw`flex px-10`}
 `;
 const PurchasedBookList = styled.div`
-  ${tw`px-10`}
+  ${tw`flex px-10`}
 `;
 
 function Profile() {

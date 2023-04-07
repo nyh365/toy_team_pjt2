@@ -39,7 +39,6 @@ authApi.interceptors.request.use(
   },
   //요청 에러 발생 시
   (error) => {
-    console.log(error);
     return Promise.reject(error);
   },
 );
@@ -56,8 +55,6 @@ authApi.interceptors.response.use(
 
     //Unauthorized
     if (status === 401) {
-      //accessToken 재발급 요청
-      // console.log(userId, refreshToken);
       //Api 주소를 받아오기
       return refreshTokenApi
         .post('/api/auth/reissue', {
@@ -67,18 +64,15 @@ authApi.interceptors.response.use(
         .then((response) => {
           if (response.status === 200) {
             const { accessToken } = response.data;
-            // console.log(response);
             localStorage.setItem('accessToken', accessToken);
             config.headers.Authorization = `Bearer ${accessToken}`;
 
             //새로 받은 토큰으로 로그인 재요청
-            console.log(config);
             return authApi(config);
           }
         })
         .catch((err) => {
           //리프레시 토큰 재발급마저 안된 경우
-          console.log(err);
           localStorage.clear();
           removeCookie('refreshToken');
           window.location.href = '/';

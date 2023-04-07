@@ -90,7 +90,7 @@ function ProfileModal({ onClose }) {
         setUserNickname(response.data.profile.userNickname);
         setNumOfFollower(response.data.profile.numOfFollower);
         setNumOfFollowing(response.data.profile.numOfFollowing);
-        console.log(response);
+        // console.log(response);
       }
     });
 
@@ -148,7 +148,7 @@ function ProfileModal({ onClose }) {
         <ContentContainer>
           <BtnContainer>
             <ProfileBtnContainer>
-              <button onClick={openProfile} stlye>
+              <button onClick={openProfile}>
                 <img src={ProfileBtn} alt="profile" />
               </button>
             </ProfileBtnContainer>
