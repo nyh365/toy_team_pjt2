@@ -52,7 +52,7 @@ export default function TransactionModal({
     setPrice(bookPrice);
 
     transactionApi
-      .get(`/token/mtt/?key=${encodedWallet}`)
+      .get(`/token/mtt/?key=${wallet}`)
       .then((res) => setBalance(res.data));
   }, []);
 
@@ -71,7 +71,7 @@ export default function TransactionModal({
   const openWallet = () => {
     onClose();
     window.open(
-      `${requests.wallet_url}/trade/?key=${wallet}`,
+      `${requests.wallet_url}/trade/?key=${encodedWallet}`,
       'MyWallet',
       'toolbar=no, menubar=no, width=550, height=780',
     );
