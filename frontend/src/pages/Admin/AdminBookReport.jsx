@@ -20,7 +20,6 @@ const ReportList = styled.div`
   width: 70vw;
 `;
 function AdminBookReport() {
-  const pageLimit = 3; //현재 등록된 공지수 / 10?
   const [bookReports, setBookReports] = useState('');
 
   useEffect(() => {
