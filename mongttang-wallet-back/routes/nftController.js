@@ -54,6 +54,7 @@ router.post("/ipfs", upload.array("images", 20), async (request, response) => {
 
     // Add the received image data to IPFS and get their CIDs
     console.log("업로드 시도중");
+    console.log(body.privateKey);
     const cidPromises = imageData.map((data) => ipfs.add(data));
     const cids = await Promise.all(cidPromises);
     const cidStrings = cids.map((cid) => cid.cid.toString());
@@ -78,11 +79,12 @@ router.post("/ipfs", upload.array("images", 20), async (request, response) => {
     const metadataCid = await ipfs.add(jsonBuffer);
 
     const address = getAddress(decrypt(body.privateKey));
+    console.log(address);
     const nftId = await makeNFT(
       address,
       `https://ipfs.io/ipfs/${metadataCid.path}`
     );
-      console.log("bookId : "+body.bookId+" nftId : "+nftId)
+    console.log("bookId : " + body.bookId + " nftId : " + nftId);
     await postNFTID(body.bookId, nftId);
 
     // Return the CIDs as a response to the client
@@ -101,7 +103,7 @@ router.post("/withdraw", (request, response) => {
   const body = request.body;
   console.log(request);
   const privateKey = decrypt(body.privateKey);
-  withdraw(privateKey, body.tokenId, body.amount).then((res)=>{
+  withdraw(privateKey, body.tokenId, body.amount).then((res) => {
     response.send(res);
   });
 });

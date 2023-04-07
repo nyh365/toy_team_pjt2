@@ -76,7 +76,8 @@ async function getNFTURI(tokenId){
 async function makeNFT(toAddress, tokenURI) {
   const ownerAccount =
     rpcInstance.eth.accounts.privateKeyToAccount(OWNER_PRIVATE_KEY);
-  rpcInstance.eth
+  let nftIdHex;
+  await rpcInstance.eth
     .getTransactionCount(ownerAccount.address)
     .then(async (nonce) => {
       const functionAbi = nftContract.methods
@@ -92,22 +93,26 @@ async function makeNFT(toAddress, tokenURI) {
         from: ownerAccount.address,
         data: functionAbi,
       };
+      
 
       const signedTx = await rpcInstance.eth.accounts.signTransaction(
         transactionObject,
         OWNER_PRIVATE_KEY
       );
       console.log(signedTx);
-      rpcInstance.eth
+      await rpcInstance.eth
         .sendSignedTransaction(signedTx.rawTransaction)
         .on("receipt", (receipt) => {
           console.log(`Transaction confirmed: ${receipt.transactionHash}`);
           console.log(`Gas used: ${receipt.gasUsed}`);
+          nftIdHex = receipt.logs[1].data;                    
         })
         .on("error", (error) => {
           console.error(`Transaction error: ${error}`);
         });
-    });
+      });
+      const nftId = parseInt(nftIdHex);
+      return nftId;
 }
 
 async function buyMTT(userPrivateKey, amount) {
@@ -150,7 +155,7 @@ async function sellMTT(userPrivateKey, amount) {
       rpcInstance.eth.accounts.privateKeyToAccount(OWNER_PRIVATE_KEY);
     const userAccount =
       rpcInstance.eth.accounts.privateKeyToAccount(userPrivateKey);
-    const res1 = transferMTT(userPrivateKey, ownerAccount.address, amount);
+    const res1 = await transferMTT(userPrivateKey, ownerAccount.address, amount);
     if (res1) {
       const res2 = await transferSSF(
         OWNER_PRIVATE_KEY,

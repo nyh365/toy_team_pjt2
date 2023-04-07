@@ -6,6 +6,9 @@ import tokenController from "./routes/tokenController.js";
 import userController from "./routes/userController.js";
 const app = express();
 
+process.on("uncaughtException", function (error) {
+  console.log("error");
+});
 app.use(cors());
 app.use(bodyParser.json());
 app.use("/nft", nftController);
