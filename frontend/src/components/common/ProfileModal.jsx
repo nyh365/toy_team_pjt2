@@ -64,6 +64,7 @@ function ProfileModal({ onClose }) {
   const userId = localStorage.getItem('userId');
   const { resetUser } = userStore((state) => state);
   const wallet = localStorage.getItem('privateKey');
+  const encodedWallet = encodeURIComponent(wallet);
 
   const [userImg, setUserImg] = useState('');
   const [userNickname, setUserNickname] = useState('');
@@ -117,7 +118,7 @@ function ProfileModal({ onClose }) {
   const openWallet = () => {
     onClose();
     window.open(
-      `${requests.wallet_url}/?key=${wallet}`,
+      `${requests.wallet_url}/?key=${encodedWallet}`,
       'MyWallet',
       'toolbar=no, menubar=no, width=550, height=780',
     );
