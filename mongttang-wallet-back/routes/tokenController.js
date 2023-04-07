@@ -34,10 +34,10 @@ router.get("/ssf", (request, response) => {
   });
 });
 
-router.post("/ssf", (request,response) => {
+router.post("/ssf", (request, response) => {
   const body = request.body;
   const privateKey = decrypt(body.privateKey);
-  transferSSF(privateKey, body.toAddress, body.amount).then((res)=>{
+  transferSSF(privateKey, body.toAddress, body.amount).then((res) => {
     response.send(res);
   });
 });
@@ -45,7 +45,7 @@ router.post("/ssf", (request,response) => {
 router.post("/buy", (request, response) => {
   const body = request.body;
   const privateKey = decrypt(body.privateKey);
-  buyMTT(privateKey, body.amount).then((res)=>{
+  buyMTT(privateKey, body.amount).then((res) => {
     response.send(res);
   });
 });
@@ -53,7 +53,7 @@ router.post("/buy", (request, response) => {
 router.post("/sell", (request, response) => {
   const body = request.body;
   const privateKey = decrypt(body.privateKey);
-  sellMTT(privateKey, body.amount).then((res)=>{
+  sellMTT(privateKey, body.amount).then((res) => {
     response.send(res);
   });
 });
@@ -65,12 +65,19 @@ router.post("/read", (request, response) => {
   const amountToManager = body.amountToManager;
   const privateKey = decrypt(body.privateKey);
   const managerAddress = getAddress(OWNER_PRIVATE_KEY);
+
+  console.log("리드리드");
+  console.log("amountToAuthor : " + amountToAuthor);
+  console.log("amountToManager : " + amountToManager);
+  console.log(" privateKey : " + privateKey);
   transferMTT(privateKey, managerAddress, amountToAuthor + amountToManager)
-    .then(() => {
-      approve(OWNER_PRIVATE_KEY, NFT_CONTRACT_ADDRESS, amountToAuthor);
+    .then(async () => {
+      console.log("엠티티 전송중");
+      await approve(OWNER_PRIVATE_KEY, NFT_CONTRACT_ADDRESS, amountToAuthor);
     })
-    .then(() => {
-      deposit(OWNER_PRIVATE_KEY, tokenId, amountToAuthor);
+    .then(async () => {
+      console.log("디포짓 중");
+      await deposit(OWNER_PRIVATE_KEY, tokenId, amountToAuthor);
     })
     .catch((error) => {
       console.log(error);

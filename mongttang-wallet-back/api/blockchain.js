@@ -63,14 +63,14 @@ async function getNFTList(accountAddress) {
   }
 }
 
-async function getNFTURI(tokenId){
- let URI;
- try{
+async function getNFTURI(tokenId) {
+  let URI;
+  try {
     URI = await nftContract.methods.tokenURI(tokenId).call();
     return URI;
- } catch(error){
-  console.error(error);
- }
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 async function makeNFT(toAddress, tokenURI) {
@@ -93,7 +93,6 @@ async function makeNFT(toAddress, tokenURI) {
         from: ownerAccount.address,
         data: functionAbi,
       };
-      
 
       const signedTx = await rpcInstance.eth.accounts.signTransaction(
         transactionObject,
@@ -105,14 +104,14 @@ async function makeNFT(toAddress, tokenURI) {
         .on("receipt", (receipt) => {
           console.log(`Transaction confirmed: ${receipt.transactionHash}`);
           console.log(`Gas used: ${receipt.gasUsed}`);
-          nftIdHex = receipt.logs[1].data;                    
+          nftIdHex = receipt.logs[1].data;
         })
         .on("error", (error) => {
           console.error(`Transaction error: ${error}`);
         });
-      });
-      const nftId = parseInt(nftIdHex);
-      return nftId;
+    });
+  const nftId = parseInt(nftIdHex);
+  return nftId;
 }
 
 async function buyMTT(userPrivateKey, amount) {
@@ -134,11 +133,7 @@ async function buyMTT(userPrivateKey, amount) {
         amount
       );
       if (!res2) {
-        await transferSSF(
-          OWNER_PRIVATE_KEY,
-          userAccount.address,
-          amount / 100
-        );
+        await transferSSF(OWNER_PRIVATE_KEY, userAccount.address, amount / 100);
       }
     }
     return true;
@@ -155,7 +150,11 @@ async function sellMTT(userPrivateKey, amount) {
       rpcInstance.eth.accounts.privateKeyToAccount(OWNER_PRIVATE_KEY);
     const userAccount =
       rpcInstance.eth.accounts.privateKeyToAccount(userPrivateKey);
-    const res1 = await transferMTT(userPrivateKey, ownerAccount.address, amount);
+    const res1 = await transferMTT(
+      userPrivateKey,
+      ownerAccount.address,
+      amount
+    );
     if (res1) {
       const res2 = await transferSSF(
         OWNER_PRIVATE_KEY,
@@ -163,11 +162,7 @@ async function sellMTT(userPrivateKey, amount) {
         amount / 100
       );
       if (!res2) {
-        await transferMTT(
-          OWNER_PRIVATE_KEY,
-          userAccount.address,
-          amount
-        );
+        await transferMTT(OWNER_PRIVATE_KEY, userAccount.address, amount);
       }
     }
     return true;
@@ -202,7 +197,7 @@ async function transferMTT(fromPrivateKey, toAddress, amount) {
       transactionObject,
       fromPrivateKey
     );
-    const receipt = rpcInstance.eth.sendSignedTransaction(
+    const receipt = await rpcInstance.eth.sendSignedTransaction(
       signedTx.rawTransaction
     );
     console.log(`Transaction confirmed: ${receipt.transactionHash}`);
@@ -311,7 +306,7 @@ async function approve(fromPrivateKey, toAddress, amount) {
       transactionObject,
       fromPrivateKey
     );
-    const receipt = rpcInstance.eth.sendSignedTransaction(
+    const receipt = await rpcInstance.eth.sendSignedTransaction(
       signedTx.rawTransaction
     );
     console.log(`Transaction confirmed: ${receipt.transactionHash}`);
