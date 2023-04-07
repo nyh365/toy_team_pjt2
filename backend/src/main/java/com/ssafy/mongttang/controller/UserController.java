@@ -201,9 +201,8 @@ public class UserController {
                 resultMap.put(MESSAGE, FAIL);
                 status = HttpStatus.BAD_REQUEST;
             } else {
-                String userWallet = URLEncoder.encode(user.getUserPrivateKey(), "UTF-8").replaceAll("\\+", "%20");
-                resultMap.put(MESSAGE, SUCCESS);
-                resultMap.put("userWallet", userWallet);
+               resultMap.put(MESSAGE, SUCCESS);
+                resultMap.put("userWallet", user.getUserPrivateKey());
                 status = HttpStatus.OK;
             }
         } catch (Exception e) {
