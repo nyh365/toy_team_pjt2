@@ -81,8 +81,7 @@ public class Book extends BaseEntity {
     }
 
     public void addViews() {
-        this.bookViews += 0.5;
-    }
+        this.bookViews++;    }
 
     public void addToken(int nftId){
         this.nftId = nftId;
