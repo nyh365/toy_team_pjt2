@@ -4,7 +4,6 @@
 import axios from 'axios';
 import { getCookie, removeCookie } from 'utils/Cookie';
 import requests from './config';
-import { userStore } from 'store/userStore';
 
 const BASE_URL = requests.base_url;
 const BLOCKCHAIN_URL = requests.blockchain_url;
