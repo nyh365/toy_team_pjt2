@@ -103,14 +103,14 @@ export default function TransactionModal({
   };
 
   const buyBook = () => {
-    //잔액이 모자랄 시 구매버튼 누르면 거래소로 안내
-    if (balance < price) {
-      if (window.confirm('잔액이 부족합니다. 거래소로 이동하시겠습니까?')) {
-        openWallet();
-      }
-    } else {
-      transaction();
-    }
+    // //잔액이 모자랄 시 구매버튼 누르면 거래소로 안내
+    // if (balance < price) {
+    //   if (window.confirm('잔액이 부족합니다. 거래소로 이동하시겠습니까?')) {
+    //     openWallet();
+    //   }
+    // } else {
+    transaction();
+    // }
   };
 
   return (
